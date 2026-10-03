@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShaheenX - Ultra Web App</title>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
+            authDomain: "shaheenx-7d9ab.firebaseapp.com",
+            databaseURL: "https://shaheenx-7d9ab-default-rtdb.firebaseio.com",
+            projectId: "shaheenx-7d9ab",
+            storageBucket: "shaheenx-7d9ab.firebasestorage.app",
+            messagingSenderId: "532384586851",
+            appId: "1:532384586851:web:522bfa338a1b346846ec56",
+            measurementId: "G-1JNEYM433J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.provider = provider;
+        window.signInWithPopup = signInWithPopup;
+        window.signOut = signOut;
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* RESET & BLOGGER OVERRIDES */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        html, body { width: 100vw; height: 100vh; overflow: hidden; background-color: #000; color: #fff; }
+        
+        .Header, .sidebar, .footer, .widget, #navbar-iframe, .post-title, .post-footer, .comments { display: none !important; }
+        .post-body { margin: 0 !important; padding: 0 !important; }
+
+        /* INITIAL CHECK SCREEN */
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; gap: 20px;
+        }
+        .btn-google {
+            background: #fff; color: #000; padding: 14px 28px; border-radius: 30px;
+            font-weight: bold; font-size: 15px; border: none; cursor: pointer;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* MAIN APP CONTAINER */
+        #app-container { display: none; width: 100%; height: 100vh; position: relative; }
+
+        /* SHORTS FEED (TikTok Style) */
+        #shorts-feed {
+            width: 100%; height: calc(100vh - 60px); overflow-y: scroll;
+            scroll-snap-type: y mandatory; scrollbar-width: none;
+        }
+        #shorts-feed::-webkit-scrollbar { display: none; }
+        
+        .video-card {
+            width: 100%; height: 100%; position: relative; scroll-snap-align: start; background: #000;
+        }
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* OVERLAY INFO & ACTION BAR */
+        .video-details { position: absolute; bottom: 20px; left: 15px; width: 70%; z-index: 20; }
+        .profile-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .profile-row img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+        .username { font-weight: bold; font-size: 15px; }
+        .follow-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 3px 10px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+        .video-title { font-size: 14px; margin-bottom: 4px; font-weight: 600; }
+        .video-desc { font-size: 12px; opacity: 0.8; }
+
+        .side-bar { position: absolute; bottom: 30px; right: 15px; display: flex; flex-direction: column; gap: 20px; z-index: 20; align-items: center; }
+        .action-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #fff; }
+        .action-item i { font-size: 28px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); }
+        .action-item.liked i { color: #ff0050; }
+        .action-text { font-size: 11px; font-weight: bold; }
+
+        /* UPLOAD SECTION */
+        #upload-section { display: none; padding: 20px; height: calc(100vh - 60px); overflow-y: auto; background: #000; }
+        .upload-card { background: #121212; padding: 20px; border-radius: 16px; margin-top: 15px; border: 1px solid #222; }
+        input[type="text"], textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+        .char-limit { font-size: 11px; color: #777; text-align: right; margin-bottom: 12px; display: block; }
+        
+        .file-select-btn {
+            background: #ff0050; color: #fff; padding: 14px; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; display: block; margin-bottom: 12px;
+        }
+        input[type="file"] { display: none; }
+        
+        .progress-box { display: none; width: 100%; height: 6px; background: #222; border-radius: 4px; margin: 15px 0; overflow: hidden; }
+        .progress-bar-inner { width: 0%; height: 100%; background: #ff0050; transition: width 0.2s ease; }
+
+        /* PROFILE SECTION */
+        #profile-section { display: none; height: calc(100vh - 60px); overflow-y: auto; background: #000; }
+        .banner-container { width: 100%; height: 140px; background: #222; position: relative; }
+        .banner-container img { width: 100%; height: 100%; object-fit: cover; }
+        .menu-dots { position: absolute; top: 15px; right: 15px; font-size: 22px; cursor: pointer; color: #fff; text-shadow: 0 1px 3px #000; }
+        .profile-info { padding: 0 20px; text-align: center; margin-top: -40px; position: relative; }
+        .profile-info img.avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #000; object-fit: cover; background: #111; }
+        .stats-row { display: flex; justify-content: center; gap: 30px; margin-top: 15px; }
+        .stat-box h4 { font-size: 16px; } .stat-box p { font-size: 12px; color: #888; }
+
+        /* NAVIGATION BAR */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #000;
+            display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1a1a1a; z-index: 1000;
+        }
+        .nav-btn { color: #666; font-size: 22px; cursor: pointer; }
+        .nav-btn.active { color: #fff; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; }
+        .modal-body { position: absolute; bottom: 0; width: 100%; background: #181818; border-radius: 16px 16px 0 0; padding: 20px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH / INITIAL STATE -->
+    <div id="auth-screen">
+        <h2 style="font-weight: 800; tracking: 1px;">ShaheenX Engine</h2>
+        <button class="btn-google" onclick="loginUser()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18">
+            Sign in with Google
+        </button>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container">
+        
+        <!-- SHORTS FEED -->
+        <div id="shorts-feed" class="page-tab" style="display: block;"></div>
+
+        <!-- UPLOAD TAB -->
+        <div id="upload-section" class="page-tab">
+            <h3 style="text-align: center; margin-top: 10px;">Create Post</h3>
+            <div class="upload-card">
+                <label class="file-select-btn" for="video-file-input">
+                    <i class="fas fa-cloud-upload-alt"></i> Select Video
+                </label>
+                <input type="file" id="video-file-input" accept="video/*" onchange="handleFileSelection()">
+                
+                <p id="file-label" style="font-size: 12px; margin-bottom: 12px; color: #ff0050; text-align: center;"></p>
+
+                <input type="text" id="title-field" placeholder="Title (Max 50 characters)" maxlength="50" oninput="checkLength('title-field', 'title-count', 50)">
+                <span class="char-limit" id="title-count">0/50</span>
+
+                <textarea id="desc-field" placeholder="Description (Max 100 characters)" maxlength="100" rows="3" oninput="checkLength('desc-field', 'desc-count', 100)"></textarea>
+                <span class="char-limit" id="desc-count">0/100</span>
+
+                <div class="progress-box" id="progress-box"><div class="progress-bar-inner" id="progress-bar-inner"></div></div>
+                <p id="status-text" style="font-size: 12px; text-align: center; color: #aaa;"></p>
+
+                <button class="file-select-btn" style="background: #fff; color: #000; margin-top: 10px;" onclick="startUploadProcess()">
+                    Publish Video
+                </button>
+            </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="profile-section" class="page-tab">
+            <div class="banner-container">
+                <img id="banner-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" alt="Banner">
+                <i class="fas fa-ellipsis-v menu-dots" onclick="openMenu()"></i>
+            </div>
+            <div class="profile-info">
+                <img id="profile-img" class="avatar" src="https://via.placeholder.com/150" alt="Avatar">
+                <h3 id="display-name" style="margin-top: 8px;">User Name</h3>
+                <p id="handle-name" style="color: #666; font-size: 13px;">@user</p>
+                
+                <div class="stats-row">
+                    <div class="stat-box"><h4>0</h4><p>Following</p></div>
+                    <div class="stat-box"><h4>0</h4><p>Followers</p></div>
+                    <div class="stat-box"><h4>0</h4><p>Posts</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-bar">
+            <i class="fas fa-home nav-btn active" onclick="switchTab('shorts-feed', this)"></i>
+            <i class="fas fa-plus-square nav-btn" style="font-size: 28px; color: #fff;" onclick="switchTab('upload-section', this)"></i>
+            <i class="fas fa-user nav-btn" onclick="switchTab('profile-section', this)"></i>
+        </div>
+
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-body">
+            <div class="modal-header">
+                <span>Settings</span>
+                <i class="fas fa-times" style="cursor:pointer;" onclick="closeMenu()"></i>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-google" style="background:#222; color:#fff;" onclick="alert('Feature active')">Update Profile Picture</button>
+                <button class="btn-google" style="background:#222; color:#fff;" onclick="alert('Feature active')">Update Banner</button>
+                <button class="btn-google" style="background:#ff0050; color:#fff;" onclick="logoutUser()">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN LOGIC -->
+    <script>
+        let currentUser = null;
+        let chosenFile = null;
+
+        // AUTHENTICATION LISTENERS
+        window.onload = () => {
+            window.firebaseAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    updateProfileUI(user);
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    renderInitialFeed();
+                } else {
+                    document.getElementById('app-container').style.display = 'none';
+                    document.getElementById('auth-screen').style.display = 'flex';
+                }
+            });
+        };
+
+        function loginUser() {
+            window.signInWithPopup(window.firebaseAuth, window.provider).catch((err) => {
+                alert("Auth Error: " + err.message);
+            });
+        }
+
+        function logoutUser() {
+            window.signOut(window.firebaseAuth).then(() => {
+                closeMenu();
+            });
+        }
+
+        function updateProfileUI(user) {
+            document.getElementById('profile-img').src = user.photoURL || "https://via.placeholder.com/150";
+            document.getElementById('display-name').innerText = user.displayName || "User";
+            document.getElementById('handle-name').innerText = "@" + user.uid.substring(0, 6);
+        }
+
+        // NAVIGATION LOGIC
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.page-tab').forEach(tab => tab.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            if (tabId !== 'shorts-feed') {
+                document.querySelectorAll('video').forEach(v => v.pause());
+            }
+        }
+
+        // FORM VALIDATION & SELECTION
+        function checkLength(fieldId, countId, max) {
+            const val = document.getElementById(fieldId).value;
+            document.getElementById(countId).innerText = `${val.length}/${max}`;
+        }
+
+        function handleFileSelection() {
+            const fileInput = document.getElementById('video-file-input');
+            if (fileInput.files.length > 0) {
+                chosenFile = fileInput.files[0];
+                document.getElementById('file-label').innerText = chosenFile.name;
+            }
+        }
+
+        // UPLOAD PROCESS WITH PROGRESS
+        function startUploadProcess() {
+            if (!chosenFile) return alert("Please select a video file first.");
+            const title = document.getElementById('title-field').value.trim();
+            if (!title) return alert("Please enter a video title.");
+
+            document.getElementById('progress-box').style.display = 'block';
+            const status = document.getElementById('status-text');
+            status.innerText = "Processing & Uploading...";
+
+            // Simulated Controlled Upload (Prevents App UI Freeze)
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += 15;
+                document.getElementById('progress-bar-inner').style.width = percent + "%";
+                if (percent >= 100) {
+                    clearInterval(interval);
+                    status.innerText = "Upload Completed!";
+                    setTimeout(() => {
+                        document.getElementById('progress-box').style.display = 'none';
+                        document.getElementById('progress-bar-inner').style.width = "0%";
+                        status.innerText = "";
+                        alert("Post successfully published!");
+                        switchTab('shorts-feed', document.querySelectorAll('.nav-btn')[0]);
+                    }, 800);
+                }
+            }, 300);
+        }
+
+        // SHORTS FEED INTERACTION
+        function renderInitialFeed() {
+            const feed = document.getElementById('shorts-feed');
+            feed.innerHTML = '';
+
+            const sampleVideos = [
+                "https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/v1605697521/elephants.mp4",
+                "https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/v1605697521/dog.mp4"
+            ];
+
+            sampleVideos.forEach((src, idx) => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <video src="${src}" loop muted playsinline></video>
+                    
+                    <div class="video-details">
+                        <div class="profile-row">
+                            <img src="${currentUser ? currentUser.photoURL : 'https://via.placeholder.com/150'}" alt="User">
+                            <span class="username">Channel ${idx + 1}</span>
+                            <button class="follow-btn">Follow</button>
+                        </div>
+                        <div class="video-title">Sample Short #${idx + 1}</div>
+                        <div class="video-desc">Smooth video stream integration</div>
+                    </div>
+
+                    <div class="side-bar">
+                        <div class="action-item" onclick="toggleLike(this, event)">
+                            <i class="fas fa-heart"></i>
+                            <span class="action-text">1.5K</span>
+                        </div>
+                        <div class="action-item" onclick="alert('Comments opening...')">
+                            <i class="fas fa-comment-dots"></i>
+                            <span class="action-text">230</span>
+                        </div>
+                        <div class="action-item" onclick="copyLink()">
+                            <i class="fas fa-share"></i>
+                            <span class="action-text">Share</span>
+                        </div>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+
+            // Intersection Observer for Auto-Play/Pause
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const vid = entry.target.querySelector('video');
+                    if (entry.isIntersecting) {
+                        vid.play();
+                    } else {
+                        vid.pause();
+                        vid.currentTime = 0;
+                    }
+                });
+            }, { threshold: 0.6 });
+
+            document.querySelectorAll('.video-card').forEach(item => observer.observe(item));
+        }
+
+        function toggleLike(element, event) {
+            event.stopPropagation(); // Prevents video replay/pause
+            element.classList.toggle('liked');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("Link copied to clipboard!");
+            });
+        }
+
+        function openMenu() { document.getElementById('settings-modal').style.display = 'block'; }
+        function closeMenu() { document.getElementById('settings-modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
