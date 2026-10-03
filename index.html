@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShaheenX - World Class Web App</title>
+    <title>ShaheenX - Ultra Short Video Experience</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module">
@@ -41,38 +41,29 @@
         window.update = update;
     </script>
     <style>
-        body { background-color: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        body { background-color: #000; color: #fff; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .snap-container { height: calc(100vh - 112px); overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .snap-item { height: 100%; scroll-snap-align: start; position: relative; }
+        .snap-container { height: calc(100vh - 112px); overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+        .snap-item { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
     </style>
 </head>
-<body class="bg-black text-white h-screen flex flex-col justify-between">
+<body class="bg-black text-white h-screen flex flex-col justify-between select-none">
 
-    <!-- Loading Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="text-4xl font-black tracking-widest text-red-600 mb-4 animate-pulse">SHAHEEN<span class="text-white">X</span></div>
-        <div class="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-            <div id="splash-bar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
-        </div>
-        <p class="text-[11px] text-zinc-400 mt-3 font-mono">Authenticating Encrypted Session...</p>
-    </div>
-
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/95 z-40 hidden flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm space-y-4">
+    <!-- Auth Modal (Clean & Quick) -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl">
             <div class="text-center">
-                <h2 id="auth-title" class="text-xl font-black tracking-wider text-red-600">SHAHEENX</h2>
-                <p class="text-xs text-zinc-400 mt-1">Secure World-Class Ecosystem</p>
+                <h2 id="auth-title" class="text-2xl font-black tracking-wider text-red-600">SHAHEEN<span class="text-white">X</span></h2>
+                <p class="text-xs text-zinc-400 mt-1">World Class Short Video Ecosystem</p>
             </div>
             <div class="space-y-3">
                 <input type="email" id="auth-email" placeholder="Email Address" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
                 <input type="password" id="auth-password" placeholder="Password" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                <button onclick="handleEmailAuth()" id="auth-submit-btn" class="w-full bg-red-600 hover:bg-red-700 font-bold py-3 rounded-xl text-sm transition-all">Login</button>
+                <button onclick="handleEmailAuth()" id="auth-submit-btn" class="w-full bg-red-600 hover:bg-red-700 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30">Login</button>
                 <button onclick="handleGoogleLogin()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all"><i class="fa-brands fa-google"></i> Continue with Google</button>
                 <div class="flex justify-between text-xs text-zinc-400 pt-2">
-                    <span onclick="toggleAuthMode()" class="cursor-pointer text-red-500 hover:underline" id="auth-toggle-text">Create Account</span>
+                    <span onclick="toggleAuthMode()" class="cursor-pointer text-red-500 font-bold hover:underline" id="auth-toggle-text">Create Account</span>
                     <span onclick="handleForgotPassword()" class="cursor-pointer hover:underline">Forgot Password?</span>
                 </div>
             </div>
@@ -80,11 +71,11 @@
     </div>
 
     <!-- Top Header -->
-    <header class="w-full h-14 border-b border-zinc-900 flex items-center justify-between px-4 bg-black/90 backdrop-blur z-30 shrink-0">
-        <div class="text-lg font-black tracking-wider text-red-600">SHAHEEN<span class="text-white">X</span></div>
+    <header class="w-full h-14 border-b border-zinc-900/80 flex items-center justify-between px-4 bg-black/90 backdrop-blur z-30 shrink-0">
+        <div class="text-xl font-black tracking-widest text-red-600">SHAHEEN<span class="text-white">X</span></div>
         <div class="flex items-center gap-3">
-            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white p-2"><i class="fa-solid fa-rotate"></i></button>
-            <div id="header-avatar" class="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden cursor-pointer border border-zinc-700" onclick="switchTab('profile')"></div>
+            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white p-2 transition-colors"><i class="fa-solid fa-rotate"></i></button>
+            <div id="header-avatar" class="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden cursor-pointer border border-zinc-700 shadow" onclick="switchTab('profile')"></div>
         </div>
     </header>
 
@@ -94,70 +85,98 @@
         <!-- HOME SECTION -->
         <section id="section-home" class="h-full overflow-y-auto p-4 space-y-4 hide-scroll">
             <div class="flex items-center justify-between">
-                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Active Community Feed</h2>
-                <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live</span>
+                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Community Feed & Posts</h2>
+                <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live Stream</span>
             </div>
             <div id="home-feed" class="space-y-4 pb-20"></div>
         </section>
 
-        <!-- SHORTS SECTION (TikTok / Insta Style) -->
+        <!-- SHORTS SECTION (Ultra TikTok / Reels UI/UX) -->
         <section id="section-shorts" class="h-full hidden">
             <div id="shorts-feed" class="snap-container hide-scroll"></div>
         </section>
 
-        <!-- UPLOAD SECTION -->
+        <!-- UPLOAD SECTION (Advanced Custom Inputs) -->
         <section id="section-upload" class="h-full hidden overflow-y-auto p-4 max-w-md mx-auto space-y-4 hide-scroll pb-20">
-            <h2 class="text-base font-bold text-red-500">Upload Ultra Content</h2>
-            <div class="space-y-3">
+            <div class="bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl space-y-4">
+                <h2 class="text-sm font-black text-red-500 uppercase tracking-wider">Upload Studio</h2>
+                
                 <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Content Category</label>
-                    <select id="upload-type" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                        <option value="short">Short Video (Max 30 Mins)</option>
-                        <option value="post">Image / Text Post</option>
+                    <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Content Type</label>
+                    <select id="upload-type" onchange="toggleUploadFields()" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                        <option value="short">Short Video (Auto-Convert to Full Short)</option>
+                        <option value="post">Image & Title Post (Home Feed)</option>
                     </select>
                 </div>
-                <div>
-                    <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Title</label><span id="title-count" class="text-[10px] text-zinc-500">0/50</span></div>
-                    <input type="text" id="upload-title" maxlength="50" oninput="updateCharCount('title', 50)" placeholder="Enter title (Max 50 letters)..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+
+                <!-- Video Upload Specific UI -->
+                <div id="video-upload-container" class="space-y-3">
+                    <div>
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Short Title</label><span id="vtitle-count" class="text-[10px] text-zinc-500">0/50</span></div>
+                        <input type="text" id="upload-vtitle" maxlength="50" oninput="updateCharCount('vtitle', 50)" placeholder="Short engaging title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                    </div>
+                    <div>
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Description</label><span id="vdesc-count" class="text-[10px] text-zinc-500">0/100</span></div>
+                        <textarea id="upload-vdesc" maxlength="100" oninput="updateCharCount('vdesc', 100)" placeholder="Describe your short..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none focus:outline-none focus:border-red-600"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Video Source</label>
+                        <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="previewSelectedFile(this, 'video')">
+                        <button onclick="document.getElementById('video-file-input').click()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-video"></i> Browse Videos
+                        </button>
+                        <p id="video-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
+                    </div>
                 </div>
-                <div>
-                    <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Description</label><span id="desc-count" class="text-[10px] text-zinc-500">0/100</span></div>
-                    <textarea id="upload-desc" maxlength="100" oninput="updateCharCount('desc', 100)" placeholder="Enter description (Max 100 letters)..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none focus:outline-none focus:border-red-600"></textarea>
+
+                <!-- Image & Title Post Specific UI -->
+                <div id="image-upload-container" class="space-y-3 hidden">
+                    <div>
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Post Title</label><span id="ititle-count" class="text-[10px] text-zinc-500">0/50</span></div>
+                        <input type="text" id="upload-ititle" maxlength="50" oninput="updateCharCount('ititle', 50)" placeholder="Separate clear title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Image</label>
+                        <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="previewSelectedFile(this, 'image')">
+                        <button onclick="document.getElementById('image-file-input').click()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-zinc-700">
+                            <i class="fa-solid fa-image"></i> Browse Image
+                        </button>
+                        <p id="image-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
+                    </div>
                 </div>
-                <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Select Video/Image from Gallery</label>
-                    <input type="file" id="upload-file" accept="video/*,image/*" class="w-full bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl text-xs file:bg-red-600 file:border-0 file:text-white file:px-3 file:py-1.5 file:rounded-lg file:cursor-pointer">
-                </div>
-                <div id="progress-container" class="hidden space-y-1.5 bg-zinc-900 p-3 rounded-xl border border-zinc-800">
+
+                <!-- Progress Bar -->
+                <div id="progress-container" class="hidden space-y-1.5 bg-black p-3 rounded-xl border border-zinc-800">
                     <div class="flex justify-between text-xs text-zinc-400">
-                        <span id="progress-status">Compressing & End-to-End Encrypting...</span>
+                        <span id="progress-status">Processing & Encrypting...</span>
                         <span id="progress-percent">0%</span>
                     </div>
-                    <div class="w-full h-1.5 bg-black rounded-full overflow-hidden">
+                    <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
                         <div id="upload-bar" class="h-full bg-red-600 w-0 transition-all"></div>
                     </div>
                 </div>
-                <button onclick="startUploadProcess()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm mt-2 hover:bg-red-700 transition-all">Publish Content</button>
+
+                <button onclick="startUploadProcess()" class="w-full bg-white text-black font-extrabold py-3.5 rounded-xl text-sm hover:bg-zinc-200 transition-all shadow">Publish Content</button>
             </div>
         </section>
 
         <!-- PROFILE SECTION -->
         <section id="section-profile" class="h-full hidden overflow-y-auto p-4 space-y-6 hide-scroll pb-20">
-            <div class="relative bg-zinc-900 h-36 rounded-2xl overflow-hidden border border-zinc-800">
+            <div class="relative bg-zinc-900 h-36 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg">
                 <img id="profile-banner-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600" class="w-full h-full object-cover">
                 <button onclick="openThreeDotMenu()" class="absolute bottom-2 right-2 bg-black/70 px-3 py-1.5 rounded-xl text-xs backdrop-blur font-bold border border-zinc-700">Update Banner</button>
             </div>
             <div class="flex items-end gap-4 px-2 -mt-12 relative z-10">
-                <div class="w-20 h-20 rounded-full border-4 border-black bg-zinc-800 overflow-hidden relative shadow-lg">
+                <div class="w-20 h-20 rounded-full border-4 border-black bg-zinc-800 overflow-hidden relative shadow-xl">
                     <img id="profile-avatar-img" src="" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1 pb-1">
                     <h3 id="profile-name" class="font-bold text-base">User Name</h3>
                     <p id="profile-email" class="text-xs text-zinc-400">email@domain.com</p>
                 </div>
-                <button onclick="openThreeDotMenu()" class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl hover:bg-zinc-800"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                <button onclick="openThreeDotMenu()" class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl hover:bg-zinc-800 shadow"><i class="fa-solid fa-ellipsis-vertical"></i></button>
             </div>
-            <div class="flex justify-around bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl text-center">
+            <div class="flex justify-around bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl text-center shadow-inner">
                 <div>
                     <span id="stat-posts" class="block font-bold text-lg text-red-500">0</span>
                     <span class="text-[10px] text-zinc-500 uppercase tracking-wider">Posts</span>
@@ -174,7 +193,7 @@
                 </div>
             </div>
             <div class="space-y-3">
-                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">My Published Posts</h4>
+                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">My Published Uploads</h4>
                 <div id="user-posts-grid" class="grid grid-cols-3 gap-2"></div>
             </div>
         </section>
@@ -189,30 +208,30 @@
 
     <!-- Bottom Navigation Bar -->
     <nav class="w-full h-14 border-t border-zinc-900 bg-black flex items-center justify-around px-2 z-30 shrink-0">
-        <button onclick="switchTab('home')" class="nav-btn text-red-600 flex flex-col items-center gap-0.5" data-target="home">
+        <button onclick="switchTab('home')" class="nav-btn text-red-600 flex flex-col items-center gap-0.5 transition-colors" data-target="home">
             <i class="fa-solid fa-house text-base"></i>
             <span class="text-[9px]">Home</span>
         </button>
-        <button onclick="switchTab('shorts')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5" data-target="shorts">
+        <button onclick="switchTab('shorts')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="shorts">
             <i class="fa-solid fa-clapperboard text-base"></i>
             <span class="text-[9px]">Shorts</span>
         </button>
-        <button onclick="switchTab('upload')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5" data-target="upload">
+        <button onclick="switchTab('upload')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="upload">
             <i class="fa-solid fa-circle-plus text-base text-red-600"></i>
             <span class="text-[9px]">Upload</span>
         </button>
-        <button onclick="switchTab('history')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5" data-target="history">
+        <button onclick="switchTab('history')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="history">
             <i class="fa-solid fa-clock-rotate-left text-base"></i>
             <span class="text-[9px]">History</span>
         </button>
-        <button onclick="switchTab('profile')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5" data-target="profile">
+        <button onclick="switchTab('profile')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="profile">
             <i class="fa-solid fa-user text-base"></i>
             <span class="text-[9px]">Profile</span>
         </button>
     </nav>
 
     <!-- Comments Vertical Popup Modal -->
-    <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-zinc-900 border-t border-zinc-800 rounded-t-3xl z-50 hidden flex flex-col">
+    <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-zinc-900 border-t border-zinc-800 rounded-t-3xl z-50 hidden flex flex-col shadow-2xl">
         <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
             <h3 class="font-bold text-sm">Comments (Max 3 per user)</h3>
             <i class="fa-solid fa-xmark text-lg text-zinc-400 cursor-pointer" onclick="closeComments()"></i>
@@ -220,7 +239,7 @@
         <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-3 hide-scroll"></div>
         <div class="p-3 border-t border-zinc-800 flex gap-2 bg-black">
             <input type="text" id="comment-input" maxlength="50" placeholder="Add comment (Max 50 chars)..." class="flex-1 bg-zinc-900 border border-zinc-800 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-red-600">
-            <button onclick="submitComment()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold">Post</button>
+            <button onclick="submitComment()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700">Post</button>
         </div>
     </div>
 
@@ -246,34 +265,22 @@
         let currentUser = null;
         let isSignUp = false;
         let activeShortKey = null;
+        let selectedFileObject = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            let bar = document.getElementById('splash-bar');
-            let w = 0;
-            let interval = setInterval(() => {
-                w += 20;
-                bar.style.width = w + '%';
-                if(w >= 100) {
-                    clearInterval(interval);
-                    document.getElementById('splash-screen').style.opacity = '0';
-                    setTimeout(() => document.getElementById('splash-screen').remove(), 400);
-                }
-            }, 100);
-
-            setTimeout(() => {
-                if(window.onAuthStateChanged) {
-                    window.onAuthStateChanged(window.auth, (user) => {
-                        if (user) {
-                            currentUser = user;
-                            document.getElementById('auth-modal').classList.add('hidden');
-                            loadUserData();
-                            loadFeedData();
-                        } else {
-                            document.getElementById('auth-modal').classList.remove('hidden');
-                        }
-                    });
-                }
-            }, 800);
+            // Instant load check without hanging screen
+            if(window.onAuthStateChanged) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        document.getElementById('auth-modal').classList.add('hidden');
+                        loadUserData();
+                        loadFeedData();
+                    } else {
+                        document.getElementById('auth-modal').classList.remove('hidden');
+                    }
+                });
+            }
         });
 
         function switchTab(tabId) {
@@ -287,37 +294,4 @@
                 btn.classList.add('text-zinc-500');
                 if(btn.getAttribute('data-target') === tabId) {
                     btn.classList.remove('text-zinc-500');
-                    btn.classList.add('text-red-600');
-                }
-            });
-            if(tabId === 'shorts') loadShortsFeed();
-            if(tabId === 'profile') loadUserProfilePosts();
-        }
-
-        function updateCharCount(type, max) {
-            let val = document.getElementById(`upload-${type}`).value;
-            document.getElementById(`${type}-count`).innerText = `${val.length}/${max}`;
-        }
-
-        async function handleGoogleLogin() {
-            try {
-                const provider = new window.GoogleAuthProvider();
-                await window.signInWithPopup(window.auth, provider);
-            } catch (err) { alert(err.message); }
-        }
-
-        function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            document.getElementById('auth-title').innerText = isSignUp ? "REGISTER - SHAHEENX" : "SHAHEENX";
-            document.getElementById('auth-submit-btn').innerText = isSignUp ? "Register Account" : "Login";
-            document.getElementById('auth-toggle-text').innerText = isSignUp ? "Already registered? Login" : "Create Account";
-        }
-
-        async function handleEmailAuth() {
-            let email = document.getElementById('auth-email').value;
-            let pass = document.getElementById('auth-password').value;
-            try {
-                if(isSignUp) {
-                    await window.createUserWithEmailAndPassword(window.auth, email, pass);
-                } else {
-                    await window.signInWithEmailAndPassword(window.auth, email, pa
+      
