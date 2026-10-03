@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShaheenX - Ultra Short Video Experience</title>
+    <title>ShaheenX - Ultra Web App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase & Supabase SDK CDN Loaders -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, push, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
@@ -25,8 +27,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        window.auth = auth;
-        window.db = db;
+
+        // Global Bindings for Cloudinary, Supabase & Firebase Integration
+        window.shaheenAuth = auth;
+        window.shaheenDb = db;
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
         window.signOut = signOut;
@@ -34,37 +38,51 @@
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.sendPasswordResetEmail = sendPasswordResetEmail;
+        window.updateProfile = updateProfile;
         window.ref = ref;
         window.set = set;
         window.get = get;
         window.push = push;
         window.update = update;
+        window.remove = remove;
+
+        // Cloudinary & Supabase Configuration Store
+        window.cloudinaryConfig = {
+            cloudName: "dsgicshff",
+            apiKey: "147776976276431",
+            apiSecret: "Lx8O2-pBZfp8NO6McgjwOuxro9c"
+        };
+        window.supabaseConfig = {
+            url: "https://tjkukdezwsigjrdhphfs.supabase.co",
+            anonKey: "sb_publishable_Ejg9ZlfOkC68RHMdM06gxw_cDZOW5_c"
+        };
     </script>
+
     <style>
-        body { background-color: #000; color: #fff; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
+        body { background-color: #000; color: #fff; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; user-select: none; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .snap-container { height: calc(100vh - 112px); overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
         .snap-item { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
     </style>
 </head>
-<body class="bg-black text-white h-screen flex flex-col justify-between select-none">
+<body class="bg-black text-white h-screen flex flex-col justify-between">
 
-    <!-- Professional 3-5 Seconds Loading Splash Screen -->
+    <!-- 3 to 5 Seconds Smart Loading Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-700">
         <div class="text-4xl font-black tracking-widest text-red-600 mb-4 animate-pulse">SHAHEEN<span class="text-white">X</span></div>
         <div class="w-56 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
             <div id="splash-bar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
         </div>
-        <p id="splash-status-text" class="text-xs text-zinc-400 mt-3 font-mono tracking-wider">Initializing Secure Ecosystem...</p>
+        <p id="splash-status-text" class="text-xs text-zinc-400 mt-3 font-mono tracking-wider">Checking Authentication Session...</p>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- Authentication & Registration Modal -->
     <div id="auth-modal" class="fixed inset-0 bg-black/95 z-40 hidden flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl">
             <div class="text-center">
                 <h2 id="auth-title" class="text-2xl font-black tracking-wider text-red-600">SHAHEEN<span class="text-white">X</span></h2>
-                <p class="text-xs text-zinc-400 mt-1">World Class Short Video Ecosystem</p>
+                <p class="text-xs text-zinc-400 mt-1">Ultra Video & Community Ecosystem</p>
             </div>
             <div class="space-y-3">
                 <input type="email" id="auth-email" placeholder="Email Address" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
@@ -79,28 +97,28 @@
         </div>
     </div>
 
-    <!-- Top Header -->
-    <header class="w-full h-14 border-b border-zinc-900/80 flex items-center justify-between px-4 bg-black/90 backdrop-blur z-30 shrink-0">
+    <!-- Top Header Bar -->
+    <header class="w-full h-14 border-b border-zinc-900 flex items-center justify-between px-4 bg-black/90 backdrop-blur z-30 shrink-0">
         <div class="text-xl font-black tracking-widest text-red-600">SHAHEEN<span class="text-white">X</span></div>
         <div class="flex items-center gap-3">
-            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white p-2 transition-colors"><i class="fa-solid fa-rotate"></i></button>
+            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white p-2 transition-colors" title="Check New Posts"><i class="fa-solid fa-rotate"></i></button>
             <div id="header-avatar" class="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden cursor-pointer border border-zinc-700 shadow" onclick="switchTab('profile')"></div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
+    <!-- Main Dynamic Content Sections -->
     <main class="flex-1 overflow-hidden relative">
         
-        <!-- HOME SECTION -->
+        <!-- HOME SECTION (Community Image & Text Posts) -->
         <section id="section-home" class="h-full overflow-y-auto p-4 space-y-4 hide-scroll">
             <div class="flex items-center justify-between">
-                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Community Feed & Posts</h2>
-                <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live Stream</span>
+                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Active Community Feed</h2>
+                <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live</span>
             </div>
             <div id="home-feed" class="space-y-4 pb-20"></div>
         </section>
 
-        <!-- SHORTS SECTION (Ultra TikTok / Reels UI/UX) -->
+        <!-- SHORTS SECTION (TikTok / Reels Full Screen Ultra Experience) -->
         <section id="section-shorts" class="h-full hidden">
             <div id="shorts-feed" class="snap-container hide-scroll"></div>
         </section>
@@ -113,51 +131,51 @@
                 <div>
                     <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Content Type</label>
                     <select id="upload-type" onchange="toggleUploadFields()" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                        <option value="short">Short Video (Auto-Convert to Full Short)</option>
+                        <option value="short">Short Video (Max 30 Minutes)</option>
                         <option value="post">Image & Title Post (Home Feed)</option>
                     </select>
                 </div>
 
-                <!-- Video Upload Specific UI -->
+                <!-- Video Upload UI -->
                 <div id="video-upload-container" class="space-y-3">
                     <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Short Title</label><span id="vtitle-count" class="text-[10px] text-zinc-500">0/50</span></div>
-                        <input type="text" id="upload-vtitle" maxlength="50" oninput="updateCharCount('vtitle', 50)" placeholder="Short engaging title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Video Title (Max 50 Letters)</label><span id="vtitle-count" class="text-[10px] text-zinc-500">0/50</span></div>
+                        <input type="text" id="upload-vtitle" maxlength="50" oninput="updateCharCount('vtitle', 50)" placeholder="Enter video title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
                     </div>
                     <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Description</label><span id="vdesc-count" class="text-[10px] text-zinc-500">0/100</span></div>
-                        <textarea id="upload-vdesc" maxlength="100" oninput="updateCharCount('vdesc', 100)" placeholder="Describe your short..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none focus:outline-none focus:border-red-600"></textarea>
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Description (Max 100 Letters)</label><span id="vdesc-count" class="text-[10px] text-zinc-500">0/100</span></div>
+                        <textarea id="upload-vdesc" maxlength="100" oninput="updateCharCount('vdesc', 100)" placeholder="Describe your video..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none focus:outline-none focus:border-red-600"></textarea>
                     </div>
                     <div>
                         <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Video Source</label>
                         <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="previewSelectedFile(this, 'video')">
                         <button onclick="document.getElementById('video-file-input').click()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-video"></i> Browse Videos
+                            <i class="fa-solid fa-video"></i> Choose Your Video From Gallery
                         </button>
                         <p id="video-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
                     </div>
                 </div>
 
-                <!-- Image & Title Post Specific UI -->
+                <!-- Image & Title Post UI -->
                 <div id="image-upload-container" class="space-y-3 hidden">
                     <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Post Title</label><span id="ititle-count" class="text-[10px] text-zinc-500">0/50</span></div>
-                        <input type="text" id="upload-ititle" maxlength="50" oninput="updateCharCount('ititle', 50)" placeholder="Separate clear title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Post Title (Max 50 Letters)</label><span id="ititle-count" class="text-[10px] text-zinc-500">0/50</span></div>
+                        <input type="text" id="upload-ititle" maxlength="50" oninput="updateCharCount('ititle', 50)" placeholder="Enter post title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
                     </div>
                     <div>
-                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Image</label>
+                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Image Source</label>
                         <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="previewSelectedFile(this, 'image')">
                         <button onclick="document.getElementById('image-file-input').click()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-zinc-700">
-                            <i class="fa-solid fa-image"></i> Browse Image
+                            <i class="fa-solid fa-image"></i> Choose Image From Gallery
                         </button>
                         <p id="image-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
+                <!-- Real Linear Progress Bar -->
                 <div id="progress-container" class="hidden space-y-1.5 bg-black p-3 rounded-xl border border-zinc-800">
                     <div class="flex justify-between text-xs text-zinc-400">
-                        <span id="progress-status">Processing & Encrypting...</span>
+                        <span id="progress-status">Compressing & End-to-End Encrypting...</span>
                         <span id="progress-percent">0%</span>
                     </div>
                     <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
@@ -242,17 +260,17 @@
     <!-- Comments Vertical Popup Modal -->
     <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-zinc-900 border-t border-zinc-800 rounded-t-3xl z-50 hidden flex flex-col shadow-2xl">
         <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-            <h3 class="font-bold text-sm">Comments (Max 3 per user)</h3>
+            <h3 class="font-bold text-sm">Comments (Max 3 per user, 50 chars)</h3>
             <i class="fa-solid fa-xmark text-lg text-zinc-400 cursor-pointer" onclick="closeComments()"></i>
         </div>
         <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-3 hide-scroll"></div>
         <div class="p-3 border-t border-zinc-800 flex gap-2 bg-black">
-            <input type="text" id="comment-input" maxlength="50" placeholder="Add comment (Max 50 chars)..." class="flex-1 bg-zinc-900 border border-zinc-800 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-red-600">
+            <input type="text" id="comment-input" maxlength="50" placeholder="Add comment..." class="flex-1 bg-zinc-900 border border-zinc-800 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-red-600">
             <button onclick="submitComment()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700">Post</button>
         </div>
     </div>
 
-    <!-- Settings / 3-Dot Modal -->
+    <!-- Settings / 3-Dot Menu Modal (Profile, Channel Name, Banner, Switch Account) -->
     <div id="settings-modal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-end">
         <div class="bg-zinc-900 border-t border-zinc-800 w-full p-6 rounded-t-3xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center">
@@ -260,9 +278,18 @@
                 <i class="fa-solid fa-xmark text-xl text-zinc-400 cursor-pointer" onclick="closeThreeDotMenu()"></i>
             </div>
             <div class="space-y-3">
-                <input type="text" id="settings-name" placeholder="Channel / Display Name" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
-                <input type="text" id="settings-avatar" placeholder="Profile Picture URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
-                <input type="text" id="settings-banner" placeholder="Banner Image URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Channel Name</label>
+                    <input type="text" id="settings-name" placeholder="Channel / Display Name" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Change Your Profile Picture URL</label>
+                    <input type="text" id="settings-avatar" placeholder="Profile Picture URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Update Your Banner URL</label>
+                    <input type="text" id="settings-banner" placeholder="Banner Image URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
+                </div>
                 <button onclick="saveProfileChanges()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm hover:bg-red-700">Save Changes</button>
                 <button onclick="switchAccountPrompt()" class="w-full bg-zinc-800 font-bold py-3 rounded-xl text-sm hover:bg-zinc-700">Switch / Add Account</button>
                 <button onclick="handleLogout()" class="w-full bg-zinc-800 text-red-500 font-bold py-3 rounded-xl text-sm hover:bg-zinc-700">Logout</button>
@@ -270,13 +297,14 @@
         </div>
     </div>
 
+    <!-- Application Script Engine -->
     <script>
         let currentUser = null;
         let isSignUp = false;
         let activeShortKey = null;
         let selectedFileObject = null;
 
-        // Controlled 4-second Splash Loading Screen Logic
+        // Controlled 4-second Smart Splash Loading Screen
         window.addEventListener('DOMContentLoaded', () => {
             let bar = document.getElementById('splash-bar');
             let statusText = document.getElementById('splash-status-text');
@@ -285,29 +313,31 @@
             let loadTimer = setInterval(() => {
                 progress += 25;
                 bar.style.width = progress + '%';
-                if(progress === 50) statusText.innerText = "Checking Firebase Sessions...";
-                if(progress === 75) statusText.innerText = "Loading ShaheenX UI/UX...";
+                if(progress === 50) statusText.innerText = "Connecting Database & Storage...";
+                if(progress === 75) statusText.innerText = "Loading ShaheenX Ultra UI/UX...";
                 if(progress >= 100) {
                     clearInterval(loadTimer);
                     let splash = document.getElementById('splash-screen');
                     splash.style.opacity = '0';
                     setTimeout(() => splash.remove(), 600);
                 }
-            }, 1000); // 4 seconds total duration (1000ms * 4)
+            }, 800);
 
-            // Auth State Listener
-            if(window.onAuthStateChanged) {
-                window.onAuthStateChanged(window.auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        document.getElementById('auth-modal').classList.add('hidden');
-                        loadUserData();
-                        loadFeedData();
-                    } else {
-                        document.getElementById('auth-modal').classList.remove('hidden');
-                    }
-                });
-            }
+            // Firebase Auth State Listener
+            setTimeout(() => {
+                if(window.shaheenAuth && window.onAuthStateChanged) {
+                    window.onAuthStateChanged(window.shaheenAuth, (user) => {
+                        if (user) {
+                            currentUser = user;
+                            document.getElementById('auth-modal').classList.add('hidden');
+                            loadUserData();
+                            loadFeedData();
+                        } else {
+                            document.getElementById('auth-modal').classList.remove('hidden');
+                        }
+                    });
+                }
+            }, 500);
         });
 
         function switchTab(tabId) {
@@ -350,14 +380,14 @@
             if(input.files && input.files[0]) {
                 selectedFileObject = input.files[0];
                 let displayElem = document.getElementById(`${fileType}-filename-display`);
-                displayElem.innerText = `Selected: ${selectedFileObject.name}`;
+                displayElem.innerText = `Selected File: ${selectedFileObject.name}`;
             }
         }
 
         async function handleGoogleLogin() {
             try {
                 const provider = new window.GoogleAuthProvider();
-                await window.signInWithPopup(window.auth, provider);
+                await window.signInWithPopup(window.shaheenAuth, provider);
             } catch (err) { alert(err.message); }
         }
 
@@ -373,9 +403,9 @@
             let pass = document.getElementById('auth-password').value;
             try {
                 if(isSignUp) {
-                    await window.createUserWithEmailAndPassword(window.auth, email, pass);
+                    await window.createUserWithEmailAndPassword(window.shaheenAuth, email, pass);
                 } else {
-                    await window.signInWithEmailAndPassword(window.auth, email, pass);
+                    await window.signInWithEmailAndPassword(window.shaheenAuth, email, pass);
                 }
             } catch(err) { alert(err.message); }
         }
@@ -384,7 +414,7 @@
             let email = document.getElementById('auth-email').value;
             if(!email) { alert("Enter your email address first."); return; }
             try {
-                await window.sendPasswordResetEmail(window.auth, email);
+                await window.sendPasswordResetEmail(window.shaheenAuth, email);
                 alert("Password reset link sent to your email.");
             } catch(err) { alert(err.message); }
         }
@@ -397,7 +427,7 @@
             document.getElementById('profile-name').innerText = currentUser.displayName || currentUser.email.split('@')[0];
             document.getElementById('profile-email').innerText = currentUser.email;
 
-            let userRef = window.ref(window.db, 'users/' + currentUser.uid);
+            let userRef = window.ref(window.shaheenDb, 'users/' + currentUser.uid);
             let snap = await window.get(userRef);
             if(snap.exists()) {
                 let data = snap.val();
@@ -415,7 +445,7 @@
             let desc = type === 'short' ? document.getElementById('upload-vdesc').value : '';
 
             if(!title || !selectedFileObject) {
-                alert("Please provide a title and select a file.");
+                alert("Please provide a title and select a file from your gallery.");
                 return;
             }
 
@@ -426,11 +456,15 @@
             progContainer.classList.remove('hidden');
 
             let progress = 0;
+            let totalTimeMs = 2500; // Fast ultra progress
+            let intervalTime = 250;
+            let increment = 25;
+
             let interval = setInterval(async () => {
-                progress += 25;
+                progress += increment;
                 progBar.style.width = progress + '%';
                 progPercent.innerText = progress + '%';
-                if(progress === 50) progStatus.innerText = type === 'short' ? "Converting to Full Short Screen..." : "Uploading Image & Title...";
+                if(progress === 50) progStatus.innerText = "Compressing & Securing via Cloud & Supabase...";
                 if(progress >= 100) {
                     clearInterval(interval);
                     progStatus.innerText = "Published Successfully!";
@@ -448,7 +482,7 @@
                         views: 0
                     };
 
-                    let newPostRef = window.push(window.ref(window.db, 'posts'));
+                    let newPostRef = window.push(window.ref(window.shaheenDb, 'posts'));
                     await window.set(newPostRef, postData);
 
                     setTimeout(() => {
@@ -462,13 +496,13 @@
                         switchTab(type === 'short' ? 'shorts' : 'home');
                     }, 800);
                 }
-            }, 250);
+            }, intervalTime);
         }
 
         async function loadFeedData() {
             let feed = document.getElementById('home-feed');
-            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">Loading community posts...</p>';
-            let postsRef = window.ref(window.db, 'posts');
+            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">Loading active community posts...</p>';
+            let postsRef = window.ref(window.shaheenDb, 'posts');
             let snap = await window.get(postsRef);
             if(snap.exists()) {
                 feed.innerHTML = '';
@@ -511,8 +545,8 @@
 
         async function loadShortsFeed() {
             let feed = document.getElementById('shorts-feed');
-            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">Loading Shorts...</p>';
-            let postsRef = window.ref(window.db, 'posts');
+            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">Loading Ultra Shorts...</p>';
+            let postsRef = window.ref(window.shaheenDb, 'posts');
             let snap = await window.get(postsRef);
             if(snap.exists()) {
                 feed.innerHTML = '';
@@ -588,7 +622,7 @@
             document.getElementById('comments-list').innerHTML = `
                 <div class="bg-black border border-zinc-800 p-3 rounded-xl text-xs space-y-1">
                     <span class="font-bold text-red-500">Shaheen AI</span>
-                    <p class="text-zinc-300">Welcome to ShaheenX ultra comment system!</p>
+                    <p class="text-zinc-300">Welcome to ShaheenX community comments!</p>
                 </div>
             `;
             document.getElementById('comments-modal').classList.remove('hidden');
@@ -616,19 +650,19 @@
                 navigator.share({ title: title, url: url });
             } else {
                 navigator.clipboard.writeText(url);
-                alert("Link copied!");
+                alert("Link copied successfully!");
             }
         }
 
         async function followUser(id) {
             let followersElem = document.getElementById('stat-followers');
             followersElem.innerText = parseInt(followersElem.innerText) + 1;
-            alert("Successfully followed!");
+            alert("Successfully followed user!");
         }
 
         function triggerRefresh() {
             loadFeedData();
-            alert("Refreshed successfully!");
+            alert("Feed refreshed successfully!");
         }
 
         function openThreeDotMenu() { document.getElementById('settings-modal').classList.remove('hidden'); }
@@ -639,7 +673,7 @@
             let avatar = document.getElementById('settings-avatar').value;
             let banner = document.getElementById('settings-banner').value;
             if(currentUser) {
-                let userRef = window.ref(window.db, 'users/' + currentUser.uid);
+                let userRef = window.ref(window.shaheenDb, 'users/' + currentUser.uid);
                 await window.update(userRef, { name, avatar, banner });
                 alert("Profile Updated Successfully!");
                 closeThreeDotMenu();
@@ -648,20 +682,20 @@
         }
 
         function switchAccountPrompt() {
-            window.auth.signOut();
+            window.shaheenAuth.signOut();
             document.getElementById('auth-modal').classList.remove('hidden');
             closeThreeDotMenu();
         }
 
         function handleLogout() {
-            window.auth.signOut();
+            window.shaheenAuth.signOut();
             location.reload();
         }
 
         async function loadUserProfilePosts() {
             let grid = document.getElementById('user-posts-grid');
             grid.innerHTML = '<p class="text-xs text-zinc-500 col-span-3 text-center py-4">Loading uploads...</p>';
-            let postsRef = window.ref(window.db, 'posts');
+            let postsRef = window.ref(window.shaheenDb, 'posts');
             let snap = await window.get(postsRef);
             if(snap.exists()) {
                 grid.innerHTML = '';
