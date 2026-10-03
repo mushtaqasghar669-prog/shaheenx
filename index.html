@@ -28,7 +28,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Global Bindings for Cloudinary, Supabase & Firebase Integration
         window.shaheenAuth = auth;
         window.shaheenDb = db;
         window.GoogleAuthProvider = GoogleAuthProvider;
@@ -46,7 +45,6 @@
         window.update = update;
         window.remove = remove;
 
-        // Cloudinary & Supabase Configuration Store
         window.cloudinaryConfig = {
             cloudName: "dsgicshff",
             apiKey: "147776976276431",
@@ -68,7 +66,7 @@
 </head>
 <body class="bg-black text-white h-screen flex flex-col justify-between">
 
-    <!-- 3 to 5 Seconds Smart Loading Splash Screen -->
+    <!-- 3 Seconds Smart Loading Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-700">
         <div class="text-4xl font-black tracking-widest text-red-600 mb-4 animate-pulse">SHAHEEN<span class="text-white">X</span></div>
         <div class="w-56 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
@@ -77,7 +75,7 @@
         <p id="splash-status-text" class="text-xs text-zinc-400 mt-3 font-mono tracking-wider">Checking Authentication Session...</p>
     </div>
 
-    <!-- Authentication & Registration Modal -->
+    <!-- Authentication Modal -->
     <div id="auth-modal" class="fixed inset-0 bg-black/95 z-40 hidden flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl">
             <div class="text-center">
@@ -109,16 +107,16 @@
     <!-- Main Dynamic Content Sections -->
     <main class="flex-1 overflow-hidden relative">
         
-        <!-- HOME SECTION (Community Image & Text Posts) -->
-        <section id="section-home" class="h-full overflow-y-auto p-4 space-y-4 hide-scroll">
+        <!-- HOME SECTION -->
+        <section id="section-home" class="h-full overflow-y-auto p-4 space-y-4 hide-scroll pb-20">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Active Community Feed</h2>
                 <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live</span>
             </div>
-            <div id="home-feed" class="space-y-4 pb-20"></div>
+            <div id="home-feed" class="space-y-4"></div>
         </section>
 
-        <!-- SHORTS SECTION (TikTok / Reels Full Screen Ultra Experience) -->
+        <!-- SHORTS SECTION -->
         <section id="section-shorts" class="h-full hidden">
             <div id="shorts-feed" class="snap-container hide-scroll"></div>
         </section>
@@ -131,7 +129,7 @@
                 <div>
                     <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Content Type</label>
                     <select id="upload-type" onchange="toggleUploadFields()" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                        <option value="short">Short Video (Max 30 Minutes)</option>
+                        <option value="short">Short Video (Max 30 Mins)</option>
                         <option value="post">Image & Title Post (Home Feed)</option>
                     </select>
                 </div>
@@ -150,7 +148,7 @@
                         <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Video Source</label>
                         <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="previewSelectedFile(this, 'video')">
                         <button onclick="document.getElementById('video-file-input').click()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-video"></i> Choose Your Video From Gallery
+                            <i class="fa-solid fa-video"></i> Choose Video From Gallery
                         </button>
                         <p id="video-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
                     </div>
@@ -172,7 +170,7 @@
                     </div>
                 </div>
 
-                <!-- Real Linear Progress Bar -->
+                <!-- Linear Progress Bar -->
                 <div id="progress-container" class="hidden space-y-1.5 bg-black p-3 rounded-xl border border-zinc-800">
                     <div class="flex justify-between text-xs text-zinc-400">
                         <span id="progress-status">Compressing & End-to-End Encrypting...</span>
@@ -270,7 +268,7 @@
         </div>
     </div>
 
-    <!-- Settings / 3-Dot Menu Modal (Profile, Channel Name, Banner, Switch Account) -->
+    <!-- Settings / 3-Dot Menu Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-end">
         <div class="bg-zinc-900 border-t border-zinc-800 w-full p-6 rounded-t-3xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center">
@@ -283,11 +281,11 @@
                     <input type="text" id="settings-name" placeholder="Channel / Display Name" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
                 </div>
                 <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Change Your Profile Picture URL</label>
+                    <label class="text-xs text-zinc-400 mb-1 block">Profile Picture URL</label>
                     <input type="text" id="settings-avatar" placeholder="Profile Picture URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
                 </div>
                 <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Update Your Banner URL</label>
+                    <label class="text-xs text-zinc-400 mb-1 block">Banner Image URL</label>
                     <input type="text" id="settings-banner" placeholder="Banner Image URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
                 </div>
                 <button onclick="saveProfileChanges()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm hover:bg-red-700">Save Changes</button>
@@ -304,22 +302,22 @@
         let activeShortKey = null;
         let selectedFileObject = null;
 
-        // Controlled 4-second Smart Splash Loading Screen
+        // Controlled 3-second Smart Splash Loading Screen
         window.addEventListener('DOMContentLoaded', () => {
             let bar = document.getElementById('splash-bar');
             let statusText = document.getElementById('splash-status-text');
             let progress = 0;
 
             let loadTimer = setInterval(() => {
-                progress += 25;
-                bar.style.width = progress + '%';
-                if(progress === 50) statusText.innerText = "Connecting Database & Storage...";
-                if(progress === 75) statusText.innerText = "Loading ShaheenX Ultra UI/UX...";
+                progress += 34;
+                bar.style.width = Math.min(progress, 100) + '%';
+                if(progress === 34) statusText.innerText = "Connecting Database & Storage...";
+                if(progress === 68) statusText.innerText = "Loading ShaheenX Ultra UI/UX...";
                 if(progress >= 100) {
                     clearInterval(loadTimer);
                     let splash = document.getElementById('splash-screen');
                     splash.style.opacity = '0';
-                    setTimeout(() => splash.remove(), 600);
+                    setTimeout(() => splash.remove(), 500);
                 }
             }, 800);
 
@@ -456,15 +454,11 @@
             progContainer.classList.remove('hidden');
 
             let progress = 0;
-            let totalTimeMs = 2500; // Fast ultra progress
-            let intervalTime = 250;
-            let increment = 25;
-
             let interval = setInterval(async () => {
-                progress += increment;
+                progress += 20;
                 progBar.style.width = progress + '%';
                 progPercent.innerText = progress + '%';
-                if(progress === 50) progStatus.innerText = "Compressing & Securing via Cloud & Supabase...";
+                if(progress === 40) progStatus.innerText = "Compressing video & encrypting via Supabase...";
                 if(progress >= 100) {
                     clearInterval(interval);
                     progStatus.innerText = "Published Successfully!";
@@ -496,7 +490,7 @@
                         switchTab(type === 'short' ? 'shorts' : 'home');
                     }, 800);
                 }
-            }, intervalTime);
+            }, 300);
         }
 
         async function loadFeedData() {
@@ -520,9 +514,7 @@
                                 </div>
                                 <button onclick="followUser('${p.authorId}')" class="text-xs bg-red-600 px-3 py-1 rounded-xl font-bold hover:bg-red-700">Follow</button>
                             </div>
-                            <div>
-                                <h4 class="font-bold text-sm">${p.title}</h4>
-                            </div>
+                            <div><h4 class="font-bold text-sm">${p.title}</h4></div>
                             <div class="rounded-xl overflow-hidden bg-black max-h-96 flex items-center justify-center">
                                 <img src="${p.fileUrl}" class="w-full max-h-96 object-cover">
                             </div>
@@ -536,7 +528,7 @@
                     }
                 });
                 if(feed.innerHTML === '') {
-                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No image/title posts found on home feed.</p>';
+                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No image/title posts found.</p>';
                 }
             } else {
                 feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No posts available.</p>';
@@ -580,7 +572,7 @@
                     }
                 });
                 if(feed.innerHTML === '') {
-                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">No shorts available right now. Upload your video!</p>';
+                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">No shorts available. Upload your video!</p>';
                 }
             } else {
                 feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">No shorts found.</p>';
@@ -622,7 +614,7 @@
             document.getElementById('comments-list').innerHTML = `
                 <div class="bg-black border border-zinc-800 p-3 rounded-xl text-xs space-y-1">
                     <span class="font-bold text-red-500">Shaheen AI</span>
-                    <p class="text-zinc-300">Welcome to ShaheenX community comments!</p>
+                    <p class="text-zinc-300">Welcome to ShaheenX comments!</p>
                 </div>
             `;
             document.getElementById('comments-modal').classList.remove('hidden');
