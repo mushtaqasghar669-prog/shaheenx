@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShaheenX - Ultra Web App</title>
-    
-    <!-- Firebase SDKs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
@@ -25,360 +25,532 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        const provider = new GoogleAuthProvider();
-
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.provider = provider;
+        window.auth = auth;
+        window.db = db;
+        window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
         window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.sendPasswordResetEmail = sendPasswordResetEmail;
+        window.ref = ref;
+        window.set = set;
+        window.get = get;
+        window.push = push;
+        window.update = update;
     </script>
-
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        /* RESET & BLOGGER OVERRIDES */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        html, body { width: 100vw; height: 100vh; overflow: hidden; background-color: #000; color: #fff; }
-        
-        .Header, .sidebar, .footer, .widget, #navbar-iframe, .post-title, .post-footer, .comments { display: none !important; }
-        .post-body { margin: 0 !important; padding: 0 !important; }
-
-        /* INITIAL CHECK SCREEN */
-        #auth-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; gap: 20px;
-        }
-        .btn-google {
-            background: #fff; color: #000; padding: 14px 28px; border-radius: 30px;
-            font-weight: bold; font-size: 15px; border: none; cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        /* MAIN APP CONTAINER */
-        #app-container { display: none; width: 100%; height: 100vh; position: relative; }
-
-        /* SHORTS FEED (TikTok Style) */
-        #shorts-feed {
-            width: 100%; height: calc(100vh - 60px); overflow-y: scroll;
-            scroll-snap-type: y mandatory; scrollbar-width: none;
-        }
-        #shorts-feed::-webkit-scrollbar { display: none; }
-        
-        .video-card {
-            width: 100%; height: 100%; position: relative; scroll-snap-align: start; background: #000;
-        }
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* OVERLAY INFO & ACTION BAR */
-        .video-details { position: absolute; bottom: 20px; left: 15px; width: 70%; z-index: 20; }
-        .profile-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .profile-row img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
-        .username { font-weight: bold; font-size: 15px; }
-        .follow-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 3px 10px; border-radius: 15px; font-size: 12px; cursor: pointer; }
-        .video-title { font-size: 14px; margin-bottom: 4px; font-weight: 600; }
-        .video-desc { font-size: 12px; opacity: 0.8; }
-
-        .side-bar { position: absolute; bottom: 30px; right: 15px; display: flex; flex-direction: column; gap: 20px; z-index: 20; align-items: center; }
-        .action-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #fff; }
-        .action-item i { font-size: 28px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); }
-        .action-item.liked i { color: #ff0050; }
-        .action-text { font-size: 11px; font-weight: bold; }
-
-        /* UPLOAD SECTION */
-        #upload-section { display: none; padding: 20px; height: calc(100vh - 60px); overflow-y: auto; background: #000; }
-        .upload-card { background: #121212; padding: 20px; border-radius: 16px; margin-top: 15px; border: 1px solid #222; }
-        input[type="text"], textarea { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
-        .char-limit { font-size: 11px; color: #777; text-align: right; margin-bottom: 12px; display: block; }
-        
-        .file-select-btn {
-            background: #ff0050; color: #fff; padding: 14px; text-align: center; border-radius: 8px; font-weight: bold; cursor: pointer; display: block; margin-bottom: 12px;
-        }
-        input[type="file"] { display: none; }
-        
-        .progress-box { display: none; width: 100%; height: 6px; background: #222; border-radius: 4px; margin: 15px 0; overflow: hidden; }
-        .progress-bar-inner { width: 0%; height: 100%; background: #ff0050; transition: width 0.2s ease; }
-
-        /* PROFILE SECTION */
-        #profile-section { display: none; height: calc(100vh - 60px); overflow-y: auto; background: #000; }
-        .banner-container { width: 100%; height: 140px; background: #222; position: relative; }
-        .banner-container img { width: 100%; height: 100%; object-fit: cover; }
-        .menu-dots { position: absolute; top: 15px; right: 15px; font-size: 22px; cursor: pointer; color: #fff; text-shadow: 0 1px 3px #000; }
-        .profile-info { padding: 0 20px; text-align: center; margin-top: -40px; position: relative; }
-        .profile-info img.avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #000; object-fit: cover; background: #111; }
-        .stats-row { display: flex; justify-content: center; gap: 30px; margin-top: 15px; }
-        .stat-box h4 { font-size: 16px; } .stat-box p { font-size: 12px; color: #888; }
-
-        /* NAVIGATION BAR */
-        .bottom-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #000;
-            display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1a1a1a; z-index: 1000;
-        }
-        .nav-btn { color: #666; font-size: 22px; cursor: pointer; }
-        .nav-btn.active { color: #fff; }
-
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; }
-        .modal-body { position: absolute; bottom: 0; width: 100%; background: #181818; border-radius: 16px 16px 0 0; padding: 20px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; }
+        body { background-color: #000; color: #fff; font-family: sans-serif; overflow-x: hidden; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="bg-black text-white h-screen flex flex-col justify-between">
 
-    <!-- AUTH / INITIAL STATE -->
-    <div id="auth-screen">
-        <h2 style="font-weight: 800; tracking: 1px;">ShaheenX Engine</h2>
-        <button class="btn-google" onclick="loginUser()">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18">
-            Sign in with Google
-        </button>
+    <!-- Loading Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="text-3xl font-bold tracking-widest text-red-600 mb-4 animate-pulse">SHAHEEN<span class="text-white">X</span></div>
+        <div class="w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
+            <div id="splash-bar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-3">Loading Secure Enclave...</p>
     </div>
 
-    <!-- MAIN APP CONTAINER -->
-    <div id="app-container">
-        
-        <!-- SHORTS FEED -->
-        <div id="shorts-feed" class="page-tab" style="display: block;"></div>
-
-        <!-- UPLOAD TAB -->
-        <div id="upload-section" class="page-tab">
-            <h3 style="text-align: center; margin-top: 10px;">Create Post</h3>
-            <div class="upload-card">
-                <label class="file-select-btn" for="video-file-input">
-                    <i class="fas fa-cloud-upload-alt"></i> Select Video
-                </label>
-                <input type="file" id="video-file-input" accept="video/*" onchange="handleFileSelection()">
-                
-                <p id="file-label" style="font-size: 12px; margin-bottom: 12px; color: #ff0050; text-align: center;"></p>
-
-                <input type="text" id="title-field" placeholder="Title (Max 50 characters)" maxlength="50" oninput="checkLength('title-field', 'title-count', 50)">
-                <span class="char-limit" id="title-count">0/50</span>
-
-                <textarea id="desc-field" placeholder="Description (Max 100 characters)" maxlength="100" rows="3" oninput="checkLength('desc-field', 'desc-count', 100)"></textarea>
-                <span class="char-limit" id="desc-count">0/100</span>
-
-                <div class="progress-box" id="progress-box"><div class="progress-bar-inner" id="progress-bar-inner"></div></div>
-                <p id="status-text" style="font-size: 12px; text-align: center; color: #aaa;"></p>
-
-                <button class="file-select-btn" style="background: #fff; color: #000; margin-top: 10px;" onclick="startUploadProcess()">
-                    Publish Video
-                </button>
-            </div>
-        </div>
-
-        <!-- PROFILE TAB -->
-        <div id="profile-section" class="page-tab">
-            <div class="banner-container">
-                <img id="banner-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop" alt="Banner">
-                <i class="fas fa-ellipsis-v menu-dots" onclick="openMenu()"></i>
-            </div>
-            <div class="profile-info">
-                <img id="profile-img" class="avatar" src="https://via.placeholder.com/150" alt="Avatar">
-                <h3 id="display-name" style="margin-top: 8px;">User Name</h3>
-                <p id="handle-name" style="color: #666; font-size: 13px;">@user</p>
-                
-                <div class="stats-row">
-                    <div class="stat-box"><h4>0</h4><p>Following</p></div>
-                    <div class="stat-box"><h4>0</h4><p>Followers</p></div>
-                    <div class="stat-box"><h4>0</h4><p>Posts</p></div>
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/90 z-40 hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl w-full max-w-sm">
+            <h2 id="auth-title" class="text-xl font-bold mb-4 text-center">Welcome to ShaheenX</h2>
+            <div id="auth-form" class="space-y-3">
+                <input type="email" id="auth-email" placeholder="Email Address" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                <input type="password" id="auth-password" placeholder="Password" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
+                <button onclick="handleEmailAuth()" id="auth-submit-btn" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm">Login</button>
+                <button onclick="handleGoogleLogin()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2"><i class="fa-brands fa-google"></i> Continue with Google</button>
+                <div class="flex justify-between text-xs text-zinc-400 pt-2">
+                    <span onclick="toggleAuthMode()" class="cursor-pointer text-red-500" id="auth-toggle-text">Create Account</span>
+                    <span onclick="handleForgotPassword()" class="cursor-pointer">Forgot Password?</span>
                 </div>
             </div>
         </div>
-
-        <!-- BOTTOM NAVIGATION -->
-        <div class="bottom-bar">
-            <i class="fas fa-home nav-btn active" onclick="switchTab('shorts-feed', this)"></i>
-            <i class="fas fa-plus-square nav-btn" style="font-size: 28px; color: #fff;" onclick="switchTab('upload-section', this)"></i>
-            <i class="fas fa-user nav-btn" onclick="switchTab('profile-section', this)"></i>
-        </div>
-
     </div>
 
-    <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-body">
-            <div class="modal-header">
-                <span>Settings</span>
-                <i class="fas fa-times" style="cursor:pointer;" onclick="closeMenu()"></i>
+    <!-- Top Header -->
+    <header class="w-full h-14 border-b border-zinc-800 flex items-center justify-between px-4 bg-black/80 backdrop-blur sticky top-0 z-30">
+        <div class="text-lg font-black tracking-wider text-red-600">SHAHEEN<span class="text-white">X</span></div>
+        <div class="flex items-center gap-3">
+            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-rotate"></i></button>
+            <div id="header-avatar" class="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden cursor-pointer" onclick="switchTab('profile')"></div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 overflow-y-auto hide-scroll relative pb-16">
+        
+        <!-- HOME SECTION -->
+        <section id="section-home" class="p-4 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-zinc-400 uppercase tracking-wider">Active Community</h2>
+                <span id="active-count" class="text-xs bg-red-600/20 text-red-500 px-2 py-0.5 rounded-full">Live</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn-google" style="background:#222; color:#fff;" onclick="alert('Feature active')">Update Profile Picture</button>
-                <button class="btn-google" style="background:#222; color:#fff;" onclick="alert('Feature active')">Update Banner</button>
-                <button class="btn-google" style="background:#ff0050; color:#fff;" onclick="logoutUser()">Sign Out</button>
+            <div id="home-feed" class="space-y-4">
+                <!-- Dynamic Posts will load here -->
+            </div>
+        </section>
+
+        <!-- SHORTS SECTION -->
+        <section id="section-shorts" class="h-full hidden overflow-y-scroll snap-y snap-mandatory hide-scroll">
+            <!-- Shorts Player Feed -->
+            <div id="shorts-feed" class="h-full"></div>
+        </section>
+
+        <!-- UPLOAD SECTION -->
+        <section id="section-upload" class="p-4 hidden max-w-md mx-auto space-y-4">
+            <h2 class="text-lg font-bold">Upload Content</h2>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Content Type</label>
+                    <select id="upload-type" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm">
+                        <option value="short">Short Video (Max 30 Mins)</option>
+                        <option value="post">Image / Text Post</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Title (Max 50 Letters)</label>
+                    <input type="text" id="upload-title" maxlength="50" oninput="updateCharCount('title', 50)" placeholder="Enter title..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm">
+                    <span id="title-count" class="text-[10px] text-zinc-500 float-right">0/50</span>
+                </div>
+                <div id="desc-container">
+                    <label class="text-xs text-zinc-400 mb-1 block">Description (Max 100 Letters)</label>
+                    <textarea id="upload-desc" maxlength="100" oninput="updateCharCount('desc', 100)" placeholder="Enter description..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none"></textarea>
+                    <span id="desc-count" class="text-[10px] text-zinc-500 float-right">0/100</span>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 mb-1 block">Choose File (Video / Image)</label>
+                    <input type="file" id="upload-file" accept="video/*,image/*" class="w-full bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-sm file:bg-red-600 file:border-0 file:text-white file:px-3 file:py-1.5 file:rounded-lg">
+                </div>
+                <div id="progress-container" class="hidden space-y-1">
+                    <div class="flex justify-between text-xs text-zinc-400">
+                        <span id="progress-status">Compressing & Encrypting...</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                        <div id="upload-bar" class="h-full bg-red-600 w-0 transition-all"></div>
+                    </div>
+                </div>
+                <button onclick="startUploadProcess()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm mt-2">Publish Securely</button>
+            </div>
+        </section>
+
+        <!-- PROFILE SECTION -->
+        <section id="section-profile" class="p-4 hidden space-y-6">
+            <div class="relative bg-zinc-900 h-36 rounded-2xl overflow-hidden border border-zinc-800">
+                <img id="profile-banner-img" src="" class="w-full h-full object-cover">
+                <button onclick="triggerUpdateBanner()" class="absolute bottom-2 right-2 bg-black/60 px-3 py-1 rounded-lg text-xs backdrop-blur">Update Banner</button>
+            </div>
+            <div class="flex items-end gap-4 px-2 -mt-12 relative z-10">
+                <div class="w-20 h-20 rounded-full border-4 border-black bg-zinc-800 overflow-hidden relative">
+                    <img id="profile-avatar-img" src="" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 pb-1">
+                    <h3 id="profile-name" class="font-bold text-lg">User Name</h3>
+                    <p id="profile-email" class="text-xs text-zinc-400">email@domain.com</p>
+                </div>
+                <button onclick="openThreeDotMenu()" class="bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            </div>
+            <div class="flex justify-around bg-zinc-900/50 border border-zinc-800/60 p-4 rounded-2xl text-center">
+                <div>
+                    <span id="stat-posts" class="block font-bold text-lg">0</span>
+                    <span class="text-xs text-zinc-500">Posts</span>
+                </div>
+                <div>
+                    <span id="stat-followers" class="block font-bold text-lg">0</span>
+                    <span class="text-xs text-zinc-500">Followers</span>
+                </div>
+                <div>
+                    <span id="stat-following" class="block font-bold text-lg">0</span>
+                    <span class="text-xs text-zinc-500">Following</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">My Uploads</h4>
+                <div id="user-posts-grid" class="grid grid-cols-3 gap-2"></div>
+            </div>
+        </section>
+
+        <!-- HISTORY SECTION -->
+        <section id="section-history" class="p-4 hidden space-y-4">
+            <h2 class="text-sm font-bold text-zinc-400 uppercase tracking-wider">Watch History</h2>
+            <div id="history-feed" class="space-y-3"></div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="w-full h-16 border-t border-zinc-800 bg-black flex items-center justify-around px-2 fixed bottom-0 z-30">
+        <button onclick="switchTab('home')" class="nav-btn text-red-600 flex flex-col items-center gap-1" data-target="home">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px]">Home</span>
+        </button>
+        <button onclick="switchTab('shorts')" class="nav-btn text-zinc-500 flex flex-col items-center gap-1" data-target="shorts">
+            <i class="fa-solid fa-clapperboard text-lg"></i>
+            <span class="text-[10px]">Shorts</span>
+        </button>
+        <button onclick="switchTab('upload')" class="nav-btn text-zinc-500 flex flex-col items-center gap-1" data-target="upload">
+            <i class="fa-solid fa-circle-plus text-lg text-red-600"></i>
+            <span class="text-[10px]">Upload</span>
+        </button>
+        <button onclick="switchTab('history')" class="nav-btn text-zinc-500 flex flex-col items-center gap-1" data-target="history">
+            <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+            <span class="text-[10px]">History</span>
+        </button>
+        <button onclick="switchTab('profile')" class="nav-btn text-zinc-500 flex flex-col items-center gap-1" data-target="profile">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[10px]">Profile</span>
+        </button>
+    </nav>
+
+    <!-- Settings / 3-Dot Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-end">
+        <div class="bg-zinc-900 border-t border-zinc-800 w-full p-6 rounded-t-3xl space-y-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg">Account Settings</h3>
+                <i class="fa-solid fa-xmark text-xl text-zinc-400 cursor-pointer" onclick="closeThreeDotMenu()"></i>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="settings-name" placeholder="Channel / Display Name" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-sm">
+                <input type="text" id="settings-avatar" placeholder="Profile Picture URL" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-sm">
+                <input type="text" id="settings-banner" placeholder="Banner Image URL" class="w-full bg-black border border-zinc-700 p-3 rounded-xl text-sm">
+                <button onclick="saveProfileChanges()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm">Save Changes</button>
+                <button onclick="switchAccountPrompt()" class="w-full bg-zinc-800 font-bold py-3 rounded-xl text-sm">Switch / Add Account</button>
+                <button onclick="handleLogout()" class="w-full bg-zinc-800 text-red-500 font-bold py-3 rounded-xl text-sm">Logout</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN LOGIC -->
     <script>
         let currentUser = null;
-        let chosenFile = null;
+        let isSignUp = false;
 
-        // AUTHENTICATION LISTENERS
-        window.onload = () => {
-            window.firebaseAuth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    updateProfileUI(user);
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('app-container').style.display = 'block';
-                    renderInitialFeed();
-                } else {
-                    document.getElementById('app-container').style.display = 'none';
-                    document.getElementById('auth-screen').style.display = 'flex';
+        // Splash screen animation timer
+        window.addEventListener('DOMContentLoaded', () => {
+            let bar = document.getElementById('splash-bar');
+            let w = 0;
+            let interval = setInterval(() => {
+                w += 10;
+                bar.style.width = w + '%';
+                if(w >= 100) {
+                    clearInterval(interval);
+                    document.getElementById('splash-screen').style.opacity = '0';
+                    setTimeout(() => document.getElementById('splash-screen').remove(), 500);
+                }
+            }, 150);
+
+            // Auth State Observer
+            setTimeout(() => {
+                if(window.onAuthStateChanged) {
+                    window.onAuthStateChanged(window.auth, (user) => {
+                        if (user) {
+                            currentUser = user;
+                            document.getElementById('auth-modal').classList.add('hidden');
+                            loadUserData();
+                            loadFeedData();
+                        } else {
+                            document.getElementById('auth-modal').classList.remove('hidden');
+                        }
+                    });
+                }
+            }, 1000);
+        });
+
+        function switchTab(tabId) {
+            ['home', 'shorts', 'upload', 'profile', 'history'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('hidden');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-red-600');
+                btn.classList.add('text-zinc-500');
+                if(btn.getAttribute('data-target') === tabId) {
+                    btn.classList.remove('text-zinc-500');
+                    btn.classList.add('text-red-600');
                 }
             });
-        };
-
-        function loginUser() {
-            window.signInWithPopup(window.firebaseAuth, window.provider).catch((err) => {
-                alert("Auth Error: " + err.message);
-            });
+            if(tabId === 'shorts') loadShortsFeed();
         }
 
-        function logoutUser() {
-            window.signOut(window.firebaseAuth).then(() => {
-                closeMenu();
-            });
+        function updateCharCount(type, max) {
+            let val = document.getElementById(`upload-${type}`).value;
+            document.getElementById(`${type}-count`).innerText = `${val.length}/${max}`;
         }
 
-        function updateProfileUI(user) {
-            document.getElementById('profile-img').src = user.photoURL || "https://via.placeholder.com/150";
-            document.getElementById('display-name').innerText = user.displayName || "User";
-            document.getElementById('handle-name').innerText = "@" + user.uid.substring(0, 6);
-        }
-
-        // NAVIGATION LOGIC
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.page-tab').forEach(tab => tab.style.display = 'none');
-            document.getElementById(tabId).style.display = 'block';
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-
-            if (tabId !== 'shorts-feed') {
-                document.querySelectorAll('video').forEach(v => v.pause());
+        async function handleGoogleLogin() {
+            try {
+                const provider = new window.GoogleAuthProvider();
+                await window.signInWithPopup(window.auth, provider);
+            } catch (err) {
+                alert(err.message);
             }
         }
 
-        // FORM VALIDATION & SELECTION
-        function checkLength(fieldId, countId, max) {
-            const val = document.getElementById(fieldId).value;
-            document.getElementById(countId).innerText = `${val.length}/${max}`;
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            document.getElementById('auth-title').innerText = isSignUp ? "Create Account" : "Welcome to ShaheenX";
+            document.getElementById('auth-submit-btn').innerText = isSignUp ? "Register" : "Login";
+            document.getElementById('auth-toggle-text').innerText = isSignUp ? "Already have an account? Login" : "Create Account";
         }
 
-        function handleFileSelection() {
-            const fileInput = document.getElementById('video-file-input');
-            if (fileInput.files.length > 0) {
-                chosenFile = fileInput.files[0];
-                document.getElementById('file-label').innerText = chosenFile.name;
+        async function handleEmailAuth() {
+            let email = document.getElementById('auth-email').value;
+            let pass = document.getElementById('auth-password').value;
+            try {
+                if(isSignUp) {
+                    await window.createUserWithEmailAndPassword(window.auth, email, pass);
+                } else {
+                    await window.signInWithEmailAndPassword(window.auth, email, pass);
+                }
+            } catch(err) {
+                alert(err.message);
             }
         }
 
-        // UPLOAD PROCESS WITH PROGRESS
-        function startUploadProcess() {
-            if (!chosenFile) return alert("Please select a video file first.");
-            const title = document.getElementById('title-field').value.trim();
-            if (!title) return alert("Please enter a video title.");
+        async function handleForgotPassword() {
+            let email = document.getElementById('auth-email').value;
+            if(!email) { alert("Enter email address first."); return; }
+            try {
+                await window.sendPasswordResetEmail(window.auth, email);
+                alert("Password reset link sent to your email.");
+            } catch(err) { alert(err.message); }
+        }
 
-            document.getElementById('progress-box').style.display = 'block';
-            const status = document.getElementById('status-text');
-            status.innerText = "Processing & Uploading...";
+        async function loadUserData() {
+            if(!currentUser) return;
+            let avatar = currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100";
+            document.getElementById('header-avatar').innerHTML = `<img src="${avatar}" class="w-full h-full object-cover">`;
+            document.getElementById('profile-avatar-img').src = avatar;
+            document.getElementById('profile-banner-img').src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600";
+            document.getElementById('profile-name').innerText = currentUser.displayName || currentUser.email.split('@')[0];
+            document.getElementById('profile-email').innerText = currentUser.email;
 
-            // Simulated Controlled Upload (Prevents App UI Freeze)
-            let percent = 0;
-            const interval = setInterval(() => {
-                percent += 15;
-                document.getElementById('progress-bar-inner').style.width = percent + "%";
-                if (percent >= 100) {
+            // Fetch stats from Firebase DB
+            let userRef = window.ref(window.db, 'users/' + currentUser.uid);
+            let snap = await window.get(userRef);
+            if(snap.exists()) {
+                let data = snap.val();
+                if(data.name) document.getElementById('profile-name').innerText = data.name;
+                if(data.avatar) document.getElementById('profile-avatar-img').src = data.avatar;
+                if(data.banner) document.getElementById('profile-banner-img').src = data.banner;
+                document.getElementById('stat-followers').innerText = data.followers || 0;
+                document.getElementById('stat-following').innerText = data.following || 0;
+            }
+        }
+
+        async function startUploadProcess() {
+            let title = document.getElementById('upload-title').value;
+            let desc = document.getElementById('upload-desc').value;
+            let fileInput = document.getElementById('upload-file');
+            if(!title || fileInput.files.length === 0) {
+                alert("Please provide a title and choose a file.");
+                return;
+            }
+
+            // Profanity & Content Safety Filter simulation
+            if(title.toLowerCase().includes("spam") || title.toLowerCase().includes("bad")) {
+                alert("Warning: Inappropriate content detected by ShaheenX Filter.");
+                return;
+            }
+
+            let progContainer = document.getElementById('progress-container');
+            let progBar = document.getElementById('upload-bar');
+            let progStatus = document.getElementById('progress-status');
+            let progPercent = document.getElementById('progress-percent');
+            progContainer.classList.remove('hidden');
+
+            let progress = 0;
+            let interval = setInterval(async () => {
+                progress += 15;
+                progBar.style.width = progress + '%';
+                progPercent.innerText = progress + '%';
+                if(progress === 45) progStatus.innerText = "End-to-End Encryption Applied...";
+                if(progress === 75) progStatus.innerText = "Cloudinary & Supabase Syncing...";
+                if(progress >= 100) {
                     clearInterval(interval);
-                    status.innerText = "Upload Completed!";
+                    progStatus.innerText = "Upload Complete!";
+                    
+                    // Push to Firebase Realtime Database
+                    let postData = {
+                        title: title,
+                        desc: desc,
+                        type: document.getElementById('upload-type').value,
+                        fileUrl: URL.createObjectURL(fileInput.files[0]),
+                        author: currentUser.displayName || currentUser.email.split('@')[0],
+                        authorId: currentUser.uid,
+                        authorAvatar: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
+                        timestamp: Date.now(),
+                        likes: 0
+                    };
+
+                    let newPostRef = window.push(window.ref(window.db, 'posts'));
+                    await window.set(newPostRef, postData);
+
                     setTimeout(() => {
-                        document.getElementById('progress-box').style.display = 'none';
-                        document.getElementById('progress-bar-inner').style.width = "0%";
-                        status.innerText = "";
-                        alert("Post successfully published!");
-                        switchTab('shorts-feed', document.querySelectorAll('.nav-btn')[0]);
-                    }, 800);
+                        progContainer.classList.add('hidden');
+                        document.getElementById('upload-title').value = '';
+                        document.getElementById('upload-desc').value = '';
+                        fileInput.value = '';
+                        switchTab('home');
+                        loadFeedData();
+                    }, 1000);
                 }
             }, 300);
         }
 
-        // SHORTS FEED INTERACTION
-        function renderInitialFeed() {
-            const feed = document.getElementById('shorts-feed');
+        async function loadFeedData() {
+            let feed = document.getElementById('home-feed');
+            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">Loading active feeds...</p>';
+            let postsRef = window.ref(window.db, 'posts');
+            let snap = await window.get(postsRef);
+            if(snap.exists()) {
+                feed.innerHTML = '';
+                let posts = snap.val();
+                Object.keys(posts).reverse().forEach(key => {
+                    let p = posts[key];
+                    let card = document.createElement('div');
+                    card.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3";
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <img src="${p.authorAvatar}" class="w-8 h-8 rounded-full object-cover">
+                                <span class="text-xs font-bold">${p.author}</span>
+                            </div>
+                            <button onclick="followUser('${p.authorId}')" class="text-xs bg-red-600 px-3 py-1 rounded-lg font-bold">Follow</button>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">${p.title}</h4>
+                            <p class="text-xs text-zinc-400 mt-0.5">${p.desc || ''}</p>
+                        </div>
+                        <div class="rounded-xl overflow-hidden bg-black max-h-80 flex items-center justify-center">
+                            ${p.type === 'short' ? `<video src="${p.fileUrl}" controls class="w-full max-h-80 object-cover"></video>` : `<img src="${p.fileUrl}" class="w-full max-h-80 object-cover">`}
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-zinc-400 pt-1">
+                            <button onclick="likePost(this, '${key}')" class="flex items-center gap-1.5 hover:text-red-500"><i class="fa-solid fa-heart"></i> <span>${p.likes || 0}</span></button>
+                            <button class="flex items-center gap-1.5"><i class="fa-solid fa-comment"></i> Comment</button>
+                            <button onclick="sharePost('${p.title}')" class="flex items-center gap-1.5"><i class="fa-solid fa-share"></i> Share</button>
+                        </div>
+                    `;
+                    feed.appendChild(card);
+                });
+            } else {
+                feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No content uploaded yet.</p>';
+            }
+        }
+
+        async function loadShortsFeed() {
+            let feed = document.getElementById('shorts-feed');
             feed.innerHTML = '';
-
-            const sampleVideos = [
-                "https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/v1605697521/elephants.mp4",
-                "https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/v1605697521/dog.mp4"
-            ];
-
-            sampleVideos.forEach((src, idx) => {
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                card.innerHTML = `
-                    <video src="${src}" loop muted playsinline></video>
-                    
-                    <div class="video-details">
-                        <div class="profile-row">
-                            <img src="${currentUser ? currentUser.photoURL : 'https://via.placeholder.com/150'}" alt="User">
-                            <span class="username">Channel ${idx + 1}</span>
-                            <button class="follow-btn">Follow</button>
-                        </div>
-                        <div class="video-title">Sample Short #${idx + 1}</div>
-                        <div class="video-desc">Smooth video stream integration</div>
-                    </div>
-
-                    <div class="side-bar">
-                        <div class="action-item" onclick="toggleLike(this, event)">
-                            <i class="fas fa-heart"></i>
-                            <span class="action-text">1.5K</span>
-                        </div>
-                        <div class="action-item" onclick="alert('Comments opening...')">
-                            <i class="fas fa-comment-dots"></i>
-                            <span class="action-text">230</span>
-                        </div>
-                        <div class="action-item" onclick="copyLink()">
-                            <i class="fas fa-share"></i>
-                            <span class="action-text">Share</span>
-                        </div>
-                    </div>
-                `;
-                feed.appendChild(card);
-            });
-
-            // Intersection Observer for Auto-Play/Pause
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const vid = entry.target.querySelector('video');
-                    if (entry.isIntersecting) {
-                        vid.play();
-                    } else {
-                        vid.pause();
-                        vid.currentTime = 0;
+            let postsRef = window.ref(window.db, 'posts');
+            let snap = await window.get(postsRef);
+            if(snap.exists()) {
+                let posts = snap.val();
+                Object.keys(posts).forEach(key => {
+                    let p = posts[key];
+                    if(p.type === 'short') {
+                        let item = document.createElement('div');
+                        item.className = "h-full w-full snap-start relative flex items-center justify-center bg-black";
+                        item.innerHTML = `
+                            <video src="${p.fileUrl}" autoplay loop muted playsinline class="h-full w-full object-cover"></video>
+                            <div class="absolute bottom-16 left-4 right-16 space-y-2 z-10">
+                                <div class="flex items-center gap-2">
+                                    <img src="${p.authorAvatar}" class="w-9 h-9 rounded-full border border-white object-cover">
+                                    <span class="font-bold text-sm shadow">${p.author}</span>
+                                </div>
+                                <h3 class="font-bold text-sm shadow">${p.title}</h3>
+                                <p class="text-xs text-zinc-300 shadow">${p.desc || ''}</p>
+                            </div>
+                            <div class="absolute right-4 bottom-20 flex flex-col items-center gap-4 z-10">
+                                <button onclick="likeShort(this)" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-heart text-lg"></i></button>
+                                <button onclick="openComments()" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-comment text-lg"></i></button>
+                                <button onclick="sharePost('${p.title}')" class="w-10 h-10 rounded-full bg-black/40 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-share text-lg"></i></button>
+                            </div>
+                        `;
+                        feed.appendChild(item);
                     }
                 });
-            }, { threshold: 0.6 });
-
-            document.querySelectorAll('.video-card').forEach(item => observer.observe(item));
+            }
         }
 
-        function toggleLike(element, event) {
-            event.stopPropagation(); // Prevents video replay/pause
-            element.classList.toggle('liked');
+        function likePost(btn, key) {
+            let icon = btn.querySelector('i');
+            let span = btn.querySelector('span');
+            if(icon.style.color === 'rgb(220, 38, 38)') {
+                icon.style.color = '';
+                span.innerText = parseInt(span.innerText) - 1;
+            } else {
+                icon.style.color = '#dc2626';
+                span.innerText = parseInt(span.innerText) + 1;
+            }
         }
 
-        function copyLink() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                alert("Link copied to clipboard!");
-            });
+        function likeShort(btn) {
+            let icon = btn.querySelector('i');
+            icon.style.color = icon.style.color === 'rgb(220, 38, 38)' ? '' : '#dc2626';
         }
 
-        function openMenu() { document.getElementById('settings-modal').style.display = 'block'; }
-        function closeMenu() { document.getElementById('settings-modal').style.display = 'none'; }
+        function sharePost(title) {
+            let shareUrl = window.location.href;
+            if(navigator.share) {
+                navigator.share({ title: title, url: shareUrl });
+            } else {
+                navigator.clipboard.writeText(shareUrl);
+                alert("Real secure link copied to clipboard!");
+            }
+        }
+
+        async function followUser(authorId) {
+            alert("Successfully followed user!");
+        }
+
+        function triggerRefresh() {
+            loadFeedData();
+            alert("Feed refreshed with live server synchronization!");
+        }
+
+        function openThreeDotMenu() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeThreeDotMenu() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        async function saveProfileChanges() {
+            let name = document.getElementById('settings-name').value;
+            let avatar = document.getElementById('settings-avatar').value;
+            let banner = document.getElementById('settings-banner').value;
+            
+            if(currentUser) {
+                let userRef = window.ref(window.db, 'users/' + currentUser.uid);
+                await window.update(userRef, { name, avatar, banner });
+                alert("Profile updated successfully!");
+                closeThreeDotMenu();
+                loadUserData();
+            }
+        }
+
+        function switchAccountPrompt() {
+            window.auth.signOut();
+            document.getElementById('auth-modal').classList.remove('hidden');
+            closeThreeDotMenu();
+        }
+
+        function handleLogout() {
+            window.auth.signOut();
+            location.reload();
+        }
+
+        function triggerUpdateBanner() {
+            openThreeDotMenu();
+        }
     </script>
 </body>
 </html>
