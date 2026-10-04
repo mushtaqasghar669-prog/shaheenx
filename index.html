@@ -7,28 +7,26 @@
 <title>ShaheenX</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;overflow:hidden;height:100%;width:100%;overscroll-behavior:none}
+html,body{background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;overflow:hidden;height:100%;width:100%;overscroll-behavior:none;position:fixed}
 button,input,textarea{font-family:inherit;color:inherit;outline:none;border:none}
 button{background:none;cursor:pointer}
 img,video{display:block;max-width:100%}
 ::-webkit-scrollbar{width:0;height:0}
 
-/* LOADER */
-#loader{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .35s}
+#loader{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .3s}
 #loader .logo{font-size:42px;font-weight:900;letter-spacing:1.5px;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #loader .bar{width:200px;height:3px;background:#1a1a1a;border-radius:3px;overflow:hidden}
-#loader .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .3s ease}
+#loader .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .2s ease}
 #loader .msg{font-size:11.5px;color:#666;letter-spacing:.6px}
 
-/* AUTH */
 #auth{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;padding:26px;background:radial-gradient(1000px 500px at 50% -10%,#1a0a14 0%,#000 65%);z-index:200;overflow-y:auto}
 #auth .brand{font-size:44px;font-weight:900;text-align:center;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-#auth .tag{text-align:center;color:#777;font-size:12.5px;margin:6px 0 32px;letter-spacing:.4px}
+#auth .tag{text-align:center;color:#777;font-size:12.5px;margin:6px 0 32px}
 #auth .field{background:#0e0e0e;border:1px solid #1c1c1c;border-radius:13px;padding:15px 16px;margin-bottom:11px;display:flex;align-items:center;gap:10px;transition:.15s}
 #auth .field:focus-within{border-color:#333}
 #auth .field input{background:none;border:none;flex:1;font-size:15px;color:#fff}
 #auth .field input::placeholder{color:#555}
-#auth .btn{width:100%;padding:15px;border-radius:13px;font-weight:800;font-size:14.5px;margin-top:10px;transition:.15s;display:flex;align-items:center;justify-content:center;gap:10px}
+#auth .btn{width:100%;padding:15px;border-radius:13px;font-weight:800;font-size:14.5px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px}
 #auth .btn:active{transform:scale(.98)}
 #auth .primary{background:linear-gradient(135deg,#ff2d55,#ff5a7a);color:#fff}
 #auth .primary:disabled{opacity:.55}
@@ -37,8 +35,7 @@ img,video{display:block;max-width:100%}
 #auth .switch{text-align:center;color:#888;font-size:13px;margin-top:20px;cursor:pointer}
 #auth .switch b{color:#ff2d55}
 
-/* APP */
-#app{display:none;flex-direction:column;height:100dvh;width:100%}
+#app{display:none;flex-direction:column;height:100vh;height:100dvh;width:100%}
 #topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #0f0f0f;background:#000;flex-shrink:0;z-index:10}
 #topbar .name{font-size:22px;font-weight:900;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #topbar .active{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;background:#0f0f0f;font-size:11.5px;color:#9f9;font-weight:700}
@@ -50,14 +47,12 @@ img,video{display:block;max-width:100%}
 .view{position:absolute;inset:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
 .view.active{display:block}
 
-/* BOTTOM NAV */
 #bottomnav{height:60px;display:flex;background:#000;border-top:1px solid #0f0f0f;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);z-index:100}
-#bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#666;font-size:10px;font-weight:700;letter-spacing:.2px;transition:.15s}
+#bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#666;font-size:10px;font-weight:700;transition:.15s}
 #bottomnav button.on{color:#fff}
 #bottomnav button svg{width:22px;height:22px;stroke-width:2}
 #bottomnav button.on svg{stroke-width:2.4}
 
-/* HOME FEED */
 .feed{padding:10px 12px 100px}
 .card{background:#0a0a0a;border:1px solid #131313;border-radius:16px;overflow:hidden;margin-bottom:14px}
 .card .head{display:flex;align-items:center;gap:10px;padding:11px 13px}
@@ -73,13 +68,13 @@ img,video{display:block;max-width:100%}
 .card .acts svg{width:19px;height:19px}
 .card .acts .liked{color:#ff2d55}
 .card .acts .liked svg{fill:#ff2d55;stroke:#ff2d55}
+.vidErr{width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:#111;color:#888;font-size:13px;flex-direction:column;gap:8px}
 
 .empty{padding:70px 24px;text-align:center;color:#666}
 .empty h3{color:#fff;margin-bottom:8px;font-size:16px;font-weight:800}
 .empty p{font-size:13px;line-height:1.5}
 .empty svg{width:60px;height:60px;color:#333;margin-bottom:14px}
 
-/* SHORTS */
 #view-shorts{overflow:hidden;background:#000}
 #shortsWrap{height:100%;width:100%;position:relative;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .shorts-item{height:100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden}
@@ -89,13 +84,13 @@ img,video{display:block;max-width:100%}
 .shorts-info .row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
 .shorts-info .row img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fff;flex-shrink:0}
 .shorts-info .row .nm{font-size:15px;font-weight:900}
-.shorts-info .row button{margin-left:6px;font-size:11.5px;font-weight:900;padding:6px 13px;border-radius:20px;background:#ff2d55;color:#fff;letter-spacing:.3px}
+.shorts-info .row button{margin-left:6px;font-size:11.5px;font-weight:900;padding:6px 13px;border-radius:20px;background:#ff2d55;color:#fff}
 .shorts-info .row button.following{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px)}
 .shorts-info .ttl{font-size:14.5px;font-weight:800;margin-bottom:5px;line-height:1.35}
 .shorts-info .dsc{font-size:13px;color:#e8e8e8;line-height:1.4;max-height:56px;overflow:hidden}
 .shorts-side{position:absolute;right:8px;bottom:80px;z-index:3;display:flex;flex-direction:column;gap:20px;align-items:center}
 .shorts-side button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:#fff;min-width:50px}
-.shorts-side svg{width:32px;height:32px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.6));transition:.15s}
+.shorts-side svg{width:32px;height:32px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.6))}
 .shorts-side button:active svg{transform:scale(.88)}
 .shorts-side .liked svg{fill:#ff2d55;stroke:#ff2d55}
 .shorts-side .liked span{color:#ff2d55}
@@ -105,34 +100,29 @@ img,video{display:block;max-width:100%}
 #playPauseOverlay .logo svg{width:50px;height:50px;color:#fff}
 @keyframes fadeIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
 
-/* UPLOAD */
 .upl{padding:16px;padding-bottom:100px;max-width:640px;margin:0 auto}
 .upl .tabs{display:flex;gap:6px;margin-bottom:20px;background:#0a0a0a;padding:5px;border-radius:14px;border:1px solid #131313}
-.upl .tabs button{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:800;color:#777;transition:.15s}
+.upl .tabs button{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:800;color:#777}
 .upl .tabs button.on{background:linear-gradient(135deg,#ff2d55,#ff5a7a);color:#fff}
-.upl .drop{border:2px dashed #222;border-radius:18px;padding:36px 20px;text-align:center;background:#0a0a0a;margin-bottom:16px;cursor:pointer;transition:.15s}
+.upl .drop{border:2px dashed #222;border-radius:18px;padding:36px 20px;text-align:center;background:#0a0a0a;margin-bottom:16px;cursor:pointer}
 .upl .drop:active{border-color:#ff2d55;background:#0f0a0d}
 .upl .drop svg{width:44px;height:44px;color:#444;margin-bottom:12px}
 .upl .drop p{font-size:14.5px;color:#fff;font-weight:800;margin-bottom:5px}
-.upl .drop small{display:block;color:#777;font-size:11.5px;margin-top:3px}
+.upl .drop small{display:block;color:#777;font-size:11.5px;margin-top:3px;word-break:break-all}
 .upl .prev{width:100%;border-radius:16px;margin-bottom:16px;background:#000;max-height:62vh;object-fit:contain;border:1px solid #1a1a1a}
-.upl label{font-size:12px;color:#999;display:flex;justify-content:space-between;margin:16px 0 7px;font-weight:800;letter-spacing:.2px;text-transform:uppercase}
-.upl label span{color:#666;text-transform:none;font-weight:700}
-.upl input[type=text],.upl textarea{width:100%;background:#0a0a0a;border:1px solid #1c1c1c;border-radius:13px;padding:14px 16px;font-size:14.5px;color:#fff;resize:none;transition:.15s}
-.upl input:focus,.upl textarea:focus{border-color:#333;background:#0f0f0f}
-.upl .count{text-align:right;font-size:11px;color:#666;margin-top:5px;font-weight:700}
-.upl .count.over{color:#ff2d55}
-.upl .submit{margin-top:22px;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,#ff2d55,#ff5a7a);font-weight:900;font-size:15px;color:#fff;letter-spacing:.3px;transition:.15s}
+.upl label{font-size:12px;color:#999;display:flex;justify-content:space-between;margin:16px 0 7px;font-weight:800;text-transform:uppercase}
+.upl label span{color:#666;text-transform:none}
+.upl input[type=text],.upl textarea{width:100%;background:#0a0a0a;border:1px solid #1c1c1c;border-radius:13px;padding:14px 16px;font-size:14.5px;color:#fff;resize:none}
+.upl input:focus,.upl textarea:focus{border-color:#333}
+.upl .submit{margin-top:22px;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,#ff2d55,#ff5a7a);font-weight:900;font-size:15px;color:#fff}
 .upl .submit:disabled{opacity:.5}
-.upl .submit:active:not(:disabled){transform:scale(.98)}
 .progress{margin-top:18px;display:none;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:14px;padding:16px}
 .progress.show{display:block}
 .progress .track{height:6px;background:#1c1c1c;border-radius:6px;overflow:hidden}
-.progress .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .2s;border-radius:6px}
+.progress .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .25s;border-radius:6px}
 .progress .lbl{font-size:12px;color:#aaa;margin-top:10px;display:flex;justify-content:space-between;font-weight:700}
 .progress .lbl b{color:#fff;font-weight:900}
 
-/* PROFILE */
 .prof{padding-bottom:100px}
 .bannerWrap{position:relative;height:150px;background:linear-gradient(135deg,#1a0a14,#0a1220);overflow:hidden}
 .bannerWrap img{width:100%;height:100%;object-fit:cover}
@@ -142,48 +132,43 @@ img,video{display:block;max-width:100%}
 .avatar{width:104px;height:104px;border-radius:50%;border:4px solid #000;object-fit:cover;background:#1a1a1a}
 .avatarWrap .cam{position:absolute;right:0;bottom:0;width:32px;height:32px;border-radius:50%;background:#ff2d55;display:flex;align-items:center;justify-content:center;border:3px solid #000}
 .avatarWrap .cam svg{width:14px;height:14px;color:#fff}
-.profHead .nm{font-size:22px;font-weight:900;margin-top:10px;line-height:1.2}
+.profHead .nm{font-size:22px;font-weight:900;margin-top:10px}
 .profHead .em{font-size:12.5px;color:#777;margin-top:3px}
 .stats{display:flex;gap:28px;padding:18px 16px 0;align-items:center}
-.stats .stat{text-align:left}
-.stats .stat b{display:block;font-size:17px;color:#fff;font-weight:900;line-height:1.2}
-.stats .stat span{font-size:11px;color:#777;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;display:block}
-.stats .dots{margin-left:auto;padding:9px 15px;border-radius:22px;background:#111;font-size:15px;font-weight:900;letter-spacing:1px;border:1px solid #1e1e1e}
+.stats .stat b{display:block;font-size:17px;color:#fff;font-weight:900}
+.stats .stat span{font-size:11px;color:#777;font-weight:700;text-transform:uppercase;margin-top:2px;display:block}
+.stats .dots{margin-left:auto;padding:9px 15px;border-radius:22px;background:#111;font-size:15px;font-weight:900;border:1px solid #1e1e1e}
 .tabs2{display:flex;border-top:1px solid #0f0f0f;border-bottom:1px solid #0f0f0f;margin-top:16px;position:sticky;top:0;background:#000;z-index:5}
-.tabs2 button{flex:1;padding:15px;font-size:12.5px;font-weight:900;color:#666;border-bottom:2px solid transparent;letter-spacing:.4px;text-transform:uppercase;transition:.15s}
+.tabs2 button{flex:1;padding:15px;font-size:12.5px;font-weight:900;color:#666;border-bottom:2px solid transparent;text-transform:uppercase}
 .tabs2 button.on{color:#fff;border-color:#ff2d55}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
-.grid .cell{aspect-ratio:9/16;background:#111;overflow:hidden;position:relative;cursor:pointer}
+.grid .cell{aspect-ratio:9/16;background:#111;overflow:hidden;position:relative}
 .grid .cell video,.grid .cell img{width:100%;height:100%;object-fit:cover}
-.grid .cell .cnt{position:absolute;bottom:5px;left:7px;font-size:10.5px;font-weight:900;text-shadow:0 1px 4px #000;display:flex;align-items:center;gap:4px}
-.grid .cell .cnt svg{width:11px;height:11px}
+.grid .cell .cnt{position:absolute;bottom:5px;left:7px;font-size:10.5px;font-weight:900;text-shadow:0 1px 4px #000}
 
-/* SHEETS */
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:none;align-items:flex-end;backdrop-filter:blur(6px)}
 .sheet.show{display:flex}
-.sheet .panel{background:#0c0c0c;width:100%;border-radius:22px 22px 0 0;padding:8px 8px calc(16px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto;animation:up .22s ease;border-top:1px solid #1a1a1a}
+.sheet .panel{background:#0c0c0c;width:100%;border-radius:22px 22px 0 0;padding:8px 8px calc(16px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto;animation:up .22s;border-top:1px solid #1a1a1a}
 @keyframes up{from{transform:translateY(60px);opacity:.7}to{transform:translateY(0);opacity:1}}
 .sheet .handle{width:40px;height:4px;background:#333;border-radius:4px;margin:8px auto 14px}
-.sheet h4{font-size:13px;font-weight:900;color:#777;padding:6px 14px 10px;text-transform:uppercase;letter-spacing:.5px}
-.sheet .item{display:flex;align-items:center;gap:14px;padding:15px 14px;border-radius:14px;font-size:14.5px;width:100%;text-align:left;font-weight:700;color:#fff;transition:.15s}
+.sheet h4{font-size:13px;font-weight:900;color:#777;padding:6px 14px 10px;text-transform:uppercase}
+.sheet .item{display:flex;align-items:center;gap:14px;padding:15px 14px;border-radius:14px;font-size:14.5px;width:100%;text-align:left;font-weight:700;color:#fff}
 .sheet .item:active{background:#171717}
 .sheet .item svg{width:20px;height:20px;color:#999;flex-shrink:0}
 .sheet .item.danger{color:#ff4d6d}
 .sheet .item.danger svg{color:#ff4d6d}
 
-/* COMMENTS */
 .cmtSheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:none;align-items:flex-end;backdrop-filter:blur(4px)}
 .cmtSheet.show{display:flex}
-.cmtSheet .panel{background:#0c0c0c;width:100%;height:72vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:up .22s ease;border-top:1px solid #1a1a1a}
+.cmtSheet .panel{background:#0c0c0c;width:100%;height:72vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;animation:up .22s;border-top:1px solid #1a1a1a}
 .cmtHead{padding:16px 18px 13px;border-bottom:1px solid #141414;display:flex;justify-content:space-between;align-items:center}
 .cmtHead b{font-size:15px;font-weight:900}
 .cmtHead button{color:#888;font-size:18px;font-weight:800;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.cmtHead button:active{background:#1a1a1a}
 .cmtList{flex:1;overflow-y:auto;padding:6px 14px}
 .cmt{display:flex;gap:11px;padding:12px 2px}
 .cmt img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#1a1a1a;flex-shrink:0}
 .cmt .cbody{flex:1;min-width:0}
-.cmt .cnm{font-size:12.5px;font-weight:900;color:#fff}
+.cmt .cnm{font-size:12.5px;font-weight:900}
 .cmt .ctx{font-size:13.5px;line-height:1.4;margin-top:3px;word-break:break-word;color:#e8e8e8}
 .cmt .cmeta{display:flex;gap:16px;font-size:11.5px;color:#777;margin-top:8px;font-weight:800;align-items:center}
 .cmt .cmeta button{color:#888;font-size:11.5px;font-weight:800;padding:2px 0}
@@ -191,16 +176,11 @@ img,video{display:block;max-width:100%}
 .cmt .replies{margin-top:8px;padding-left:12px;border-left:2px solid #1c1c1c}
 .cmt .replies .cmt{padding:8px 0}
 .cmt .replies .cmt img{width:26px;height:26px}
-.cmt .replies .cmt .cnm{font-size:11.5px}
-.cmt .replies .cmt .ctx{font-size:12.5px}
 .cmtBox{padding:12px 14px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #141414;display:flex;gap:9px;align-items:center;background:#0c0c0c}
 .cmtBox input{flex:1;background:#161616;border:1px solid #222;border-radius:24px;padding:12px 18px;font-size:14px;color:#fff}
-.cmtBox input:focus{border-color:#333}
 .cmtBox button{padding:12px 18px;border-radius:24px;background:linear-gradient(135deg,#ff2d55,#ff5a7a);font-weight:900;font-size:13px;color:#fff}
 .cmtBox button:disabled{opacity:.4}
-.cmtBox button:active:not(:disabled){transform:scale(.95)}
 
-/* TOAST */
 #toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:88px;background:#1c1c1c;padding:12px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:.25s;pointer-events:none;border:1px solid #2a2a2a;max-width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -208,32 +188,22 @@ img,video{display:block;max-width:100%}
 .spin.big{width:34px;height:34px;border-width:3px}
 @keyframes sp{to{transform:rotate(360deg)}}
 .centerSpin{display:flex;justify-content:center;padding:40px}
-
-/* SKELETON */
-.sk{background:linear-gradient(90deg,#0f0f0f 0%,#1a1a1a 50%,#0f0f0f 100%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:12px}
-@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 </head>
 <body>
 
-<!-- LOADER -->
 <div id="loader">
   <div class="logo">ShaheenX</div>
   <div class="bar"><span id="loadBar"></span></div>
   <div class="msg" id="loadMsg">Starting…</div>
 </div>
 
-<!-- AUTH -->
 <div id="auth">
   <div class="brand">ShaheenX</div>
   <div class="tag">Create · Share · Go Viral</div>
-
-  <div id="fName" style="display:none">
-    <div class="field"><input id="inName" placeholder="Channel name" maxlength="24" autocomplete="nickname"/></div>
-  </div>
+  <div id="fName" style="display:none"><div class="field"><input id="inName" placeholder="Channel name" maxlength="24"/></div></div>
   <div class="field"><input id="inEmail" type="email" placeholder="Email" autocomplete="email"/></div>
-  <div class="field"><input id="inPass" type="password" placeholder="Password" autocomplete="current-password"/></div>
-
+  <div class="field"><input id="inPass" type="password" placeholder="Password"/></div>
   <button class="btn primary" id="btnMain">Sign In</button>
   <button class="btn ghost" id="btnGoogle">
     <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.9 7.1 29.2 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.5-.2-2.9-.4-4.5z"/><path fill="#FF3D00" d="M6.3 15.7l6.6 4.8C14.7 16.2 19 13 24 13c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.9 7.1 29.2 5 24 5 16.3 5 9.7 9.3 6.3 15.7z"/><path fill="#4CAF50" d="M24 45c5.1 0 9.8-2 13.3-5.2l-6.1-5.2C29.3 36 26.8 37 24 37c-5.3 0-9.7-2.6-11.3-7l-6.5 5C9.6 40.5 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.1 5.2C40.9 36 44 31 44 25c0-1.5-.2-2.9-.4-4.5z"/></svg>
@@ -243,15 +213,12 @@ img,video{display:block;max-width:100%}
   <div class="switch" id="switchMode">New here? <b>Create account</b></div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header id="topbar">
     <div class="name">ShaheenX</div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="active" id="activeBadge" style="display:none"><i></i><span id="activeCount">0</span> live</div>
-      <button class="refresh" id="btnRefresh">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
-      </button>
+      <button class="refresh" id="btnRefresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg></button>
     </div>
   </header>
 
@@ -264,26 +231,11 @@ img,video{display:block;max-width:100%}
   </main>
 
   <nav id="bottomnav">
-    <button data-tab="home" class="on">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>
-      Home
-    </button>
-    <button data-tab="shorts">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
-      Shorts
-    </button>
-    <button data-tab="upload">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
-      Upload
-    </button>
-    <button data-tab="history">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      History
-    </button>
-    <button data-tab="profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
-      Profile
-    </button>
+    <button data-tab="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>Home</button>
+    <button data-tab="shorts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>Shorts</button>
+    <button data-tab="upload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>Upload</button>
+    <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
+    <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>Profile</button>
   </nav>
 </div>
 
@@ -291,27 +243,14 @@ img,video{display:block;max-width:100%}
 <div class="cmtSheet" id="cmtSheet"><div class="panel">
   <div class="cmtHead"><b>Comments</b><button onclick="closeComments()">✕</button></div>
   <div class="cmtList" id="cmtList"></div>
-  <div class="cmtBox">
-    <input id="cmtInput" maxlength="50" placeholder="Add a comment…"/>
-    <button id="cmtSend">Post</button>
-  </div>
+  <div class="cmtBox"><input id="cmtInput" maxlength="50" placeholder="Add a comment…"/><button id="cmtSend">Post</button></div>
 </div></div>
 <div id="toast"></div>
 
 <script type="module">
-/* ============================================================
-   FIREBASE
-============================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
-  signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getDatabase, ref, set, get, push, update, onValue, query,
-  orderByChild, limitToLast, remove, runTransaction, increment
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, get, push, update, onValue, remove, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
@@ -328,19 +267,11 @@ const db = getDatabase(fbApp);
 const gProvider = new GoogleAuthProvider();
 gProvider.setCustomParameters({ prompt: 'select_account' });
 
-/* CLOUDINARY */
 const CLOUD_NAME = "dsgicshff";
-const UPLOAD_PRESET = "shaheenx"; // 🔴 MUST be Unsigned on Cloudinary
+const UPLOAD_PRESET = "shaheenx";
 
-/* STATE */
-let ME = null, MEPROF = null;
-let currentTab = "home";
-let postsCache = {};
-let shortsObserver = null;
-let viewTimers = {};
-let currentCmtPost = null;
+let ME = null, MEPROF = null, currentTab = "home", postsCache = {}, shortsObserver = null, viewTimers = {}, currentCmtPost = null;
 
-/* HELPERS */
 const $ = id => document.getElementById(id);
 const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => { n = Number(n||0); if(n>=1e9)return (n/1e9).toFixed(1)+'B'; if(n>=1e6)return (n/1e6).toFixed(1)+'M'; if(n>=1e3)return (n/1e3).toFixed(1)+'K'; return String(n); };
@@ -351,22 +282,44 @@ const avatar = (url, name) => {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%' height='100%' fill='#1e1e1e'/><text x='50%' y='56%' font-size='56' font-family='sans-serif' font-weight='900' fill='#fff' text-anchor='middle' dominant-baseline='middle'>${ch}</text></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 };
-function toast(msg){
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2000);
-}
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2400); }
+function setLoad(p, txt){ $('loadBar').style.width = p+'%'; if (txt) $('loadMsg').textContent = txt; }
 
-/* ============================================================
-   LOADER (max 3.5s)
-============================================================ */
-function setLoad(p, txt){
-  $('loadBar').style.width = p+'%';
-  if (txt) $('loadMsg').textContent = txt;
-}
+/* ═══════════ LOADER — HARD 2.5s MAX ═══════════ */
+(async function boot(){
+  const t0 = Date.now();
+  setLoad(20, 'Starting…');
+  await new Promise(r=>setTimeout(r,120));
+  setLoad(55, 'Connecting…');
 
-/* ============================================================
-   AUTH UI
-============================================================ */
+  onAuthStateChanged(auth, async (user) => {
+    const remaining = Math.max(0, 2400 - (Date.now()-t0));
+    setLoad(85, user ? 'Loading profile…' : 'Preparing login…');
+    await new Promise(r=>setTimeout(r, Math.min(remaining, 500)));
+    setLoad(100, 'Ready');
+    await new Promise(r=>setTimeout(r,180));
+    $('loader').style.opacity = '0';
+    setTimeout(()=>{ $('loader').style.display = 'none'; }, 320);
+
+    if (!user){
+      ME = null; MEPROF = null;
+      $('app').style.display = 'none';
+      $('auth').style.display = 'flex';
+      return;
+    }
+    ME = user;
+    $('auth').style.display = 'none';
+    $('app').style.display = 'flex';
+    try { await ensureProfile(user); } catch(e){ console.error(e); }
+    startPresence();
+    watchActiveUsers();
+    renderUpload();
+    renderProfile();
+    go('home');
+  });
+})();
+
+/* ═══════════ AUTH ═══════════ */
 let authMode = 'login';
 function setAuthMode(m){
   authMode = m;
@@ -378,21 +331,15 @@ function setAuthMode(m){
 $('switchMode').onclick = () => setAuthMode(authMode==='login'?'register':'login');
 
 $('btnMain').onclick = async () => {
-  const email = $('inEmail').value.trim();
-  const pass = $('inPass').value;
-  const nm = $('inName').value.trim();
+  const email = $('inEmail').value.trim(), pass = $('inPass').value, nm = $('inName').value.trim();
   if (!email || !pass) return toast('Fill email and password');
   if (pass.length < 6) return toast('Password must be 6+ chars');
   if (authMode==='register' && !nm) return toast('Enter channel name');
   $('btnMain').disabled = true;
   $('btnMain').innerHTML = '<span class="spin" style="border-top-color:#fff"></span>';
   try {
-    if (authMode === 'login'){
-      await signInWithEmailAndPassword(auth, email, pass);
-    } else {
-      const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await updateProfile(cred.user, { displayName: nm });
-    }
+    if (authMode === 'login'){ await signInWithEmailAndPassword(auth, email, pass); }
+    else { const cred = await createUserWithEmailAndPassword(auth, email, pass); await updateProfile(cred.user, { displayName: nm }); }
   } catch(e){
     toast(prettyErr(e));
     $('btnMain').disabled = false;
@@ -403,98 +350,36 @@ $('btnMain').onclick = async () => {
 $('linkForgot').onclick = async () => {
   const email = $('inEmail').value.trim();
   if (!email) return toast('Enter your email first');
-  try {
-    await sendPasswordResetEmail(auth, email);
-    toast('Reset link sent to your email ✅');
-  } catch(e){ toast(prettyErr(e)); }
+  try { await sendPasswordResetEmail(auth, email); toast('Reset link sent ✅'); }
+  catch(e){ toast(prettyErr(e)); }
 };
 
 $('btnGoogle').onclick = async () => {
-  try {
-    await signInWithPopup(auth, gProvider);
-  } catch(e){
-    if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user'){
-      try { await signInWithRedirect(auth, gProvider); } catch(e2){ toast(prettyErr(e2)); }
-    } else {
-      toast(prettyErr(e));
-    }
+  try { await signInWithPopup(auth, gProvider); }
+  catch(e){
+    if (e.code === 'auth/popup-blocked'){ try { await signInWithRedirect(auth, gProvider); } catch(e2){ toast(prettyErr(e2)); } }
+    else { toast(prettyErr(e)); }
   }
 };
 
 function prettyErr(e){
   const c = (e && e.code) || '';
   const m = {
-    'auth/invalid-email':'Invalid email',
-    'auth/user-not-found':'No account found',
-    'auth/wrong-password':'Wrong password',
-    'auth/invalid-credential':'Wrong email or password',
-    'auth/email-already-in-use':'Email already in use',
-    'auth/weak-password':'Password too weak',
-    'auth/network-request-failed':'Network error',
-    'auth/popup-closed-by-user':'Popup closed',
-    'auth/unauthorized-domain':'Domain not authorized in Firebase',
-    'auth/operation-not-allowed':'Enable this sign-in method in Firebase'
+    'auth/invalid-email':'Invalid email','auth/user-not-found':'No account found','auth/wrong-password':'Wrong password',
+    'auth/invalid-credential':'Wrong email or password','auth/email-already-in-use':'Email already in use',
+    'auth/weak-password':'Password too weak','auth/network-request-failed':'Network error',
+    'auth/popup-closed-by-user':'Popup closed','auth/unauthorized-domain':'Add this domain in Firebase Auth settings',
+    'auth/operation-not-allowed':'Enable this method in Firebase'
   };
   return m[c] || e.message || 'Something went wrong';
 }
 
-/* ============================================================
-   BOOT
-============================================================ */
-(async function boot(){
-  const t0 = Date.now();
-  setLoad(15, 'Starting…');
-  await new Promise(r=>setTimeout(r,180));
-  setLoad(45, 'Connecting…');
-
-  try { await getRedirectResult(auth); } catch(e){}
-
-  onAuthStateChanged(auth, async (user) => {
-    const elapsed = Date.now() - t0;
-    const remaining = Math.max(0, 2400 - elapsed);
-    setLoad(80, user ? 'Loading your profile…' : 'Preparing login…');
-    await new Promise(r=>setTimeout(r, Math.min(remaining, 700)));
-    setLoad(100, 'Ready');
-    await new Promise(r=>setTimeout(r, 250));
-    $('loader').style.opacity = '0';
-    setTimeout(()=>{ $('loader').style.display = 'none'; }, 350);
-
-    if (!user){
-      ME = null; MEPROF = null;
-      $('app').style.display = 'none';
-      $('auth').style.display = 'flex';
-      return;
-    }
-    ME = user;
-    $('auth').style.display = 'none';
-    $('app').style.display = 'flex';
-    await ensureProfile(user);
-    startPresence();
-    watchActiveUsers();
-    renderUpload();
-    renderProfile();
-    go('home');
-  });
-})();
-
-/* ============================================================
-   PROFILE ENSURE
-============================================================ */
 async function ensureProfile(user){
   const r = ref(db, 'users/'+user.uid);
   const snap = await get(r);
   if (!snap.exists()){
     const nm = user.displayName || (user.email||'').split('@')[0] || 'User';
-    await set(r, {
-      uid: user.uid,
-      email: user.email || '',
-      displayName: nm,
-      channelName: nm.slice(0,24),
-      photoURL: user.photoURL || '',
-      bannerURL: '',
-      createdAt: Date.now(),
-      postCount: 0
-    });
+    await set(r, { uid: user.uid, email: user.email || '', displayName: nm, channelName: nm.slice(0,24), photoURL: user.photoURL || '', bannerURL: '', createdAt: Date.now(), postCount: 0 });
   } else {
     const d = snap.val();
     const patch = {};
@@ -506,9 +391,6 @@ async function ensureProfile(user){
   MEPROF = (await get(r)).val();
 }
 
-/* ============================================================
-   PRESENCE
-============================================================ */
 function startPresence(){
   const r = ref(db, 'presence/'+ME.uid);
   const beat = () => set(r, Date.now()).catch(()=>{});
@@ -526,9 +408,7 @@ function watchActiveUsers(){
   });
 }
 
-/* ============================================================
-   NAV
-============================================================ */
+/* ═══════════ NAV ═══════════ */
 function go(tab){
   currentTab = tab;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -544,26 +424,21 @@ function go(tab){
   if (tab === 'upload') renderUpload();
   if (tab === 'shorts'){
     watchShorts();
-    setTimeout(()=>{
-      const f = document.querySelector('.shorts-item video');
-      if (f){ f.muted = false; f.play().catch(()=>{ f.muted = true; f.play().catch(()=>{}); }); }
-    }, 250);
+    setTimeout(()=>{ const f = document.querySelector('.shorts-item video'); if (f){ f.muted = false; f.play().catch(()=>{ f.muted = true; f.play().catch(()=>{}); }); } }, 250);
   } else {
-    document.querySelectorAll('.shorts-item video').forEach(v => v.pause());
+    document.querySelectorAll('.shorts-item video').forEach(v => { v.pause(); try{v.currentTime=0;}catch(e){} });
   }
 }
 document.querySelectorAll('#bottomnav button').forEach(b => b.onclick = () => go(b.dataset.tab));
 $('btnRefresh').onclick = () => { go(currentTab); toast('Refreshed'); };
 
-/* ============================================================
-   HOME
-============================================================ */
-async function fetchAllPosts(limit=100){
-  const q = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(limit));
-  const snap = await get(q);
+/* ═══════════ POSTS ═══════════ */
+async function fetchAllPosts(){
+  const snap = await get(ref(db, 'posts'));
   const arr = [];
   snap.forEach(ch => arr.push({ id: ch.key, ...ch.val() }));
-  return arr.reverse();
+  arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+  return arr;
 }
 
 async function renderHome(){
@@ -573,15 +448,12 @@ async function renderHome(){
     const posts = (await fetchAllPosts()).filter(p => p.type !== 'short');
     posts.forEach(p => postsCache[p.id] = p);
     if (!posts.length){
-      feed.innerHTML = `<div class="empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-        <h3>No posts yet</h3>
-        <p>Be the first to post. Tap Upload below.</p>
-      </div>`;
+      feed.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><h3>No posts yet</h3><p>Be the first to post. Tap Upload below.</p></div>`;
       return;
     }
     feed.innerHTML = posts.map(cardHTML).join('');
     attachCardEvents(feed);
+    attachVideoErrors(feed);
   } catch(e){
     feed.innerHTML = `<div class="empty"><h3>Couldn't load</h3><p>${esc(e.message)}</p></div>`;
   }
@@ -591,11 +463,12 @@ function cardHTML(p){
   const liked = p.likes && p.likes[ME.uid];
   const likeCount = Object.keys(p.likes||{}).length;
   const cmtCount = Object.keys(p.comments||{}).length;
+  const poster = p.thumb ? `poster="${p.thumb}"` : '';
   let media = '';
   if (p.type === 'image'){
     media = `<img class="media" src="${p.url}" loading="lazy"/>`;
   } else {
-    media = `<video class="media" src="${p.url}" controls playsinline preload="metadata" poster="${p.thumb||''}"></video>`;
+    media = `<video class="media" src="${p.url}" controls playsinline preload="metadata" ${poster}></video>`;
   }
   return `
   <div class="card" data-id="${p.id}">
@@ -612,18 +485,9 @@ function cardHTML(p){
       ${p.description ? `<div class="dsc">${esc(p.description)}</div>` : ''}
     </div>
     <div class="acts">
-      <button data-act="like" class="${liked?'liked':''}">
-        <svg viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-        <span>${fmt(likeCount)}</span>
-      </button>
-      <button data-act="comment">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg>
-        <span>${fmt(cmtCount)}</span>
-      </button>
-      <button data-act="share">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
-        <span>Share</span>
-      </button>
+      <button data-act="like" class="${liked?'liked':''}"><svg viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>${fmt(likeCount)}</span></button>
+      <button data-act="comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg><span>${fmt(cmtCount)}</span></button>
+      <button data-act="share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg><span>Share</span></button>
     </div>
   </div>`;
 }
@@ -643,9 +507,18 @@ function attachCardEvents(root){
   });
 }
 
-/* ============================================================
-   LIKE
-============================================================ */
+/* 🔴 FIX — Show error if video fails */
+function attachVideoErrors(root){
+  root.querySelectorAll('video').forEach(v => {
+    v.addEventListener('error', () => {
+      const err = document.createElement('div');
+      err.className = 'vidErr';
+      err.innerHTML = '⚠️ Video could not load<br/><span style="font-size:11px;color:#555">URL: ' + esc(v.src.slice(0,60)) + '…</span>';
+      v.parentNode.replaceChild(err, v);
+    }, { once: true });
+  });
+}
+
 async function toggleLike(postId, btn){
   const uid = ME.uid;
   const likeRef = ref(db, `posts/${postId}/likes/${uid}`);
@@ -668,45 +541,32 @@ async function toggleLike(postId, btn){
   }
 }
 
-/* ============================================================
-   SHARE
-============================================================ */
 async function sharePost(postId){
   const url = location.origin + location.pathname + '?post=' + postId;
   try {
-    if (navigator.share){
-      await navigator.share({ title:'ShaheenX', text:'Watch this', url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast('Link copied');
-    }
+    if (navigator.share){ await navigator.share({ title:'ShaheenX', text:'Watch this', url }); }
+    else { await navigator.clipboard.writeText(url); toast('Link copied'); }
   } catch(e){}
 }
 
-/* ============================================================
-   SHORTS
-============================================================ */
+/* ═══════════ SHORTS ═══════════ */
 let shortsUnsub = null;
 function watchShorts(){
   if (shortsUnsub) return;
   const wrap = $('shortsWrap');
   wrap.innerHTML = `<div class="centerSpin" style="height:100%;align-items:center"><div class="spin big"></div></div>`;
 
-  const q = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(60));
-  shortsUnsub = onValue(q, snap => {
+  shortsUnsub = onValue(ref(db, 'posts'), snap => {
     const arr = [];
     snap.forEach(ch => {
       const v = ch.val();
       if (v.type === 'short') arr.push({ id: ch.key, ...v });
     });
-    arr.reverse();
+    arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
     arr.forEach(p => postsCache[p.id] = p);
 
     if (!arr.length){
-      wrap.innerHTML = `<div class="shorts-item"><div class="empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
-        <h3>No shorts yet</h3><p>Upload the first one!</p>
-      </div></div>`;
+      wrap.innerHTML = `<div class="shorts-item"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg><h3>No shorts yet</h3><p>Upload the first one!</p></div></div>`;
       return;
     }
     wrap.innerHTML = arr.map(shortHTML).join('');
@@ -721,7 +581,7 @@ function shortHTML(p){
   const cmtCount = Object.keys(p.comments||{}).length;
   return `
   <div class="shorts-item" data-id="${p.id}">
-    <video src="${p.url}" playsinline loop preload="metadata" poster="${p.thumb||''}" muted></video>
+    <video src="${p.url}" playsinline loop preload="metadata" muted></video>
     <div class="gradient"></div>
     <div class="shorts-info">
       <div class="row">
@@ -733,45 +593,46 @@ function shortHTML(p){
       ${p.description ? `<div class="dsc">${esc(p.description)}</div>` : ''}
     </div>
     <div class="shorts-side">
-      <button data-act="like" class="${liked?'liked':''}">
-        <svg viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-        <span>${fmt(likeCount)}</span>
-      </button>
-      <button data-act="comment">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg>
-        <span>${fmt(cmtCount)}</span>
-      </button>
-      <button data-act="share">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
-        <span>Share</span>
-      </button>
-      <button data-act="save">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
-        <span>Save</span>
-      </button>
+      <button data-act="like" class="${liked?'liked':''}"><svg viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>${fmt(likeCount)}</span></button>
+      <button data-act="comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg><span>${fmt(cmtCount)}</span></button>
+      <button data-act="share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg><span>Share</span></button>
+      <button data-act="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span>Save</span></button>
     </div>
   </div>`;
 }
 
+/* 🔴 FIX — HARD PAUSE all other videos before playing */
 function bindShorts(wrap){
   if (shortsObserver) shortsObserver.disconnect();
+
   shortsObserver = new IntersectionObserver(entries => {
-    entries.forEach(async e => {
+    entries.forEach(e => {
       const item = e.target;
       const vid = item.querySelector('video');
+      if (!vid) return;
       const id = item.dataset.id;
-      if (e.isIntersecting && e.intersectionRatio > 0.6){
-        document.querySelectorAll('.shorts-item video').forEach(v => { if (v !== vid) v.pause(); });
+
+      if (e.isIntersecting && e.intersectionRatio > 0.65){
+        // 🔴 IMMEDIATELY pause every other video
+        wrap.querySelectorAll('.shorts-item').forEach(otherItem => {
+          if (otherItem === item) return;
+          const otherVid = otherItem.querySelector('video');
+          if (otherVid && !otherVid.paused){
+            otherVid.pause();
+            try { otherVid.currentTime = 0; } catch(err){}
+            otherVid.muted = true;
+          }
+        });
         vid.muted = false;
-        try { await vid.play(); } catch(err){ vid.muted = true; await vid.play().catch(()=>{}); }
+        vid.play().catch(()=>{ vid.muted = true; vid.play().catch(()=>{}); });
         markHistory(id);
         startViewTimer(id);
       } else {
-        vid.pause();
+        if (!vid.paused) vid.pause();
         stopViewTimer(id);
       }
     });
-  }, { threshold: [0.15, 0.6, 1], root: wrap });
+  }, { threshold: [0, 0.65, 1], root: wrap });
 
   wrap.querySelectorAll('.shorts-item').forEach(it => shortsObserver.observe(it));
 
@@ -842,38 +703,24 @@ function startViewTimer(id){
 }
 function stopViewTimer(id){ if (viewTimers[id]){ clearTimeout(viewTimers[id]); delete viewTimers[id]; } }
 
-/* ============================================================
-   FOLLOW
-============================================================ */
 async function toggleFollow(targetUid, btn){
   if (!targetUid || targetUid === ME.uid) return;
   const myRef = ref(db, `users/${ME.uid}/following/${targetUid}`);
   const theirRef = ref(db, `users/${targetUid}/followers/${ME.uid}`);
   const s = await get(myRef);
   if (s.exists()){
-    await remove(myRef);
-    await remove(theirRef);
-    btn.classList.remove('following');
-    btn.textContent = 'Follow';
+    await remove(myRef); await remove(theirRef);
+    btn.classList.remove('following'); btn.textContent = 'Follow';
     if (MEPROF?.following) delete MEPROF.following[targetUid];
   } else {
-    await set(myRef, true);
-    await set(theirRef, true);
-    btn.classList.add('following');
-    btn.textContent = 'Following';
-    MEPROF.following = MEPROF.following || {};
-    MEPROF.following[targetUid] = true;
+    await set(myRef, true); await set(theirRef, true);
+    btn.classList.add('following'); btn.textContent = 'Following';
+    MEPROF.following = MEPROF.following || {}; MEPROF.following[targetUid] = true;
   }
 }
 
-/* ============================================================
-   COMMENTS
-============================================================ */
-function openComments(postId){
-  currentCmtPost = postId;
-  $('cmtSheet').classList.add('show');
-  renderComments(postId);
-}
+/* ═══════════ COMMENTS ═══════════ */
+function openComments(postId){ currentCmtPost = postId; $('cmtSheet').classList.add('show'); renderComments(postId); }
 window.closeComments = () => { $('cmtSheet').classList.remove('show'); currentCmtPost = null; };
 $('cmtSheet').addEventListener('click', e => { if (e.target === $('cmtSheet')) closeComments(); });
 
@@ -884,11 +731,8 @@ async function renderComments(postId){
   const arr = [];
   s.forEach(ch => arr.push({ id: ch.key, ...ch.val() }));
   arr.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-
   if (!arr.length){ list.innerHTML = `<div class="empty"><p>No comments yet. Be the first!</p></div>`; return; }
-
   list.innerHTML = arr.map(c => commentHTML(c)).join('');
-
   list.querySelectorAll('[data-cmt-like]').forEach(b => {
     b.onclick = async () => {
       const cid = b.dataset.cmtLike;
@@ -903,15 +747,8 @@ async function renderComments(postId){
       const cid = b.dataset.cmtReply;
       const text = prompt('Reply (max 50 chars)');
       if (!text) return;
-      const t = text.slice(0,50);
       const rr = push(ref(db, `posts/${postId}/comments/${cid}/replies`));
-      await set(rr, {
-        uid: ME.uid,
-        name: MEPROF.channelName || MEPROF.displayName || 'User',
-        photoURL: MEPROF.photoURL || '',
-        text: t,
-        createdAt: Date.now()
-      });
+      await set(rr, { uid: ME.uid, name: MEPROF.channelName||'User', photoURL: MEPROF.photoURL||'', text: text.slice(0,50), createdAt: Date.now() });
       renderComments(postId);
     };
   });
@@ -935,10 +772,7 @@ function commentHTML(c){
       ${replies.length ? `<div class="replies">${replies.map(r => `
         <div class="cmt">
           <img src="${avatar(r.photoURL, r.name)}" onerror="this.src='${avatar('', 'U')}'"/>
-          <div class="cbody">
-            <div class="cnm">${esc(r.name||'User')}</div>
-            <div class="ctx">${esc(r.text||'')}</div>
-          </div>
+          <div class="cbody"><div class="cnm">${esc(r.name||'User')}</div><div class="ctx">${esc(r.text||'')}</div></div>
         </div>`).join('')}</div>` : ''}
     </div>
   </div>`;
@@ -955,22 +789,14 @@ $('cmtSend').onclick = async () => {
   s.forEach(ch => { if (ch.val().uid === ME.uid) mine++; });
   if (mine >= 3) return toast('Max 3 comments per post');
   const nr = push(ref(db, `posts/${postId}/comments`));
-  await set(nr, {
-    uid: ME.uid,
-    name: MEPROF.channelName || MEPROF.displayName || 'User',
-    photoURL: MEPROF.photoURL || '',
-    text,
-    createdAt: Date.now()
-  });
+  await set(nr, { uid: ME.uid, name: MEPROF.channelName||'User', photoURL: MEPROF.photoURL||'', text, createdAt: Date.now() });
   inp.value = '';
   renderComments(postId);
 };
 
-/* ============================================================
-   UPLOAD
-============================================================ */
-let uplType = 'short';
-let uplFile = null;
+/* ═══════════ UPLOAD ═══════════ */
+let uplType = 'short', uplFile = null;
+
 function renderUpload(){
   const w = $('uplWrap');
   w.innerHTML = `
@@ -982,7 +808,7 @@ function renderUpload(){
     <div class="drop" id="drop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
       <p id="dropTitle">Tap to select ${uplType==='image'?'an image':'a video'}</p>
-      <small>${uplType==='short'?'Vertical · up to 30 min':'From your gallery · up to 30 min'}</small>
+      <small id="dropHint">${uplType==='short'?'Vertical · up to 30 min':'From gallery · up to 30 min'}</small>
     </div>
     <input id="fileInput" type="file" accept="${uplType==='image'?'image/*':'video/*'}" style="display:none"/>
     <div id="prevWrap"></div>
@@ -996,23 +822,16 @@ function renderUpload(){
       <div class="lbl"><span id="progTxt">Uploading…</span><b id="progPct">0%</b></div>
     </div>
   `;
-  w.querySelectorAll('.tabs button').forEach(b => {
-    b.onclick = () => { uplType = b.dataset.t; uplFile = null; renderUpload(); };
-  });
-  const drop = $('drop');
-  const fi = $('fileInput');
+  w.querySelectorAll('.tabs button').forEach(b => { b.onclick = () => { uplType = b.dataset.t; uplFile = null; renderUpload(); }; });
+  const drop = $('drop'), fi = $('fileInput');
   drop.onclick = () => fi.click();
   fi.onchange = () => {
-    const f = fi.files[0];
-    if (!f) return;
-    if (uplType !== 'image' && f.size > 800 * 1024 * 1024) return toast('Max 800MB');
-    uplFile = f;
+    const f = fi.files[0]; if (!f) return;
     const url = URL.createObjectURL(f);
-    $('prevWrap').innerHTML = uplType==='image'
-      ? `<img class="prev" src="${url}"/>`
-      : `<video class="prev" src="${url}" controls playsinline></video>`;
+    uplFile = f;
+    $('prevWrap').innerHTML = uplType==='image' ? `<img class="prev" src="${url}"/>` : `<video class="prev" src="${url}" controls playsinline></video>`;
     $('dropTitle').textContent = 'Change file';
-    $('drop').querySelector('small').textContent = f.name.slice(0,40);
+    $('dropHint').textContent = `${f.name.slice(0,30)} · ${(f.size/1024/1024).toFixed(1)} MB`;
   };
   $('tTitle').oninput = e => $('cTitleL').textContent = `${e.target.value.length}/50`;
   $('tDesc').oninput = e => $('cDescL').textContent = `${e.target.value.length}/100`;
@@ -1031,36 +850,27 @@ async function doUpload(){
 
   try {
     const rType = uplType === 'image' ? 'image' : 'video';
-    const url = await cloudinaryUpload(uplFile, rType, (pct, secsLeft) => {
+    const url = await cloudinaryUpload(uplFile, rType, (pct, secs) => {
       if (pct < 99){
-        const s = secsLeft > 0 ? ` · ${secsLeft}s left` : '';
+        const s = secs > 0 ? ` · ~${secs}s left` : '';
         setProg(pct, `Uploading${s}`);
-      } else {
-        setProg(99, 'Processing…');
-      }
+      } else { setProg(99, 'Processing…'); }
     });
 
     setProg(100, 'Saving…');
+    // Simple thumbnail using Cloudinary's auto-generated jpg
     const thumb = rType === 'video'
-      ? url.replace('/upload/', '/upload/so_0/').replace(/\.(mp4|mov|webm|m4v|avi|mkv)$/i, '.jpg')
+      ? url.replace(/\.[^.\/]+$/, '.jpg')
       : url;
 
     const postRef = push(ref(db, 'posts'));
     await set(postRef, {
-      id: postRef.key,
-      uid: ME.uid,
+      id: postRef.key, uid: ME.uid,
       displayName: MEPROF.displayName || '',
-      channelName: MEPROF.channelName || MEPROF.displayName || 'User',
+      channelName: MEPROF.channelName || 'User',
       photoURL: MEPROF.photoURL || '',
-      type: uplType,
-      url,
-      thumb,
-      title,
-      description: desc,
-      createdAt: Date.now(),
-      views: 0,
-      likes: {},
-      comments: {}
+      type: uplType, url, thumb, title, description: desc,
+      createdAt: Date.now(), views: 0, likes: {}, comments: {}
     });
     await update(ref(db, 'users/'+ME.uid), { postCount: increment(1) });
 
@@ -1068,8 +878,7 @@ async function doUpload(){
     uplFile = null;
     renderUpload();
     if (MEPROF) MEPROF.postCount = (MEPROF.postCount||0)+1;
-    if (uplType === 'short') go('shorts');
-    else go('home');
+    if (uplType === 'short') go('shorts'); else go('home');
   } catch(e){
     console.error(e);
     toast('Failed: ' + (e.message || 'try again'));
@@ -1084,39 +893,64 @@ function setProg(pct, txt){
   if (txt) $('progTxt').textContent = txt;
 }
 
-function cloudinaryUpload(file, resourceType, onProgress){
+/* 🔴 FIX — Simple single-request upload with auto-retry (no chunking) */
+function cloudinaryUpload(file, resourceType, onProgress, attempt = 1){
   return new Promise((resolve, reject) => {
+    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`;
     const fd = new FormData();
     fd.append('file', file);
     fd.append('upload_preset', UPLOAD_PRESET);
     fd.append('folder', 'shaheenx');
+
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`);
+    xhr.open('POST', url);
+    xhr.timeout = 20 * 60 * 1000; // 20 min
     const t0 = Date.now();
+
     xhr.upload.onprogress = e => {
       if (e.lengthComputable){
         const pct = (e.loaded / e.total) * 100;
         const elapsed = (Date.now() - t0) / 1000;
         const speed = e.loaded / Math.max(elapsed, 0.1);
         const left = Math.max(0, Math.round((e.total - e.loaded) / Math.max(speed, 1)));
-        onProgress(pct, left);
+        onProgress(Math.min(pct, 99), left);
       }
     };
+
     xhr.onload = () => {
-      try {
-        const d = JSON.parse(xhr.responseText);
-        if (d.secure_url) resolve(d.secure_url);
-        else reject(new Error(d.error?.message || 'Upload failed'));
-      } catch(e){ reject(new Error('Bad response — check your Cloudinary preset')); }
+      if (xhr.status >= 200 && xhr.status < 300){
+        try {
+          const d = JSON.parse(xhr.responseText);
+          if (d.secure_url) resolve(d.secure_url);
+          else reject(new Error(d.error?.message || 'Upload failed'));
+        } catch(err){ reject(new Error('Bad response')); }
+      } else {
+        let msg = `Upload failed (${xhr.status})`;
+        try { const d = JSON.parse(xhr.responseText); if (d.error?.message) msg = d.error.message; } catch(_){}
+        // Auto retry on 5xx
+        if (xhr.status >= 500 && attempt < 3){
+          console.warn('Retrying upload, attempt', attempt+1);
+          setTimeout(()=> cloudinaryUpload(file, resourceType, onProgress, attempt+1).then(resolve, reject), 1500);
+        } else {
+          reject(new Error(msg));
+        }
+      }
     };
-    xhr.onerror = () => reject(new Error('Network error'));
+
+    xhr.onerror = () => {
+      if (attempt < 3){
+        console.warn('Network error, retrying attempt', attempt+1);
+        setTimeout(()=> cloudinaryUpload(file, resourceType, onProgress, attempt+1).then(resolve, reject), 2000);
+      } else {
+        reject(new Error('Network error — check internet and try again'));
+      }
+    };
+    xhr.ontimeout = () => reject(new Error('Timeout — video too large or slow connection'));
     xhr.send(fd);
   });
 }
 
-/* ============================================================
-   HISTORY
-============================================================ */
+/* ═══════════ HISTORY ═══════════ */
 async function markHistory(id){ try { await set(ref(db, `history/${ME.uid}/${id}`), Date.now()); } catch(e){} }
 
 async function renderHistory(){
@@ -1133,18 +967,15 @@ async function renderHistory(){
     if (p) posts.push(p);
   }
   if (!posts.length){
-    feed.innerHTML = `<div class="empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      <h3>No history</h3><p>Videos you watch will appear here.</p></div>`;
+    feed.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>No history</h3><p>Videos you watch will appear here.</p></div>`;
     return;
   }
   feed.innerHTML = posts.map(cardHTML).join('');
   attachCardEvents(feed);
+  attachVideoErrors(feed);
 }
 
-/* ============================================================
-   PROFILE
-============================================================ */
+/* ═══════════ PROFILE ═══════════ */
 async function renderProfile(){
   const fresh = await get(ref(db, 'users/'+ME.uid));
   if (fresh.exists()) MEPROF = fresh.val();
@@ -1161,9 +992,7 @@ async function renderProfile(){
     <div class="profHead">
       <div class="avatarWrap">
         <img class="avatar" src="${avatar(u.photoURL, u.channelName||'U')}" onerror="this.src='${avatar('', 'U')}'"/>
-        <button class="cam" id="btnPic">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/></svg>
-        </button>
+        <button class="cam" id="btnPic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/></svg></button>
       </div>
       <div class="nm">${esc(u.channelName || 'User')}</div>
       <div class="em">${esc(u.email||'')}</div>
@@ -1190,8 +1019,7 @@ async function renderProfile(){
   w.querySelectorAll('.tabs2 button').forEach(b => {
     b.onclick = () => {
       w.querySelectorAll('.tabs2 button').forEach(x => x.classList.remove('on'));
-      b.classList.add('on');
-      ptab = b.dataset.pt;
+      b.classList.add('on'); ptab = b.dataset.pt;
       renderProfContent(ptab);
     };
   });
@@ -1204,35 +1032,27 @@ async function renderProfContent(tab){
   c.innerHTML = `<div class="centerSpin"><div class="spin"></div></div>`;
 
   if (tab === 'about'){
-    c.innerHTML = `
-      <div style="padding:18px;font-size:13.5px;line-height:1.9;color:#ccc">
-        <div><b style="color:#fff">Channel:</b> ${esc(MEPROF.channelName||'')}</div>
-        <div><b style="color:#fff">Email:</b> ${esc(MEPROF.email||'')}</div>
-        <div><b style="color:#fff">Joined:</b> ${new Date(MEPROF.createdAt||Date.now()).toLocaleDateString()}</div>
-      </div>`;
+    c.innerHTML = `<div style="padding:18px;font-size:13.5px;line-height:1.9;color:#ccc">
+      <div><b style="color:#fff">Channel:</b> ${esc(MEPROF.channelName||'')}</div>
+      <div><b style="color:#fff">Email:</b> ${esc(MEPROF.email||'')}</div>
+      <div><b style="color:#fff">Joined:</b> ${new Date(MEPROF.createdAt||Date.now()).toLocaleDateString()}</div>
+    </div>`;
     return;
   }
 
-  const q = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(150));
-  const s = await get(q);
-  const mine = [];
-  s.forEach(ch => {
-    const v = ch.val();
-    if (v.uid === ME.uid){
-      if (tab === 'shorts' && v.type === 'short') mine.push({ id: ch.key, ...v });
-      if (tab === 'posts' && v.type !== 'short') mine.push({ id: ch.key, ...v });
-    }
+  const all = await fetchAllPosts();
+  const mine = all.filter(v => {
+    if (v.uid !== ME.uid) return false;
+    if (tab === 'shorts') return v.type === 'short';
+    return v.type !== 'short';
   });
-  mine.reverse();
 
   if (!mine.length){ c.innerHTML = `<div class="empty"><p>No ${tab} yet.</p></div>`; return; }
 
   c.innerHTML = `<div class="grid">${mine.map(p => `
     <div class="cell">
-      ${p.type==='image'
-        ? `<img src="${p.url}" loading="lazy"/>`
-        : `<video src="${p.url}" muted playsinline preload="metadata" poster="${p.thumb||''}"></video>`}
-      <div class="cnt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 3l14 9-14 9z" fill="currentColor" stroke="none"/></svg>${fmt(p.views||0)}</div>
+      ${p.type==='image' ? `<img src="${p.url}" loading="lazy"/>` : `<video src="${p.url}" muted playsinline preload="metadata"></video>`}
+      <div class="cnt">▶ ${fmt(p.views||0)}</div>
     </div>`).join('')}</div>`;
 }
 
@@ -1274,22 +1094,10 @@ function pickBanner(){
 function openProfileMenu(){
   openSheet(`
     <h4>Account</h4>
-    <button class="item" id="mEditName">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5l4 4-11 11H5v-4z"/></svg>
-      Change channel name
-    </button>
-    <button class="item" id="mSwitch">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>
-      Switch account
-    </button>
-    <button class="item" id="mAdd">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M2 21c0-4 4-7 10-7"/><path d="M19 14v6M16 17h6"/></svg>
-      Add another account
-    </button>
-    <button class="item danger" id="mOut">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-      Sign out
-    </button>
+    <button class="item" id="mEditName"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5l4 4-11 11H5v-4z"/></svg>Change channel name</button>
+    <button class="item" id="mSwitch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>Switch account</button>
+    <button class="item" id="mAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M2 21c0-4 4-7 10-7"/><path d="M19 14v6M16 17h6"/></svg>Add another account</button>
+    <button class="item danger" id="mOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Sign out</button>
   `);
   $('mEditName').onclick = async () => {
     const nm = prompt('New channel name (max 24)', MEPROF.channelName||'');
@@ -1303,25 +1111,10 @@ function openProfileMenu(){
   $('mOut').onclick = async () => { closeSheet(); await signOut(auth); };
 }
 
-/* ============================================================
-   SHEET
-============================================================ */
-function openSheet(html){
-  $('sheetPanel').innerHTML = html;
-  $('sheet').classList.add('show');
-}
+function openSheet(html){ $('sheetPanel').innerHTML = html; $('sheet').classList.add('show'); }
 function closeSheet(){ $('sheet').classList.remove('show'); }
 $('sheet').addEventListener('click', e => { if (e.target === $('sheet')) closeSheet(); });
 
-/* ============================================================
-   DEEP LINK
-============================================================ */
-setTimeout(() => {
-  const p = new URLSearchParams(location.search).get('post');
-  if (p && postsCache[p]) go(postsCache[p].type === 'short' ? 'shorts' : 'home');
-}, 1500);
-
-/* Initial auth UI */
 setAuthMode('login');
 </script>
 </body>
