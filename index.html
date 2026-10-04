@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000"><title>ShaheenX</title>
@@ -28,7 +28,7 @@ input:focus,textarea:focus{border-color:var(--ac)}
 .card{background:var(--card);border-radius:18px;margin:12px;overflow:hidden}
 .card>img{width:100%;display:block}.p{padding:12px}
 .row{display:flex;align-items:center;gap:10px}.sp{flex:1}
-.av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#333;flex:none}
+.av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#333;flex:none;cursor:pointer}
 .empty{text-align:center;color:var(--mu);padding:70px 24px}
 .newb{margin:8px 16px;background:var(--ac);border-radius:12px;padding:10px;text-align:center;cursor:pointer;font-weight:600}
 #shorts{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
@@ -36,10 +36,13 @@ input:focus,textarea:focus{border-color:var(--ac)}
 .sh video{width:100%;height:100%;object-fit:contain}.sh video.cv{object-fit:cover}
 .bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);font-size:110px;font-weight:900;opacity:0;pointer-events:none;transition:.2s;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 4px 20px #000)}
 .bg.show{opacity:.95;transform:translate(-50%,-50%) scale(1)}
+.hrt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.3);font-size:96px;opacity:0;pointer-events:none;z-index:3}
+.hrt.show{animation:pop .7s ease}@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
 .sh::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none}
-.ov{position:absolute;z-index:2;left:14px;right:84px;bottom:calc(88px + var(--sb));text-shadow:0 1px 5px #000}
+.pg{position:absolute;z-index:3;left:0;right:0;bottom:calc(66px + var(--sb));height:3px;background:rgba(255,255,255,.2)}.pg i{display:block;height:100%;width:0;background:#fff}
+.ov{position:absolute;z-index:2;left:14px;right:84px;bottom:calc(84px + var(--sb));text-shadow:0 1px 5px #000}
 .ov b.t{display:block;margin-top:8px;font-size:15px}.ov .d{font-size:13px;opacity:.9;margin-top:2px}
-.side{position:absolute;z-index:2;right:10px;bottom:calc(88px + var(--sb));display:flex;flex-direction:column;gap:16px;align-items:center}
+.side{position:absolute;z-index:2;right:10px;bottom:calc(84px + var(--sb));display:flex;flex-direction:column;gap:16px;align-items:center}
 .side button{background:rgba(0,0,0,.4);border:0;border-radius:50%;width:48px;height:48px;font-size:22px;cursor:pointer}
 .side small{display:block;text-align:center;font-size:11px;margin-top:2px}
 .red{color:#ff2d55!important}.on-s{color:#ffd23f!important}
@@ -47,18 +50,17 @@ input:focus,textarea:focus{border-color:var(--ac)}
 .fb.f{background:rgba(255,255,255,.2);color:#fff}
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:flex;align-items:flex-end}
 .sheet>div{background:#121219;width:100%;max-height:62%;min-height:40%;overflow:auto;border-radius:22px 22px 0 0;padding:16px;display:flex;flex-direction:column;gap:8px}
-.sheet.full>div{max-height:85%}
 .cm{margin:8px 0;font-size:14px}.cm.r{margin-left:30px}.cm .m{font-size:12px;color:var(--mu);margin-top:3px}
 .ban{height:140px;background:linear-gradient(135deg,var(--ac),var(--ac2)) center/cover}
 .pf{width:96px;height:96px;border-radius:50%;border:4px solid #000;object-fit:cover;margin:-48px auto 0;display:block;background:#333}
-.stats{display:flex;justify-content:space-around;margin:14px 0;text-align:center}.stats b{font-size:18px}
+.stats{display:flex;justify-content:space-around;margin:14px 0;text-align:center}.stats b{font-size:18px}.stats>div{cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:10px}
 .grid div{position:relative;aspect-ratio:1;background:#111;overflow:hidden}.grid img{width:100%;height:100%;object-fit:cover}
 .grid .x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:0;border-radius:8px;padding:2px 7px;cursor:pointer}
 .tabs{display:flex;gap:6px;margin:10px 16px}.tabs button{flex:1}
 .cnt{font-size:12px;color:var(--mu);text-align:right}.cnt.w{color:#ff6b6b}
-#upo{position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
-#upo .bar{width:100%;max-width:340px;height:10px}#upo i{transition:width .2s}
+#upo{position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+#upo .bar{width:100%;max-width:340px;height:10px}#upo i{transition:width .25s}
 #toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:#262633;padding:11px 16px;border-radius:12px;z-index:999;max-width:90%;text-align:center;font-size:14px}
 </style></head><body>
 <div id="splash"><div class="logo">ShaheenX</div><div class="bar"><i id="sb"></i></div><div class="pill">Checking your session… <span id="sc">3</span>s</div></div>
@@ -71,31 +73,30 @@ input:focus,textarea:focus{border-color:var(--ac)}
 <div id="main" hidden></div>
 <div id="nav" hidden><button data-t="home"><b>🏠</b>Home</button><button data-t="shorts"><b>🎬</b>Shorts</button><button data-t="up"><b>➕</b>Upload</button><button data-t="hist"><b>🕘</b>History</button><button data-t="me"><b>👤</b>Profile</button></div>
 <div id="sheet" class="sheet" hidden></div>
-<div id="upo" hidden><div class="logo" style="font-size:28px">Uploading</div><div class="bar"><i id="ub"></i></div>
-<div id="up1" style="font-size:22px;font-weight:700">0%</div><div id="up2" class="pill"></div><div id="up3" class="pill"></div></div>
+<div id="upo" hidden><div class="logo" style="font-size:28px" id="uph">Uploading</div><div class="bar"><i id="ub"></i></div>
+<div id="up1" style="font-size:24px;font-weight:700">0%</div><div id="up2" class="pill"></div><div id="up3" class="pill"></div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import*as A from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import*as D from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 const app=initializeApp({apiKey:"AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",authDomain:"shaheenx-7d9ab.firebaseapp.com",databaseURL:"https://shaheenx-7d9ab-default-rtdb.firebaseio.com",projectId:"shaheenx-7d9ab",storageBucket:"shaheenx-7d9ab.firebasestorage.app",messagingSenderId:"532384586851",appId:"1:532384586851:web:522bfa338a1b346846ec56"});
 const auth=A.getAuth(app),db=D.getDatabase(app);
-const CLOUD="dsgicshff",PRESET="shaheenx_unsigned",MAXV=1800;
+const CLOUD="dsgicshff",PRESET="shaheenx_unsigned",MAXV=1800,CHUNK=6*1024*1024,BIG=90*1024*1024;
 const $=s=>document.querySelector(s),R=p=>D.ref(db,p),get=async p=>(await D.get(R(p))).val();
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const opt=(u,v)=>u.replace("/upload/",v?"/upload/q_auto,f_auto,vc_auto/":"/upload/q_auto,f_auto/");
 const thumb=p=>p.type==="video"?p.url.replace("/upload/","/upload/so_1,w_300,q_auto/").replace(/\.\w+$/,".jpg"):p.url.replace("/upload/","/upload/w_300,q_auto/");
 const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 const ph=u=>u?.photo||"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#7c5cff"/><text x="5" y="7.2" font-size="5.5" text-anchor="middle" fill="#fff" font-family="Arial">'+esc((u?.name||"S")[0].toUpperCase())+'</text></svg>');
-const toast=m=>{document.querySelectorAll("#toast").forEach(x=>x.remove());const t=document.createElement("div");t.id="toast";t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3200)};
+const toast=m=>{document.querySelectorAll("#toast").forEach(x=>x.remove());const t=document.createElement("div");t.id="toast";t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3500)};
 const MSG={"auth/invalid-credential":"Wrong email or password","auth/wrong-password":"Wrong email or password","auth/user-not-found":"No account with this email","auth/email-already-in-use":"This email is already registered","auth/weak-password":"Password must be at least 6 characters","auth/invalid-email":"Invalid email address","auth/unauthorized-domain":"Add this site's domain in Firebase → Authentication → Settings → Authorized domains","auth/popup-closed-by-user":"Sign-in cancelled","auth/too-many-requests":"Too many attempts, try later"};
 const fail=e=>toast(MSG[e.code]||e.code||"Something went wrong");
 const BAD=["porn","xxx","nude","sex","nangi","rape","fuck","nsfw","boobs","dick"];
 const dirty=t=>BAD.some(w=>(t||"").toLowerCase().includes(w));
-let me=null,P={},users={},FW={},SV={},off=[],cur="home";
+let me=null,P={},users={},FW={},SV={},off=[],cur="home",lastTab="home",ptab="posts";
 async function warn(){const w=(P.warns||0)+1;P.warns=w;await D.update(R("users/"+me.uid),{warns:w,banned:w>=3});
  if(w>=3){toast("Your account has been banned for repeated violations");await logout()}else toast("Warning "+w+"/3: inappropriate content is not allowed")}
 async function logout(){try{await D.remove(R("presence/"+me.uid))}catch(e){}await A.signOut(auth)}
-/* splash + session */
 let left=3;setTimeout(()=>$("#sb").style.width="100%",50);
 const tk=setInterval(()=>{left=Math.max(0,left-1);$("#sc").textContent=left},1000);
 const minWait=new Promise(r=>setTimeout(r,3000));
@@ -109,59 +110,59 @@ A.onAuthStateChanged(auth,async u=>{await minWait;clearInterval(tk);$("#splash")
  if(q){const p=await get("posts/"+q);if(p&&p.type==="video")return go("shorts",q)}
  go("home")});
 function startPresence(){const r=R("presence/"+me.uid);D.onValue(R(".info/connected"),s=>{if(s.val()){D.onDisconnect(r).remove();D.set(r,true)}})}
-/* auth */
 const E=$("#em"),W=$("#pw");
 $("#login").onclick=()=>A.signInWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
 $("#reg").onclick=()=>A.createUserWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
 $("#gg").onclick=async()=>{const g=new A.GoogleAuthProvider();try{await A.signInWithPopup(auth,g)}catch(e){if(["auth/popup-blocked","auth/cancelled-popup-request"].includes(e.code))A.signInWithRedirect(auth,g);else fail(e)}};
 $("#fg").onclick=()=>E.value?A.sendPasswordResetEmail(auth,E.value.trim()).then(()=>toast("Password reset email sent")).catch(fail):toast("Enter your email first");
 $("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.t)};
-async function go(t,focus){cur=t;off.forEach(f=>f());off=[];$("#sheet").hidden=true;
- document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+async function go(t,arg){cur=t;if(t!=="user")lastTab=t;off.forEach(f=>f());off=[];$("#sheet").hidden=true;
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t||(t==="user"&&b.dataset.t==="me"&&arg===me.uid)));
  const m=$("#main");m.className=t==="shorts"?"sh-on":"";m.scrollTop=0;m.innerHTML='<div class="empty">Loading…</div>';
- try{await({home,shorts,up,hist,me:prof})[t](m,focus)}catch(e){m.innerHTML='<div class="empty">Could not load. Check your connection.</div>'}}
+ try{await({home,shorts,up,hist,me:m2=>prof(m2,me.uid),user:prof})[t](m,arg)}catch(e){m.innerHTML='<div class="empty">Could not load. Check your connection.</div>'}}
 async function posts(){const p=await get("posts")||{};users=await get("users")||{};FW=await get("following/"+me.uid)||{};SV=await get("saves/"+me.uid)||{};
  return Object.entries(p).map(([id,v])=>({id,...v})).sort((a,b)=>b.ts-a.ts)}
 const fbtn=uid=>uid===me.uid?"":`<button class="fb ${FW[uid]?"f":""}" data-f="${uid}">${FW[uid]?"Following":"Follow"}</button>`;
 function bindF(m){m.querySelectorAll("[data-f]").forEach(b=>b.onclick=async()=>{const t=b.dataset.f,on=!FW[t];
  if(on){await D.set(R(`following/${me.uid}/${t}`),true);await D.set(R(`followers/${t}/${me.uid}`),true)}else{await D.remove(R(`following/${me.uid}/${t}`));await D.remove(R(`followers/${t}/${me.uid}`))}
- FW[t]=on;m.querySelectorAll(`[data-f="${t}"]`).forEach(x=>{x.textContent=on?"Following":"Follow";x.classList.toggle("f",on)})})}
+ FW[t]=on;m.querySelectorAll(`[data-f="${t}"]`).forEach(x=>{x.textContent=on?"Following":"Follow";x.classList.toggle("f",on)});if(cur==="user")go("user",t)});
+ m.querySelectorAll("[data-u]").forEach(e=>e.onclick=()=>go("user",e.dataset.u))}
 async function like(pid,b){const r=R(`posts/${pid}/likes/${me.uid}`),n=b.parentElement.querySelector("small"),on=!b.classList.contains("red");
  b.classList.toggle("red",on);if(n)n.textContent=Math.max(0,+n.textContent+(on?1:-1));on?await D.set(r,true):await D.remove(r)}
 async function save(pid,b){const on=!b.classList.contains("on-s");b.classList.toggle("on-s",on);const r=R(`saves/${me.uid}/${pid}`);on?await D.set(r,Date.now()):await D.remove(r);toast(on?"Saved":"Removed from saved")}
 function share(id){const u=location.href.split("?")[0].split("#")[0]+"?p="+id;if(navigator.share)navigator.share({title:"ShaheenX",url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast("Link copied"))}
-/* home */
 async function home(m){
  const all=await posts(),l=all.filter(p=>p.type==="image");
  m.innerHTML=`<div class="top"><span class="logo" style="font-size:24px">ShaheenX</span><span class="pill"><span class="dot"></span><b id="act">…</b> online</span><button class="btn g s" id="rf">⟳ Refresh</button></div><div id="nb"></div>`+
- (l.length?l.map(p=>`<div class="card"><div class="p row"><img class="av" src="${esc(ph(users[p.uid]))}"><b class="sp">${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><img src="${esc(opt(p.url))}" loading="lazy"><div class="p"><b>${esc(p.title)}</b><div class="row" style="margin-top:10px"><button class="btn g s lkb ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small class="pill">${Object.keys(p.likes||{}).length}</small><div class="sp"></div><button class="btn g s" data-sh="${p.id}">Share</button></div></div></div>`).join(""):'<div class="empty">Nothing uploaded yet</div>');
+ (l.length?l.map(p=>`<div class="card"><div class="p row"><img class="av" data-u="${p.uid}" src="${esc(ph(users[p.uid]))}"><b class="sp" data-u="${p.uid}" style="cursor:pointer">${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><img src="${esc(opt(p.url))}" loading="lazy"><div class="p"><b>${esc(p.title)}</b><div class="row" style="margin-top:10px"><button class="btn g s lkb ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small class="pill">${Object.keys(p.likes||{}).length}</small><div class="sp"></div><button class="btn g s" data-sh="${p.id}">Share</button></div></div></div>`).join(""):'<div class="empty">Nothing uploaded yet</div>');
  $("#rf").onclick=()=>go("home");
  m.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>share(b.dataset.sh));
  m.querySelectorAll(".lkb").forEach(b=>b.onclick=async()=>{const on=!b.classList.contains("red");b.classList.toggle("red",on);const n=b.nextElementSibling;n.textContent=Math.max(0,+n.textContent+(on?1:-1));const r=R(`posts/${b.dataset.id}/likes/${me.uid}`);on?await D.set(r,true):await D.remove(r)});
  bindF(m);
  off.push(D.onValue(R("presence"),s=>{const a=$("#act");if(a)a.textContent=Object.keys(s.val()||{}).length}));
  off.push(D.onValue(R("posts"),s=>{if(Object.keys(s.val()||{}).length>all.length&&$("#nb")){$("#nb").innerHTML='<div class="newb" id="nbb">New posts available — tap to refresh</div>';$("#nbb").onclick=()=>go("home")}}))}
-/* shorts */
 async function shorts(m,focus){
  let l=(await posts()).filter(p=>p.type==="video");if(focus)l.sort((a,b)=>(b.id===focus)-(a.id===focus));
  if(!l.length){m.className="";m.innerHTML='<div class="empty">No shorts yet</div>';return}
- m.innerHTML='<div id="shorts">'+l.map(p=>`<div class="sh" data-id="${p.id}"><video src="${esc(opt(p.url,1))}" loop playsinline preload="metadata"></video><div class="bg">S</div>
- <div class="ov"><div class="row"><img class="av" src="${esc(ph(users[p.uid]))}"><b>${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><b class="t">${esc(p.title)}</b><div class="d">${esc(p.desc)}</div><div class="d">👁 <span class="vw">${p.views||0}</span> views</div></div>
- <div class="side"><div><button class="lk ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small>${Object.keys(p.likes||{}).length}</small></div><div><button class="cmb" data-id="${p.id}">💬</button></div><div><button class="svb ${SV[p.id]?"on-s":""}" data-id="${p.id}">🔖</button></div><div><button class="shb" data-id="${p.id}">↗</button></div></div></div>`).join("")+"</div>";
+ m.innerHTML='<div id="shorts">'+l.map(p=>`<div class="sh" data-id="${p.id}"><video src="${esc(opt(p.url,1))}" loop playsinline preload="metadata"></video><div class="bg">S</div><div class="hrt">❤️</div>
+ <div class="ov"><div class="row"><img class="av" data-u="${p.uid}" src="${esc(ph(users[p.uid]))}"><b data-u="${p.uid}" style="cursor:pointer">${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><b class="t">${esc(p.title)}</b><div class="d">${esc(p.desc)}</div><div class="d">👁 <span class="vw">${p.views||0}</span> views</div></div>
+ <div class="side"><div><button class="lk ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small>${Object.keys(p.likes||{}).length}</small></div><div><button class="cmb" data-id="${p.id}">💬</button></div><div><button class="svb ${SV[p.id]?"on-s":""}" data-id="${p.id}">🔖</button></div><div><button class="shb" data-id="${p.id}">↗</button></div></div><div class="pg"><i></i></div></div>`).join("")+"</div>";
  const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target,v=s.querySelector("video");
   if(e.isIntersecting){s.querySelector(".bg").classList.remove("show");v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})});D.set(R(`history/${me.uid}/${s.dataset.id}`),Date.now())}else v.pause()}),{threshold:.7});
- m.querySelectorAll(".sh").forEach(s=>{io.observe(s);const v=s.querySelector("video"),bg=s.querySelector(".bg"),pid=s.dataset.id;
+ m.querySelectorAll(".sh").forEach(s=>{io.observe(s);const v=s.querySelector("video"),bg=s.querySelector(".bg"),pid=s.dataset.id,hr=s.querySelector(".hrt"),lk=s.querySelector(".lk");
   v.onloadedmetadata=()=>{if(v.videoHeight>v.videoWidth)v.classList.add("cv")};
-  v.onclick=()=>{if(v.paused){v.play();bg.classList.add("show");setTimeout(()=>bg.classList.remove("show"),450)}else{v.pause();bg.classList.add("show")}};
-  let acc=0,last=0,done=false;v.ontimeupdate=()=>{const d=v.currentTime-last;last=v.currentTime;if(d>0&&d<1)acc+=d;if(!done&&acc>=5){done=true;countView(pid,s.querySelector(".vw"))}}});
+  let lastTap=0,tm=0;
+  v.onclick=()=>{const n=Date.now();
+   if(n-lastTap<300){clearTimeout(tm);lastTap=0;hr.classList.remove("show");void hr.offsetWidth;hr.classList.add("show");if(!lk.classList.contains("red"))like(pid,lk)}
+   else{lastTap=n;tm=setTimeout(()=>{if(v.paused){v.play();bg.classList.add("show");setTimeout(()=>bg.classList.remove("show"),450)}else{v.pause();bg.classList.add("show")}},300)}};
+  let acc=0,last=0,done=false;v.ontimeupdate=()=>{s.querySelector(".pg i").style.width=(v.currentTime/(v.duration||1)*100)+"%";const d=v.currentTime-last;last=v.currentTime;if(d>0&&d<1)acc+=d;if(!done&&acc>=5){done=true;countView(pid,s.querySelector(".vw"))}}});
  m.querySelectorAll(".lk").forEach(b=>b.onclick=()=>like(b.dataset.id,b));
  m.querySelectorAll(".svb").forEach(b=>b.onclick=()=>save(b.dataset.id,b));
  m.querySelectorAll(".shb").forEach(b=>b.onclick=()=>share(b.dataset.id));
  m.querySelectorAll(".cmb").forEach(b=>b.onclick=()=>comments(b.dataset.id));bindF(m)}
-async function countView(pid,el){const r=R(`views/${pid}/${me.uid}`);if(await get(`views/${pid}/${me.uid}`))return;await D.set(r,true);await D.runTransaction(R(`posts/${pid}/views`),v=>(v||0)+1);el.textContent=+el.textContent+1}
-/* comments */
+async function countView(pid,el){if(await get(`views/${pid}/${me.uid}`))return;await D.set(R(`views/${pid}/${me.uid}`),true);await D.runTransaction(R(`posts/${pid}/views`),v=>(v||0)+1);el.textContent=+el.textContent+1}
 async function comments(pid){
- const s=$("#sheet");s.hidden=false;s.className="sheet";let reply=null;
+ const s=$("#sheet");s.hidden=false;let reply=null;
  const draw=async()=>{const c=await get("comments/"+pid)||{},us=await get("users")||{};const all=Object.entries(c).map(([id,v])=>({id,...v})).sort((a,b)=>a.ts-b.ts);
   const one=x=>{const n=all.filter(y=>y.parent===x.id).length;return`<div class="cm ${x.parent?"r":""}"><div class="row" style="align-items:flex-start"><img class="av" style="width:28px;height:28px" src="${esc(ph(us[x.uid]))}"><div class="sp"><b>${esc(us[x.uid]?.name)}</b> ${esc(x.text)}<div class="m"><span data-l="${x.id}" style="cursor:pointer" class="${x.likes&&x.likes[me.uid]?"red":""}">❤ ${Object.keys(x.likes||{}).length}</span> · <span data-r="${x.id}" style="cursor:pointer">Reply</span>${!x.parent&&n?` · ${n} repl${n>1?"ies":"y"}`:""}</div></div></div></div>`};
   s.innerHTML=`<div><div class="row"><b class="sp">Comments (${all.length})</b><button class="btn g s" id="cx">✕</button></div>
@@ -176,7 +177,7 @@ async function comments(pid){
    if(dirty(t))return warn();
    await D.push(R("comments/"+pid),{uid:me.uid,text:t,ts:Date.now(),parent:reply});draw()}};
  draw()}
-/* upload */
+/* ---------- upload: compress (if big) + chunked + retries ---------- */
 let file=null,dur=0;
 function up(m){
  m.innerHTML=`<div class="top"><b style="font-size:20px">Create</b></div><div style="padding:0 16px 16px"><div class="row"><button class="btn" id="ti">🖼 Photo post</button><button class="btn g" id="tv">🎬 Video short</button></div><div id="fm"></div></div>`;
@@ -190,49 +191,84 @@ function up(m){
    if(!v){file=f;$("#pv").innerHTML=`<img src="${u}" style="width:100%;border-radius:14px">`;return}
    const t=document.createElement("video");t.preload="metadata";t.src=u;
    t.onloadedmetadata=()=>{if(t.duration>MAXV){file=null;$("#pv").innerHTML="";toast("Videos can be 30 minutes at most");return}
-    file=f;dur=t.duration;$("#pv").innerHTML=`<video src="${u}" controls playsinline style="width:100%;max-height:50vh;border-radius:14px;background:#000"></video><div class="pill">Length ${fmt(dur)} · ${(f.size/1048576).toFixed(1)} MB</div>`}};
+    file=f;dur=t.duration;$("#pv").innerHTML=`<video src="${u}" controls playsinline style="width:100%;max-height:50vh;border-radius:14px;background:#000"></video><div class="pill">Length ${fmt(dur)} · ${(f.size/1048576).toFixed(1)} MB${f.size>BIG?" · will be compressed first":""}</div>`}};
   $("#go").onclick=()=>send(v?"video":"image")};
  $("#ti").onclick=()=>form(0);$("#tv").onclick=()=>form(1);form(0)}
-function send(kind){const t=$("#t").value.trim(),d=$("#d")?$("#d").value.trim():"";
+function compress(f){return new Promise((res,rej)=>{
+ const v=document.createElement("video");v.src=URL.createObjectURL(f);v.playsInline=true;v.preload="auto";
+ v.onloadedmetadata=()=>{try{
+  const sc=Math.min(1,720/Math.min(v.videoWidth,v.videoHeight)),cw=Math.round(v.videoWidth*sc/2)*2,ch=Math.round(v.videoHeight*sc/2)*2;
+  const c=document.createElement("canvas");c.width=cw;c.height=ch;const x=c.getContext("2d"),cs=c.captureStream(30);
+  const AC=new(window.AudioContext||window.webkitAudioContext)();AC.resume();const src=AC.createMediaElementSource(v),dst=AC.createMediaStreamDestination();src.connect(dst);
+  dst.stream.getAudioTracks().forEach(t=>cs.addTrack(t));
+  const mt=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/mp4"].find(t=>MediaRecorder.isTypeSupported(t));
+  const rec=new MediaRecorder(cs,{mimeType:mt,videoBitsPerSecond:1800000,audioBitsPerSecond:96000}),parts=[];
+  rec.ondataavailable=e=>e.data.size&&parts.push(e.data);
+  rec.onstop=()=>{AC.close();const ty=mt.split(";")[0];res(new File([new Blob(parts,{type:ty})],"v."+(ty.includes("mp4")?"mp4":"webm"),{type:ty}))};
+  const draw=()=>{x.drawImage(v,0,0,cw,ch);if(!v.ended)v.requestVideoFrameCallback?v.requestVideoFrameCallback(draw):requestAnimationFrame(draw)};
+  v.ontimeupdate=()=>{const p=v.currentTime/v.duration;$("#ub").style.width=(p*100)+"%";$("#up1").textContent=Math.round(p*100)+"%";$("#up2").textContent="Time left "+fmt(v.duration-v.currentTime)}
+  v.onended=()=>setTimeout(()=>rec.stop(),300);v.onerror=()=>rej(new Error("Cannot read this video"));
+  rec.start(1000);v.play().then(draw).catch(rej)}catch(e){rej(e)}}});}
+function chunkSend(blob,s,e,total,id,kind,name,onb){return new Promise((ok,no)=>{
+ let tries=0;const go1=()=>{const fd=new FormData();fd.append("file",blob,name);fd.append("upload_preset",PRESET);
+  const x=new XMLHttpRequest();x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD}/${kind}/upload`);
+  x.setRequestHeader("X-Unique-Upload-Id",id);x.setRequestHeader("Content-Range",`bytes ${s}-${e}/${total}`);
+  x.upload.onprogress=ev=>ev.lengthComputable&&onb(Math.min(blob.size,ev.loaded));
+  x.onload=()=>{let r={};try{r=JSON.parse(x.responseText)}catch(_){}
+   if(x.status===200)return ok(r);
+   if(x.status>=500&&++tries<4)return setTimeout(go1,1500*tries);no(new Error(r.error?.message||"Server error "+x.status))};
+  x.onerror=()=>{if(++tries<4)setTimeout(go1,1500*tries);else no(new Error("Connection lost, check your internet"))};x.send(fd)};go1()})}
+async function send(kind){const t=$("#t").value.trim(),d=$("#d")?$("#d").value.trim():"";
  if(!file)return toast(kind==="video"?"Choose a video first":"Choose a photo first");if(!t)return toast("Add a title");
  if(dirty(t)||dirty(d))return warn();
- const fd=new FormData();fd.append("file",file);fd.append("upload_preset",PRESET);
- const x=new XMLHttpRequest();x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD}/${kind}/upload`);
- const t0=Date.now();$("#upo").hidden=false;window.onbeforeunload=()=>"Upload in progress";$("#ub").style.width="0";
  const end=()=>{$("#upo").hidden=true;window.onbeforeunload=null};
- x.upload.onprogress=e=>{if(!e.lengthComputable)return;const p=Math.round(e.loaded/e.total*100),el=(Date.now()-t0)/1000,sp=e.loaded/Math.max(el,.1);
-  $("#ub").style.width=p+"%";$("#up1").textContent=p+"%";
-  $("#up2").textContent=p<100?`Time left ${fmt((e.total-e.loaded)/sp)} · ${(sp*8/1e6).toFixed(1)} Mbps`:"Compressing & optimizing…";
-  $("#up3").textContent="Secure encrypted transfer (TLS) · please keep this screen open"};
- x.onload=async()=>{let r={};try{r=JSON.parse(x.responseText)}catch(e){}
-  if(x.status!==200){end();return toast("Upload failed: "+(r.error?.message||"check Cloudinary preset"))}
+ $("#upo").hidden=false;window.onbeforeunload=()=>"Upload in progress";$("#ub").style.width="0";
+ $("#up3").textContent="Keep this screen open · secure encrypted transfer (TLS)";
+ try{let f=file;
+  if(kind==="video"&&f.size>BIG){$("#uph").textContent="Compressing";$("#up2").textContent="Preparing…";f=await compress(f)}
+  $("#uph").textContent="Uploading";const total=f.size,id=Date.now()+"-"+Math.random().toString(36).slice(2),t0=Date.now();let done=0,r;
+  for(let s=0;s<total;s+=CHUNK){const e=Math.min(s+CHUNK,total),b=f.slice(s,e);
+   r=await chunkSend(b,s,e-1,total,id,kind,f.name,l=>{const up=s+l,p=Math.round(up/total*100),sp=up/Math.max((Date.now()-t0)/1000,.5);
+    $("#ub").style.width=p+"%";$("#up1").textContent=p+"%";$("#up2").textContent=`Time left ${fmt((total-up)/sp)} · ${(sp*8/1e6).toFixed(1)} Mbps`})}
+  if(!r||!r.secure_url)throw new Error("Upload did not finish");
   await D.push(R("posts"),{uid:me.uid,type:kind,title:t,desc:d,url:r.secure_url,ts:Date.now(),views:0});
-  end();toast("Published ✅");go(kind==="video"?"shorts":"home")};
- x.onerror=()=>{end();toast("Network error, try again")};x.send(fd)}
-/* history */
+  end();toast("Published ✅");go(kind==="video"?"shorts":"home")
+ }catch(e){end();toast("Upload failed: "+(e.message||e))}}
 async function hist(m){const h=await get("history/"+me.uid)||{},all=await posts();
  const l=all.filter(p=>h[p.id]).sort((a,b)=>h[b.id]-h[a.id]);
  m.innerHTML='<div class="top"><b style="font-size:20px">History</b></div>'+(l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}" data-v="${p.type==="video"?1:0}"><img src="${esc(thumb(p))}" loading="lazy"></div>`).join("")+"</div>":'<div class="empty">Nothing watched yet</div>');
  m.querySelectorAll(".grid div").forEach(d=>d.onclick=()=>d.dataset.v==="1"?go("shorts",d.dataset.id):go("home"))}
-/* profile */
-let ptab="posts";
-async function prof(m){const all=await posts(),mine=all.filter(p=>p.uid===me.uid),sv=all.filter(p=>SV[p.id]);
- const fr=Object.keys(await get("followers/"+me.uid)||{}).length,fg=Object.keys(FW).length,l=ptab==="posts"?mine:sv;
- m.innerHTML=`<div class="ban" style="${P.banner?`background-image:url('${esc(P.banner)}')`:""}"></div><img class="pf" src="${esc(ph(P))}">
- <div style="text-align:center;margin-top:8px"><b style="font-size:19px">${esc(P.name)}</b></div>
- <div class="stats"><div><b>${mine.length}</b><br><span class="pill">Posts</span></div><div><b>${fr}</b><br><span class="pill">Followers</span></div><div><b>${fg}</b><br><span class="pill">Following</span></div></div>
- <div style="padding:0 16px"><button class="btn g" id="dots">⋯ Settings</button></div>
- <div class="tabs"><button class="btn ${ptab==="posts"?"":"g"} s" data-pt="posts">Posts</button><button class="btn ${ptab==="saved"?"":"g"} s" data-pt="saved">Saved</button></div>
- ${l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}" data-v="${p.type==="video"?1:0}"><img src="${esc(thumb(p))}" loading="lazy">${ptab==="posts"?`<button class="x" data-del="${p.id}">🗑</button>`:""}</div>`).join("")+"</div>":'<div class="empty">Nothing here yet</div>'}`;
- $("#dots").onclick=menu;
- m.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ptab=b.dataset.pt;prof(m)});
+/* ---------- profile (own + other users) ---------- */
+async function listUsers(uid,kind){const ids=Object.keys(await get(`${kind}/${uid}`)||{}),us=await get("users")||{};
+ const s=$("#sheet");s.hidden=false;s.innerHTML=`<div><div class="row"><b class="sp">${kind==="followers"?"Followers":"Following"} (${ids.length})</b><button class="btn g s" id="cx">✕</button></div>`+
+ (ids.length?ids.map(i=>`<div class="row" style="padding:6px 0;cursor:pointer" data-u="${i}"><img class="av" src="${esc(ph(us[i]))}"><b>${esc(us[i]?.name||"User")}</b></div>`).join(""):'<div class="empty" style="padding:30px">Nobody here yet</div>')+"</div>";
+ $("#cx").onclick=()=>s.hidden=true;s.querySelectorAll("[data-u]").forEach(e=>e.onclick=()=>go("user",e.dataset.u))}
+async function prof(m,uid){uid=uid||me.uid;const own=uid===me.uid;
+ const all=await posts(),U=own?P:users[uid];
+ if(!U){m.innerHTML='<div class="empty">User not found</div>';return}
+ const mine=all.filter(p=>p.uid===uid),sv=all.filter(p=>SV[p.id]),pr=U.priv||{};
+ const fr=Object.keys(await get("followers/"+uid)||{}).length,fg=Object.keys(await get("following/"+uid)||{}).length;
+ const l=own&&ptab==="saved"?sv:mine;
+ m.innerHTML=(own?"":`<div class="top"><button class="btn g s" id="bk">← Back</button></div>`)+`<div class="ban" style="${U.banner?`background-image:url('${esc(U.banner)}')`:""}"></div><img class="pf" src="${esc(ph(U))}">
+ <div style="text-align:center;margin-top:8px"><b style="font-size:19px">${esc(U.name)}</b></div>
+ <div class="stats"><div><b>${mine.length}</b><br><span class="pill">Posts</span></div><div data-ls="followers"><b>${fr}</b><br><span class="pill">Followers</span></div><div data-ls="following"><b>${fg}</b><br><span class="pill">Following</span></div></div>
+ <div style="padding:0 16px">${own?'<button class="btn g" id="dots">⋯ Settings</button>':fbtn(uid).replace('class="fb','class="btn s fb').replace("fb ","")}</div>
+ ${own?`<div class="tabs"><button class="btn ${ptab==="posts"?"":"g"} s" data-pt="posts">Posts</button><button class="btn ${ptab==="saved"?"":"g"} s" data-pt="saved">Saved</button></div>`:""}
+ ${l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}" data-v="${p.type==="video"?1:0}"><img src="${esc(thumb(p))}" loading="lazy">${own&&ptab==="posts"?`<button class="x" data-del="${p.id}">🗑</button>`:""}</div>`).join("")+"</div>":'<div class="empty">Nothing here yet</div>'}`;
+ if(own)$("#dots").onclick=menu;else $("#bk").onclick=()=>go(lastTab);
+ m.querySelectorAll("[data-ls]").forEach(d=>d.onclick=()=>{const k=d.dataset.ls;if(own||pr[k==="followers"?"fr":"fg"]!==false)listUsers(uid,k);else toast("This user keeps this list private")});
+ m.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ptab=b.dataset.pt;prof(m,uid)});
  m.querySelectorAll(".grid div").forEach(d=>d.onclick=e=>{if(e.target.dataset.del)return;d.dataset.v==="1"?go("shorts",d.dataset.id):go("home")});
- m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this post?"))return;const id=b.dataset.del;await D.remove(R("posts/"+id));await D.remove(R("comments/"+id));await D.remove(R("views/"+id));go("me")})}
-function menu(){const s=$("#sheet");s.hidden=false;s.className="sheet";
+ m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this post?"))return;const id=b.dataset.del;await D.remove(R("posts/"+id));await D.remove(R("comments/"+id));await D.remove(R("views/"+id));go("me")});
+ bindF(m)}
+function menu(){const s=$("#sheet");s.hidden=false;const pr=P.priv||{};
  s.innerHTML=`<div><button class="btn g" id="cn">✏️ Change channel name</button><button class="btn g" id="cp">📷 Change your profile picture</button><button class="btn g" id="cb">🖼 Update banner</button>
+ <button class="btn g" id="pfr">👥 Followers list: ${pr.fr===false?"Private":"Public"}</button><button class="btn g" id="pfg">👤 Following list: ${pr.fg===false?"Private":"Public"}</button>
  <button class="btn g" id="sw">🔁 Switch account</button><button class="btn g" id="ad">➕ Add account</button><button class="btn g" id="lo">Log out</button><button class="btn g" id="x">Close</button>
  <input id="pf" type="file" accept="image/*" hidden></div>`;
  $("#x").onclick=()=>s.hidden=true;
+ const tog=k=>async()=>{P.priv={...(P.priv||{}),[k]:(P.priv||{})[k]===false};await D.update(R("users/"+me.uid+"/priv"),P.priv);menu()};
+ $("#pfr").onclick=tog("fr");$("#pfg").onclick=tog("fg");
  $("#cn").onclick=async()=>{const n=(prompt("Channel name (max 30 characters)",P.name)||"").trim().slice(0,30);if(!n)return;if(dirty(n))return warn();P.name=n;await D.update(R("users/"+me.uid),{name:n});s.hidden=true;toast("Channel name updated");go("me")};
  const pick=key=>{const i=$("#pf");i.onchange=async e=>{const f=e.target.files[0];if(!f)return;toast("Uploading…");
   const fd=new FormData();fd.append("file",f);fd.append("upload_preset",PRESET);
