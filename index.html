@@ -1,286 +1,363 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShaheenX Ultra</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, push, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
-            authDomain: "shaheenx-7d9ab.firebaseapp.com",
-            databaseURL: "https://shaheenx-7d9ab-default-rtdb.firebaseio.com",
-            projectId: "shaheenx-7d9ab",
-            storageBucket: "shaheenx-7d9ab.firebasestorage.app",
-            messagingSenderId: "532384586851",
-            appId: "1:532384586851:web:522bfa338a1b346846ec56",
-            measurementId: "G-1JNEYM433J"
-        };
-        const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
-    </script>
-    <style>
-        body { background-color: #000; color: #fff; font-family: sans-serif; overflow-x: hidden; }
-        .hide { display: none !important; }
-    </style>
-</head>
-<body class="bg-black text-white pb-20">
-
-    <!-- Loading & Auth Screen -->
-    <div id="loaderScreen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-6">
-        <h1 class="text-3xl font-bold text-red-600 mb-4">SHAHEEN X ULTRA</h1>
-        <p id="loaderText" class="text-gray-400 mb-6">Checking session...</p>
-        <div id="authBox" class="w-full max-w-sm bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hide">
-            <h2 class="text-xl font-bold mb-4 text-center">Login / Register</h2>
-            <input type="email" id="userEmail" placeholder="Enter Email" class="w-full bg-zinc-800 p-3 rounded-lg mb-3 border border-zinc-700 text-white">
-            <input type="password" id="userPass" placeholder="Enter Password" class="w-full bg-zinc-800 p-3 rounded-lg mb-4 border border-zinc-700 text-white">
-            <button onclick="handleAuth()" class="w-full bg-red-600 py-3 rounded-lg font-bold hover:bg-red-700 transition">Continue</button>
-        </div>
-    </div>
-
-    <!-- Top Header -->
-    <header class="flex justify-between items-center px-4 py-3 border-b border-zinc-800 sticky top-0 bg-black/90 z-40 backdrop-blur">
-        <h1 class="text-xl font-black tracking-wider text-red-600">SHAHEENX</h1>
-        <div class="flex items-center gap-3">
-            <button onclick="refreshFeed()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-rotate"></i></button>
-            <div id="userAvatarHeader" class="w-8 h-8 rounded-full bg-zinc-700 overflow-hidden flex items-center justify-center font-bold">A</div>
-        </div>
-    </header>
-
-    <!-- Main Content Sections -->
-    <main id="mainContainer">
-        <!-- HOME SECTION -->
-        <section id="section-home" class="p-4">
-            <div class="mb-4">
-                <h3 class="text-sm font-semibold text-zinc-400 mb-2">Active Users</h3>
-                <div id="activeUsersList" class="flex gap-3 overflow-x-auto pb-2"></div>
-            </div>
-            <div id="homeFeed" class="space-y-4"></div>
-        </section>
-
-        <!-- SHORTS SECTION -->
-        <section id="section-shorts" class="hide h-[calc(100vh-120px)] overflow-y-scroll snap-y snap-mandatory"></section>
-
-        <!-- UPLOAD SECTION -->
-        <section id="section-upload" class="hide p-4 max-w-md mx-auto">
-            <h2 class="text-xl font-bold mb-4">Upload Content</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-zinc-400">Content Type</label>
-                    <select id="upType" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl mt-1">
-                        <option value="post">Image / Text Post</option>
-                        <option value="short">Short Video (Max 30 mins)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400">Title (Max 50 chars)</label>
-                    <input type="text" id="upTitle" maxlength="50" oninput="updateCharCount(this, 'titleCount', 50)" placeholder="Enter title..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl mt-1">
-                    <span id="titleCount" class="text-[10px] text-zinc-500 float-right">0/50</span>
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400">Description (Max 100 chars)</label>
-                    <textarea id="upDesc" maxlength="100" oninput="updateCharCount(this, 'descCount', 100)" placeholder="Enter description..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl mt-1 h-20"></textarea>
-                    <span id="descCount" class="text-[10px] text-zinc-500 float-right">0/100</span>
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400">Choose Media File</label>
-                    <input type="file" id="upFile" accept="image/*,video/*" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl mt-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-600 file:text-white">
-                </div>
-                <div id="uploadProgressContainer" class="hide">
-                    <div class="w-full bg-zinc-800 rounded-full h-2.5">
-                        <div id="uploadProgressBar" class="bg-red-600 h-2.5 rounded-full w-0 transition-all"></div>
-                    </div>
-                    <p id="uploadProgressText" class="text-xs text-center text-zinc-400 mt-1">Compressing & Uploading...</p>
-                </div>
-                <button onclick="uploadContent()" class="w-full bg-red-600 py-3 rounded-xl font-bold hover:bg-red-700 transition">Publish Now</button>
-            </div>
-        </section>
-
-        <!-- PROFILE SECTION -->
-        <section id="section-profile" class="hide p-4 max-w-md mx-auto text-center">
-            <div class="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-red-600 mb-3 bg-zinc-800">
-                <img id="profileAvatarImg" src="" class="w-full h-full object-cover hide">
-                <span id="profileAvatarInitial" class="text-3xl font-bold flex items-center justify-center h-full">A</span>
-            </div>
-            <h2 id="profileName" class="text-lg font-bold">Abdul Basit Mushtaq</h2>
-            <p id="profileEmail" class="text-xs text-zinc-400 mb-4">user@shaheenx.app</p>
-            
-            <div class="flex justify-center gap-6 mb-6 bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                <div><span id="statPosts" class="block font-bold">0</span><span class="text-[10px] text-zinc-400">Posts</span></div>
-                <div><span id="statFollowers" class="block font-bold">0</span><span class="text-[10px] text-zinc-400">Followers</span></div>
-                <div><span id="statFollowing" class="block font-bold">0</span><span class="text-[10px] text-zinc-400">Following</span></div>
-            </div>
-
-            <div class="space-y-3 text-left">
-                <input type="text" id="editUsername" placeholder="Update Channel Name" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl">
-                <button onclick="updateProfileName()" class="w-full bg-zinc-800 py-2.5 rounded-xl font-semibold text-sm hover:bg-zinc-700">Save Profile Name</button>
-                <button onclick="switchAccount()" class="w-full bg-red-600/20 text-red-500 border border-red-600/30 py-2.5 rounded-xl font-semibold text-sm">Switch Account / Logout</button>
-            </div>
-        </section>
-
-        <!-- HISTORY SECTION -->
-        <section id="section-history" class="hide p-4">
-            <h2 class="text-xl font-bold mb-4">Watch History</h2>
-            <div id="historyList" class="space-y-3"></div>
-        </section>
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-zinc-950 border-t border-zinc-800 flex justify-around py-3 z-40">
-        <button onclick="switchTab('home')" class="nav-btn text-red-600 flex flex-col items-center"><i class="fa-solid fa-house text-lg"></i><span class="text-[10px]">Home</span></button>
-        <button onclick="switchTab('shorts')" class="nav-btn text-zinc-400 flex flex-col items-center"><i class="fa-solid fa-bolt text-lg"></i><span class="text-[10px]">Shorts</span></button>
-        <button onclick="switchTab('upload')" class="nav-btn text-zinc-400 flex flex-col items-center"><i class="fa-solid fa-circle-plus text-lg"></i><span class="text-[10px]">Upload</span></button>
-        <button onclick="switchTab('profile')" class="nav-btn text-zinc-400 flex flex-col items-center"><i class="fa-solid fa-user text-lg"></i><span class="text-[10px]">Profile</span></button>
-        <button onclick="switchTab('history')" class="nav-btn text-zinc-400 flex flex-col items-center"><i class="fa-solid fa-clock-rotate-left text-lg"></i><span class="text-[10px]">History</span></button>
-    </nav>
-
-    <script>
-        let currentUser = { uid: "user_" + Math.random().toString(36.substring(7)), name: "Abdul Basit Mushtaq", email: "abdulbasit@shaheenx.app" };
-
-        function initApp() {
-            setTimeout(() => {
-                document.getElementById('loaderScreen').classList.add('hide');
-                loadFeed();
-            }, 1000);
-        }
-
-        function switchTab(tabName) {
-            ['home', 'shorts', 'upload', 'profile', 'history'].forEach(t => {
-                document.getElementById(`section-${t}`).classList.add('hide');
-            });
-            document.getElementById(`section-${tabName}`).classList.remove('hide');
-            
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-red-600', 'text-zinc-400'));
-            event.currentTarget.classList.replace('text-zinc-400', 'text-red-600');
-            
-            if(tabName === 'shorts') loadShorts();
-        }
-
-        function updateCharCount(el, countId, max) {
-            document.getElementById(countId).innerText = `${el.value.length}/${max}`;
-        }
-
-        function uploadContent() {
-            const title = document.getElementById('upTitle').value;
-            const desc = document.getElementById('upDesc').value;
-            const type = document.getElementById('upType').value;
-            const fileInput = document.getElementById('upFile');
-
-            if(!title) { alert("Please enter a title"); return; }
-
-            document.getElementById('uploadProgressContainer').classList.remove('hide');
-            let progress = 0;
-            let interval = setInterval(() => {
-                progress += 20;
-                document.getElementById('uploadProgressBar').style.width = progress + '%';
-                if(progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        alert("Uploaded Successfully!");
-                        document.getElementById('uploadProgressContainer').classList.add('hide');
-                        document.getElementById('uploadProgressBar').style.width = '0%';
-                        document.getElementById('upTitle').value = '';
-                        document.getElementById('upDesc').value = '';
-                        document.getElementById('upFile').value = '';
-                        switchTab('home');
-                        loadFeed();
-                    }, 500);
-                }
-            }, 300);
-        }
-
-        function loadFeed() {
-            const feed = document.getElementById('homeFeed');
-            feed.innerHTML = `
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-bold">A</div>
-                            <div>
-                                <h4 class="font-bold text-sm">Abdul Basit Mushtaq</h4>
-                                <span class="text-[10px] text-zinc-400">Just now</span>
-                            </div>
-                        </div>
-                        <button onclick="toggleFollow(this)" class="bg-red-600 text-xs px-3 py-1.5 rounded-full font-semibold">Follow</button>
-                    </div>
-                    <p class="text-sm mb-3">ShaheenX Ultra App is live and fully working with high performance!</p>
-                    <div class="bg-zinc-950 h-48 rounded-xl flex items-center justify-center text-zinc-600 border border-zinc-800">
-                        <i class="fa-solid fa-play text-3xl text-zinc-500"></i>
-                    </div>
-                    <div class="flex justify-between items-center mt-3 text-zinc-400 text-sm">
-                        <button onclick="likePost(this)"><i class="fa-regular fa-heart"></i> <span class="like-count">12</span></button>
-                        <button><i class="fa-regular fa-comment"></i> 3</button>
-                        <button><i class="fa-solid fa-share"></i> Share</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function loadShorts() {
-            const shortsSec = document.getElementById('section-shorts');
-            shortsSec.innerHTML = `
-                <div class="h-full w-full snap-start relative flex flex-col justify-end p-4 bg-zinc-900 border-b border-zinc-800">
-                    <div class="absolute inset-0 flex items-center justify-center text-zinc-700">
-                        <i class="fa-solid fa-video text-5xl"></i>
-                    </div>
-                    <div class="relative z-10 mb-6">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center font-bold text-sm">A</div>
-                            <span class="font-bold text-sm">Abdul Basit Mushtaq</span>
-                            <button class="bg-red-600 text-xs px-2.5 py-1 rounded-full">Follow</button>
-                        </div>
-                        <p class="text-sm mb-1">Amazing short video demo!</p>
-                    </div>
-                    <div class="absolute right-4 bottom-20 flex flex-col gap-4 items-center z-10">
-                        <button onclick="likeShort(this)" class="text-2xl"><i class="fa-solid fa-heart text-white"></i><span class="block text-[10px]">24</span></button>
-                        <button class="text-2xl"><i class="fa-solid fa-comment"></i><span class="block text-[10px]">3</span></button>
-                        <button class="text-2xl"><i class="fa-solid fa-share"></i><span class="block text-[10px]">Share</span></button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function toggleFollow(btn) {
-            if(btn.innerText === "Follow") {
-                btn.innerText = "Following";
-                btn.classList.replace("bg-red-600", "bg-zinc-800");
-            } else {
-                btn.innerText = "Follow";
-                btn.classList.replace("bg-zinc-800", "bg-red-600");
-            }
-        }
-
-        function likePost(btn) {
-            let icon = btn.querySelector('i');
-            let countSpan = btn.querySelector('.like-count');
-            if(icon.classList.contains('fa-regular')) {
-                icon.classList.replace('fa-regular', 'fa-solid');
-                icon.style.color = 'red';
-                countSpan.innerText = parseInt(countSpan.innerText) + 1;
-            } else {
-                icon.classList.replace('fa-solid', 'fa-regular');
-                icon.style.color = '';
-                countSpan.innerText = parseInt(countSpan.innerText) - 1;
-            }
-        }
-
-        function updateProfileName() {
-            let newName = document.getElementById('editUsername').value;
-            if(newName) {
-                document.getElementById('profileName').innerText = newName;
-                alert("Profile name updated successfully!");
-            }
-        }
-
-        function switchAccount() {
-            alert("Switch account popup triggered.");
-        }
-
-        window.onload = initApp;
-    </script>
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000"><title>ShaheenX</title>
+<style>
+:root{--card:#14141c;--mu:#9a9ab0;--ac:#7c5cff;--ac2:#ff3d81;--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+button,input,textarea,select{font:inherit;color:inherit;outline:0}
+.btn{background:linear-gradient(135deg,var(--ac),var(--ac2));border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;width:100%}
+.btn.g{background:var(--card);border:1px solid #2a2a3a}.btn.s{width:auto;padding:8px 14px;font-size:13px}
+input,textarea,select{width:100%;background:var(--card);border:1px solid #2a2a3a;border-radius:14px;padding:13px;margin:6px 0}
+input:focus,textarea:focus{border-color:var(--ac)}
+.logo{font-size:38px;font-weight:900;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent}
+.bar{height:6px;background:#222;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+#splash{position:fixed;inset:0;z-index:900;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#splash .bar{width:200px}#sb{transition:width 3s linear}
+#auth{position:fixed;inset:0;z-index:800;background:#000;overflow:auto}
+#auth>div{max-width:400px;margin:0 auto;padding:48px 22px;display:flex;flex-direction:column;gap:10px}
+#main{position:fixed;inset:0;overflow-y:auto;padding-bottom:calc(70px + var(--sb))}
+#main.sh-on{padding:0;overflow:hidden}
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:rgba(10,10,16,.92);backdrop-filter:blur(14px);border-top:1px solid #222;padding-bottom:var(--sb)}
+#nav button{flex:1;background:none;border:0;padding:9px 0 8px;color:var(--mu);font-size:11px;cursor:pointer}
+#nav button b{display:block;font-size:21px;font-weight:400}#nav button.on{color:#fff}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;position:sticky;top:0;background:#000;z-index:5}
+.pill{font-size:12px;color:var(--mu)}.dot{display:inline-block;width:8px;height:8px;border-radius:9px;background:#2ecc71;margin-right:5px}
+.card{background:var(--card);border-radius:18px;margin:12px;overflow:hidden}
+.card>img{width:100%;display:block}.p{padding:12px}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}
+.av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#333;flex:none;cursor:pointer}
+.empty{text-align:center;color:var(--mu);padding:70px 24px}
+.newb{margin:8px 16px;background:var(--ac);border-radius:12px;padding:10px;text-align:center;cursor:pointer;font-weight:600}
+.chips{display:flex;gap:8px;padding:6px 16px;overflow-x:auto;scrollbar-width:none}
+.chips button{background:var(--card);border:1px solid #2a2a3a;border-radius:20px;padding:7px 16px;font-size:13px;white-space:nowrap;cursor:pointer}
+.chips button.on{background:#fff;color:#000;font-weight:700}
+.strip{display:flex;gap:8px;padding:4px 16px 10px;overflow-x:auto;scrollbar-width:none}
+.strip>div{flex:none;width:112px;cursor:pointer}.strip img{width:112px;height:190px;object-fit:cover;border-radius:14px;background:#111;display:block}
+.strip span{display:block;font-size:12px;margin-top:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.vc{margin:6px 0 14px;cursor:pointer}.th{position:relative;aspect-ratio:16/9;background:#111;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover;display:block}.th i{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.8);border-radius:6px;padding:2px 7px;font-size:12px;font-style:normal}
+#shorts{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
+.sh{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;background:#000}
+.sh video{width:100%;height:100%;object-fit:contain;background:#000}.sh video.cv{object-fit:cover}
+.bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);font-size:110px;font-weight:900;opacity:0;pointer-events:none;transition:.2s;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 4px 20px #000);z-index:3}
+.bg.show{opacity:.95;transform:translate(-50%,-50%) scale(1)}
+.hrt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.3);font-size:96px;opacity:0;pointer-events:none;z-index:3}
+.hrt.show{animation:pop .7s ease}@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.sh::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none}
+.sh .tl{position:absolute;z-index:3;top:calc(14px + env(safe-area-inset-top,0px));left:16px;font-weight:800;font-size:18px;text-shadow:0 1px 6px #000}
+.msg{position:absolute;z-index:4;top:50%;left:0;right:0;text-align:center;padding:0 30px;transform:translateY(-50%);font-size:14px;color:#ddd}
+.pg{position:absolute;z-index:4;left:0;right:0;bottom:calc(58px + var(--sb));height:30px;display:flex;align-items:center;touch-action:none;cursor:pointer;padding:0 12px}
+.tr{flex:1;height:4px;background:rgba(255,255,255,.25);border-radius:4px;position:relative}.tr i{position:absolute;left:0;top:0;height:100%;width:0;background:#fff;border-radius:4px}
+.tr i::after{content:"";position:absolute;right:-6px;top:-4px;width:12px;height:12px;border-radius:50%;background:#fff}
+.ov{position:absolute;z-index:2;left:14px;right:84px;bottom:calc(96px + var(--sb));text-shadow:0 1px 5px #000}
+.ov b.t{display:block;margin-top:8px;font-size:15px}.ov .d{font-size:13px;opacity:.9;margin-top:2px}
+.side{position:absolute;z-index:2;right:10px;bottom:calc(96px + var(--sb));display:flex;flex-direction:column;gap:14px;align-items:center}
+.side button{background:rgba(0,0,0,.4);border:0;border-radius:50%;width:48px;height:48px;font-size:22px;cursor:pointer}
+.side small{display:block;text-align:center;font-size:11px;margin-top:2px}
+.red{color:#ff2d55!important}.on-s{color:#ffd23f!important}
+.fb{background:#fff;color:#000;border:0;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.fb.f{background:rgba(255,255,255,.2);color:#fff}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:flex;align-items:flex-end}
+.sheet>div{background:#121219;width:100%;max-height:66%;min-height:40%;overflow:auto;border-radius:22px 22px 0 0;padding:16px;display:flex;flex-direction:column;gap:8px}
+.cm{margin:8px 0;font-size:14px}.cm.r{margin-left:30px}.cm .m{font-size:12px;color:var(--mu);margin-top:3px}
+.ban{height:140px;background:linear-gradient(135deg,var(--ac),var(--ac2)) center/cover}
+.pf{width:96px;height:96px;border-radius:50%;border:4px solid #000;object-fit:cover;margin:-48px auto 0;display:block;background:#333}
+.stats{display:flex;justify-content:space-around;margin:14px 0 6px;text-align:center}.stats b{font-size:18px}.stats>div{cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:10px}
+.grid div{position:relative;aspect-ratio:1;background:#111;overflow:hidden}.grid img{width:100%;height:100%;object-fit:cover}
+.grid .x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:0;border-radius:8px;padding:2px 7px;cursor:pointer}
+.tabs{display:flex;gap:6px;margin:10px 16px;overflow-x:auto}.tabs button{flex:1}
+.cnt{font-size:12px;color:var(--mu);text-align:right}.cnt.w{color:#ff6b6b}
+#upo{position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+#upo .bar{width:100%;max-width:340px;height:10px}#upo i{transition:width .25s}
+#toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:#262633;padding:11px 16px;border-radius:12px;z-index:999;max-width:90%;text-align:center;font-size:14px}
+</style></head><body>
+<div id="splash"><div class="logo">ShaheenX</div><div class="bar"><i id="sb"></i></div><div class="pill">Checking your session… <span id="sc">3</span>s</div></div>
+<div id="auth" hidden><div>
+<div class="logo" style="text-align:center">ShaheenX</div><p class="pill" style="text-align:center">Sign in to watch, create and share</p>
+<input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+<button class="btn" id="login">Log in</button><button class="btn g" id="reg">Create account</button>
+<button class="btn g" id="gg">Continue with Google</button><button class="btn g" id="fg">Forgot password?</button>
+</div></div>
+<div id="main" hidden></div>
+<div id="nav" hidden><button data-t="home"><b>🏠</b>Home</button><button data-t="shorts"><b>🎬</b>Shorts</button><button data-t="up"><b>➕</b>Upload</button><button data-t="hist"><b>🕘</b>History</button><button data-t="me"><b>👤</b>Profile</button></div>
+<div id="sheet" class="sheet" hidden></div>
+<div id="upo" hidden><div class="logo" style="font-size:28px" id="uph">Uploading</div><div class="bar"><i id="ub"></i></div>
+<div id="up1" style="font-size:24px;font-weight:700">0%</div><div id="up2" class="pill"></div><div id="up3" class="pill"></div></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import*as A from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import*as D from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",authDomain:"shaheenx-7d9ab.firebaseapp.com",databaseURL:"https://shaheenx-7d9ab-default-rtdb.firebaseio.com",projectId:"shaheenx-7d9ab",storageBucket:"shaheenx-7d9ab.firebasestorage.app",messagingSenderId:"532384586851",appId:"1:532384586851:web:522bfa338a1b346846ec56"});
+const auth=A.getAuth(app),db=D.getDatabase(app);
+const CLOUD="dsgicshff",PRESET="shaheenx_unsigned",CHUNK=6*1024*1024,MAXB=100*1024*1024,MAXSHORT=180,MAXVID=1200;
+const $=s=>document.querySelector(s),R=p=>D.ref(db,p);
+const get=async p=>{try{return(await D.get(R(p))).val()}catch(e){console.warn("read failed",p,e.message);return null}};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const opt=(u,h)=>u.replace("/upload/","/upload/"+(h?"c_limit,h_"+h+",":"")+"q_auto,f_auto/");
+const vthumb=(p,w)=>p.thumb?p.thumb.replace("/upload/","/upload/c_fill,w_"+w+",q_auto/"):p.url.replace("/upload/","/upload/so_1,w_"+w+",q_auto/").replace(/\.\w+$/,".jpg");
+const kind=p=>p.type==="image"?"image":(p.type==="short"||(p.type==="video"&&!p.dur))?"short":"video";
+const thumb=p=>kind(p)==="image"?p.url.replace("/upload/","/upload/w_300,q_auto/"):vthumb(p,300);
+const fmt=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=String(s%60).padStart(2,"0");return h?h+":"+String(m).padStart(2,"0")+":"+x:m+":"+x};
+const ago=t=>{const s=(Date.now()-t)/1000;if(s<60)return"just now";const m=s/60;if(m<60)return Math.floor(m)+" min ago";const h=m/60;if(h<24)return Math.floor(h)+" h ago";const d=h/24;if(d<30)return Math.floor(d)+" d ago";return new Date(t).toLocaleDateString()};
+const ph=u=>u?.photo||"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#7c5cff"/><text x="5" y="7.2" font-size="5.5" text-anchor="middle" fill="#fff" font-family="Arial">'+esc((u?.name||"S")[0].toUpperCase())+'</text></svg>');
+const toast=m=>{document.querySelectorAll("#toast").forEach(x=>x.remove());const t=document.createElement("div");t.id="toast";t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3500)};
+const MSG={"auth/invalid-credential":"Wrong email or password","auth/wrong-password":"Wrong email or password","auth/user-not-found":"No account with this email","auth/email-already-in-use":"This email is already registered","auth/weak-password":"Password must be at least 6 characters","auth/invalid-email":"Invalid email address","auth/unauthorized-domain":"Add this site's domain in Firebase → Authentication → Settings → Authorized domains","auth/popup-closed-by-user":"Sign-in cancelled","auth/too-many-requests":"Too many attempts, try later"};
+const fail=e=>toast(MSG[e.code]||e.code||"Something went wrong");
+const BAD=["porn","xxx","nude","sex","nangi","rape","fuck","nsfw","boobs","dick"];
+const dirty=t=>BAD.some(w=>(t||"").toLowerCase().includes(w));
+const rejected=r=>Array.isArray(r?.moderation)&&r.moderation.some(m=>m.status==="rejected");
+let me=null,P={},users={},FW={},SV={},PM={},off=[],cur="home",lastTab="home",ptab="short",T0=Date.now(),watching=false,MUTED=false,HQ="",HC="all";
+async function warn(){const w=(P.warns||0)+1;P.warns=w;await D.update(R("users/"+me.uid),{warns:w,banned:w>=3});
+ if(w>=3){toast("Your account has been banned for repeated violations");await logout()}else toast("Warning "+w+"/3: inappropriate content is not allowed")}
+async function logout(){try{await D.remove(R("presence/"+me.uid))}catch(e){}await A.signOut(auth)}
+let left=3;setTimeout(()=>$("#sb").style.width="100%",50);
+const tk=setInterval(()=>{left=Math.max(0,left-1);$("#sc").textContent=left},1000);
+const minWait=new Promise(r=>setTimeout(r,3000));
+A.onAuthStateChanged(auth,async u=>{await minWait;clearInterval(tk);$("#splash").hidden=true;
+ if(!u){me=null;$("#auth").hidden=false;$("#main").hidden=true;$("#nav").hidden=true;return}
+ me=u;P=await get("users/"+u.uid);
+ if(!P){P={name:u.displayName||(u.email||"user").split("@")[0],photo:u.photoURL||"",banner:"",warns:0};await D.set(R("users/"+u.uid),P)}
+ if(P.banned){toast("This account is banned");return logout()}
+ users=await get("users")||{};FW=await get("following/"+me.uid)||{};
+ $("#auth").hidden=true;$("#main").hidden=false;$("#nav").hidden=false;startPresence();watchNew();
+ const q=new URLSearchParams(location.search).get("p");
+ if(q){const p=await get("posts/"+q);if(p){const k=kind(p);return k==="short"?go("shorts",q):k==="video"?go("watch",q):go("home")}}
+ go("home")});
+function startPresence(){const r=R("presence/"+me.uid);D.onValue(R(".info/connected"),s=>{if(s.val()){D.onDisconnect(r).remove();D.set(r,true)}})}
+function watchNew(){if(watching)return;watching=true;
+ D.onChildAdded(R("posts"),s=>{const p=s.val();if(!p||p.ts<T0||p.uid===me.uid||!FW[p.uid]||P.notif===false)return;
+  const msg=(users[p.uid]?.name||"Someone you follow")+" posted: "+p.title;toast("🔔 "+msg);
+  try{if(window.Notification&&Notification.permission==="granted")new Notification("ShaheenX",{body:msg,icon:ph(users[p.uid])})}catch(e){}})}
+const E=$("#em"),W=$("#pw");
+$("#login").onclick=()=>A.signInWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
+$("#reg").onclick=()=>A.createUserWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
+$("#gg").onclick=async()=>{const g=new A.GoogleAuthProvider();try{await A.signInWithPopup(auth,g)}catch(e){if(["auth/popup-blocked","auth/cancelled-popup-request"].includes(e.code))A.signInWithRedirect(auth,g);else fail(e)}};
+$("#fg").onclick=()=>E.value?A.sendPasswordResetEmail(auth,E.value.trim()).then(()=>toast("Password reset email sent")).catch(fail):toast("Enter your email first");
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.t)};
+async function go(t,arg){cur=t;if(t!=="user")lastTab=t;off.forEach(f=>f());off=[];$("#sheet").hidden=true;
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t||(t==="watch"&&b.dataset.t==="home")||(t==="user"&&b.dataset.t==="me"&&arg===me.uid)));
+ const m=$("#main");m.className=t==="shorts"?"sh-on":"";m.scrollTop=0;m.innerHTML='<div class="empty">Loading…</div>';
+ try{await({home,shorts,watch,up,hist,me:m2=>prof(m2,me.uid),user:prof})[t](m,arg)}catch(e){console.error(e);m.className="";m.innerHTML='<div class="empty">Could not load: '+esc(e.message||e)+'</div>'}}
+async function posts(){const p=await get("posts")||{};users=await get("users")||{};FW=await get("following/"+me.uid)||{};SV=await get("saves/"+me.uid)||{};
+ const a=Object.entries(p).map(([id,v])=>({id,...v})).sort((x,y)=>y.ts-x.ts);PM=Object.fromEntries(a.map(p=>[p.id,p]));return a}
+const fbtn=uid=>uid===me.uid?"":`<button class="fb ${FW[uid]?"f":""}" data-f="${uid}">${FW[uid]?"Following":"Follow"}</button>`;
+function bindF(m){m.querySelectorAll("[data-f]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const t=b.dataset.f,on=!FW[t];
+ if(on){await D.set(R(`following/${me.uid}/${t}`),true);await D.set(R(`followers/${t}/${me.uid}`),true)}else{await D.remove(R(`following/${me.uid}/${t}`));await D.remove(R(`followers/${t}/${me.uid}`))}
+ FW[t]=on;m.querySelectorAll(`[data-f="${t}"]`).forEach(x=>{x.textContent=on?"Following":"Follow";x.classList.toggle("f",on)});if(cur==="user")go("user",t)});
+ m.querySelectorAll("[data-u]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();go("user",e.dataset.u)})}
+async function like(pid,b){const r=R(`posts/${pid}/likes/${me.uid}`),n=b.parentElement.querySelector("small"),on=!b.classList.contains("red");
+ b.classList.toggle("red",on);if(n)n.textContent=Math.max(0,+n.textContent+(on?1:-1));on?await D.set(r,true):await D.remove(r)}
+async function save(pid,b){const on=!b.classList.contains("on-s");b.classList.toggle("on-s",on);const r=R(`saves/${me.uid}/${pid}`);on?await D.set(r,Date.now()):await D.remove(r);toast(on?"Saved":"Removed from saved")}
+function share(id){const u=location.href.split("?")[0].split("#")[0]+"?p="+id;if(navigator.share)navigator.share({title:"ShaheenX",url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast("Link copied"))}
+function viewImg(u){const s=$("#sheet");s.hidden=false;s.innerHTML=`<div style="align-items:center;max-height:90%"><button class="btn g s" id="cx" style="align-self:flex-end">✕</button><img src="${esc(opt(u))}" style="max-width:100%;max-height:75vh;border-radius:14px"></div>`;$("#cx").onclick=()=>s.hidden=true}
+function openPost(p){if(!p)return;const k=kind(p);k==="short"?go("shorts",p.id):k==="video"?go("watch",p.id):viewImg(p.url)}
+async function countView(pid,el){if(await get(`views/${pid}/${me.uid}`))return;await D.set(R(`views/${pid}/${me.uid}`),true);await D.runTransaction(R(`posts/${pid}/views`),v=>(v||0)+1);if(el)el.textContent=+el.textContent+1}
+function track(v,pid,el,cb){let acc=0,last=0,done=false;v.ontimeupdate=()=>{cb&&cb();const d=v.currentTime-last;last=v.currentTime;if(d>0&&d<1)acc+=d;if(!done&&acc>=5){done=true;countView(pid,el)}}}
+/* ---------- HOME ---------- */
+async function home(m){
+ const all=await posts();
+ m.innerHTML=`<div class="top"><span class="logo" style="font-size:24px">ShaheenX</span><span class="pill"><span class="dot"></span><b id="act">…</b> online</span><button class="btn g s" id="rf">⟳</button></div>
+ <div style="padding:0 16px"><input id="sq" type="search" placeholder="Search videos, shorts, photos, channels" value="${esc(HQ)}"></div>
+ <div class="chips">${[["all","All"],["video","Videos"],["short","Shorts"],["image","Photos"]].map(c=>`<button data-c="${c[0]}" class="${HC===c[0]?"on":""}">${c[1]}</button>`).join("")}</div><div id="nb"></div><div id="hf"></div>`;
+ const card=p=>{const k=kind(p),u=users[p.uid];
+  if(k==="image")return`<div class="card"><div class="p row"><img class="av" data-u="${p.uid}" src="${esc(ph(u))}"><b class="sp" data-u="${p.uid}" style="cursor:pointer">${esc(u?.name)}</b>${fbtn(p.uid)}</div><img src="${esc(opt(p.url))}" loading="lazy" data-img="${p.id}"><div class="p"><b>${esc(p.title)}</b><div class="row" style="margin-top:10px"><div class="row"><button class="btn g s lkb ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small class="pill">${Object.keys(p.likes||{}).length}</small></div><div class="sp"></div><button class="btn g s" data-sh="${p.id}">Share</button></div></div></div>`;
+  return`<div class="vc" data-w="${p.id}" data-k="${k}"><div class="th"><img src="${esc(vthumb(p,640))}" loading="lazy"><i>${k==="short"?"Short":fmt(p.dur||0)}</i></div><div class="p row" style="align-items:flex-start"><img class="av" data-u="${p.uid}" src="${esc(ph(u))}"><div class="sp"><b>${esc(p.title)}</b><div class="pill">${esc(u?.name)} · ${p.views||0} views · ${ago(p.ts)}</div></div></div></div>`};
+ const draw=()=>{const q=HQ.trim().toLowerCase(),f=$("#hf");
+  const l=all.filter(p=>(HC==="all"||kind(p)===HC)&&(!q||(p.title+" "+(p.desc||"")+" "+(users[p.uid]?.name||"")).toLowerCase().includes(q)));
+  let h=q?Object.entries(users).filter(([id,u])=>(u.name||"").toLowerCase().includes(q)).slice(0,5).map(([id,u])=>`<div class="row" style="padding:8px 16px;cursor:pointer" data-u="${id}"><img class="av" src="${esc(ph(u))}"><b>${esc(u.name)}</b><span class="pill">Channel</span></div>`).join(""):"";
+  const sh=l.filter(p=>kind(p)==="short");
+  if(HC==="all"&&!q&&sh.length)h+=`<div class="pill" style="padding:6px 16px">Shorts</div><div class="strip">${sh.slice(0,12).map(p=>`<div data-sh2="${p.id}"><img src="${esc(vthumb(p,240))}" loading="lazy"><span>${esc(p.title)}</span></div>`).join("")}</div>`;
+  const rest=(HC==="all"&&!q)?l.filter(p=>kind(p)!=="short"):l;
+  h+=rest.length?rest.map(card).join(""):(h?"":'<div class="empty">Nothing found</div>');
+  f.innerHTML=h;
+  f.querySelectorAll("[data-w]").forEach(c=>c.onclick=()=>c.dataset.k==="short"?go("shorts",c.dataset.w):go("watch",c.dataset.w));
+  f.querySelectorAll("[data-sh2]").forEach(c=>c.onclick=()=>go("shorts",c.dataset.sh2));
+  f.querySelectorAll("[data-img]").forEach(c=>c.onclick=()=>viewImg(PM[c.dataset.img].url));
+  f.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>share(b.dataset.sh));
+  f.querySelectorAll(".lkb").forEach(b=>b.onclick=async()=>{const on=!b.classList.contains("red");b.classList.toggle("red",on);const n=b.nextElementSibling;n.textContent=Math.max(0,+n.textContent+(on?1:-1));const r=R(`posts/${b.dataset.id}/likes/${me.uid}`);on?await D.set(r,true):await D.remove(r)});
+  bindF(f)};
+ draw();let dt=0;
+ $("#sq").oninput=e=>{HQ=e.target.value;clearTimeout(dt);dt=setTimeout(draw,150)};
+ m.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{HC=b.dataset.c;m.querySelectorAll("[data-c]").forEach(x=>x.classList.toggle("on",x===b));draw()});
+ $("#rf").onclick=()=>go("home");
+ off.push(D.onValue(R("presence"),s=>{const a=$("#act");if(a)a.textContent=Object.keys(s.val()||{}).length}));
+ off.push(D.onValue(R("posts"),s=>{if(Object.keys(s.val()||{}).length>all.length&&$("#nb")){$("#nb").innerHTML='<div class="newb" id="nbb">New posts available — tap to refresh</div>';$("#nbb").onclick=()=>go("home")}}))}
+/* ---------- WATCH (long videos) ---------- */
+async function watch(m,id){
+ await posts();const p=PM[id];if(!p){m.innerHTML='<div class="empty">Video not found</div>';return}
+ const u=users[p.uid];
+ m.innerHTML=`<div style="position:sticky;top:0;z-index:5;background:#000"><video id="wv" src="${esc(opt(p.url,p.res))}" poster="${esc(vthumb(p,720))}" controls playsinline autoplay style="width:100%;max-height:42vh;background:#000;display:block"></video></div>
+ <div class="p"><b style="font-size:17px">${esc(p.title)}</b><div class="pill" style="margin:4px 0 10px"><span id="wvw">${p.views||0}</span> views · ${ago(p.ts)}</div>
+ <div class="row"><img class="av" data-u="${p.uid}" src="${esc(ph(u))}"><b class="sp" data-u="${p.uid}" style="cursor:pointer">${esc(u?.name)}</b>${fbtn(p.uid)}</div>
+ <div class="row" style="margin:14px 0"><div class="row"><button class="btn g s lk ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small class="pill">${Object.keys(p.likes||{}).length}</small></div><button class="btn g s" id="wc">💬 Comments</button><button class="btn g s svb ${SV[p.id]?"on-s":""}" data-id="${p.id}">🔖 Save</button><button class="btn g s" id="ws">↗ Share</button></div>
+ <div style="font-size:14px;color:#ddd;white-space:pre-wrap">${esc(p.desc)}</div></div>`;
+ const v=$("#wv");track(v,id,$("#wvw"));D.set(R(`history/${me.uid}/${id}`),Date.now());
+ v.onerror=()=>toast("Video is still being processed, try again in a moment");
+ m.querySelector(".lk").onclick=e=>like(id,e.currentTarget);m.querySelector(".svb").onclick=e=>save(id,e.currentTarget);
+ $("#wc").onclick=()=>comments(id);$("#ws").onclick=()=>share(id);bindF(m)}
+/* ---------- SHORTS ---------- */
+async function shorts(m,focus){
+ let l=(await posts()).filter(p=>kind(p)==="short");if(focus)l.sort((a,b)=>(b.id===focus)-(a.id===focus));
+ if(!l.length){m.className="";m.innerHTML='<div class="empty">No shorts yet.<br>Upload a short to see it here.</div>';return}
+ m.innerHTML='<div id="shorts">'+l.map(p=>`<div class="sh" data-id="${p.id}" data-src="${esc(opt(p.url,p.res))}"><video poster="${esc(vthumb(p,720))}" loop playsinline preload="none"></video><div class="tl">Shorts</div><div class="bg">S</div><div class="hrt">❤️</div><div class="msg" hidden></div>
+ <div class="ov"><div class="row"><img class="av" data-u="${p.uid}" src="${esc(ph(users[p.uid]))}"><b data-u="${p.uid}" style="cursor:pointer">${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><b class="t">${esc(p.title)}</b><div class="d">${esc(p.desc)}</div><div class="d">👁 <span class="vw">${p.views||0}</span> views · <span class="tt">0:00 / 0:00</span></div></div>
+ <div class="side"><div><button class="lk ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small>${Object.keys(p.likes||{}).length}</small></div><div><button class="cmb" data-id="${p.id}">💬</button></div><div><button class="svb ${SV[p.id]?"on-s":""}" data-id="${p.id}">🔖</button></div><div><button class="shb" data-id="${p.id}">↗</button></div><div><button class="mt">${MUTED?"🔇":"🔊"}</button></div></div>
+ <div class="pg"><div class="tr"><i></i></div></div></div>`).join("")+"</div>";
+ const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target,v=s.querySelector("video");
+  if(e.intersectionRatio>0&&!v.src)v.src=s.dataset.src;
+  if(e.intersectionRatio>=.7){s.querySelector(".bg").classList.remove("show");v.muted=MUTED;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})});D.set(R(`history/${me.uid}/${s.dataset.id}`),Date.now())}
+  else{v.pause();if(e.intersectionRatio===0&&v.src){v.removeAttribute("src");v.load()}}}),{threshold:[0,.7]});
+ m.querySelectorAll(".sh").forEach(s=>{io.observe(s);const v=s.querySelector("video"),bg=s.querySelector(".bg"),pid=s.dataset.id,hr=s.querySelector(".hrt"),lk=s.querySelector(".lk"),ms=s.querySelector(".msg"),pg=s.querySelector(".pg"),pgi=pg.querySelector("i"),tt=s.querySelector(".tt");
+  v.onloadedmetadata=()=>{ms.hidden=true;if(v.videoHeight>v.videoWidth)v.classList.add("cv")};
+  v.onwaiting=()=>{ms.textContent="Loading…";ms.hidden=false};v.onplaying=()=>ms.hidden=true;
+  v.onerror=()=>{if(!v.dataset.fb&&s.dataset.src){v.dataset.fb=1;v.src=s.dataset.src.replace("q_auto,f_auto","f_mp4,vc_h264,q_auto");v.play().catch(()=>{})}
+   else{ms.hidden=false;ms.innerHTML="This video is still being processed.<br><br><button class='btn s g'>Retry</button>";ms.querySelector("button").onclick=()=>{v.dataset.fb="";ms.hidden=true;v.src=s.dataset.src;v.play().catch(()=>{})}}};
+  let lastTap=0,tm=0;
+  v.onclick=e=>{const n=Date.now(),x=e.clientX/innerWidth;
+   if(n-lastTap<300){clearTimeout(tm);lastTap=0;
+    if(x<.33){v.currentTime=Math.max(0,v.currentTime-10);toast("⏪ 10 sec")}
+    else if(x>.66){v.currentTime=Math.min(v.duration||0,v.currentTime+10);toast("10 sec ⏩")}
+    else{hr.classList.remove("show");void hr.offsetWidth;hr.classList.add("show");if(!lk.classList.contains("red"))like(pid,lk)}}
+   else{lastTap=n;tm=setTimeout(()=>{if(v.paused){v.play();bg.classList.add("show");setTimeout(()=>bg.classList.remove("show"),450)}else{v.pause();bg.classList.add("show")}},300)}};
+  const seek=e=>{const r=pg.getBoundingClientRect(),tr=pg.querySelector(".tr").getBoundingClientRect();v.currentTime=Math.max(0,Math.min(1,(e.clientX-tr.left)/tr.width))*(v.duration||0)};
+  pg.onpointerdown=e=>{e.stopPropagation();pg.setPointerCapture(e.pointerId);seek(e);pg.onpointermove=seek};
+  pg.onpointerup=pg.onpointercancel=()=>{pg.onpointermove=null};
+  track(v,pid,s.querySelector(".vw"),()=>{pgi.style.width=(v.currentTime/(v.duration||1)*100)+"%";tt.textContent=fmt(v.currentTime)+" / "+fmt(v.duration||0)})});
+ m.querySelectorAll(".lk").forEach(b=>b.onclick=()=>like(b.dataset.id,b));
+ m.querySelectorAll(".svb").forEach(b=>b.onclick=()=>save(b.dataset.id,b));
+ m.querySelectorAll(".shb").forEach(b=>b.onclick=()=>share(b.dataset.id));
+ m.querySelectorAll(".cmb").forEach(b=>b.onclick=()=>comments(b.dataset.id));
+ m.querySelectorAll(".mt").forEach(b=>b.onclick=()=>{MUTED=!MUTED;m.querySelectorAll(".mt").forEach(x=>x.textContent=MUTED?"🔇":"🔊");m.querySelectorAll("video").forEach(v=>v.muted=MUTED)});
+ bindF(m);off.push(()=>io.disconnect())}
+async function comments(pid){
+ const s=$("#sheet");s.hidden=false;let reply=null;
+ const draw=async()=>{const c=await get("comments/"+pid)||{},us=await get("users")||{};const all=Object.entries(c).map(([id,v])=>({id,...v})).sort((a,b)=>a.ts-b.ts);
+  const one=x=>{const n=all.filter(y=>y.parent===x.id).length;return`<div class="cm ${x.parent?"r":""}"><div class="row" style="align-items:flex-start"><img class="av" style="width:28px;height:28px" src="${esc(ph(us[x.uid]))}"><div class="sp"><b>${esc(us[x.uid]?.name)}</b> ${esc(x.text)}<div class="m"><span data-l="${x.id}" style="cursor:pointer" class="${x.likes&&x.likes[me.uid]?"red":""}">❤ ${Object.keys(x.likes||{}).length}</span> · <span data-r="${x.id}" style="cursor:pointer">Reply</span>${!x.parent&&n?` · ${n} repl${n>1?"ies":"y"}`:""}</div></div></div></div>`};
+  s.innerHTML=`<div><div class="row"><b class="sp">Comments (${all.length})</b><button class="btn g s" id="cx">✕</button></div>
+  ${all.filter(x=>!x.parent).map(x=>one(x)+all.filter(y=>y.parent===x.id).map(one).join("")).join("")||'<div class="empty" style="padding:30px">No comments yet</div>'}
+  <div style="margin-top:auto"><input id="ci" maxlength="50" placeholder="Add a comment…"><div class="cnt" id="cc">0/50</div><button class="btn" id="cs">Post</button></div></div>`;
+  $("#cx").onclick=()=>s.hidden=true;
+  $("#ci").oninput=e=>{const n=e.target.value.length;$("#cc").textContent=n+"/50";$("#cc").className="cnt"+(n>=50?" w":"");if(n>=50)toast("Max 50 characters")};
+  s.querySelectorAll("[data-l]").forEach(e=>e.onclick=async()=>{const p=`comments/${pid}/${e.dataset.l}/likes/${me.uid}`;(await get(p))?await D.remove(R(p)):await D.set(R(p),true);draw()});
+  s.querySelectorAll("[data-r]").forEach(e=>e.onclick=()=>{reply=e.dataset.r;$("#ci").placeholder="Write a reply…";$("#ci").focus()});
+  $("#cs").onclick=async()=>{const t=$("#ci").value.trim().slice(0,50);if(!t)return;
+   if(all.filter(x=>x.uid===me.uid).length>=3)return toast("You can post up to 3 comments per video");
+   if(dirty(t))return warn();
+   await D.push(R("comments/"+pid),{uid:me.uid,text:t,ts:Date.now(),parent:reply});draw()}};
+ draw()}
+/* ---------- UPLOAD ---------- */
+let file=null,thFile=null,dur=0;
+function up(m){
+ m.innerHTML=`<div class="top"><b style="font-size:20px">Create</b></div><div style="padding:0 16px 16px"><div class="row"><button class="btn s" id="ts">🎬 Short</button><button class="btn g s" id="tv">📺 Video</button><button class="btn g s" id="ti">🖼 Photo</button></div><div class="pill" id="hint" style="margin:8px 0"></div><div id="fm"></div></div>`;
+ const counter=(id,max)=>{const i=$("#"+id),c=document.createElement("div");c.className="cnt";c.textContent="0/"+max;i.after(c);i.oninput=()=>{const n=i.value.length;c.textContent=n+"/"+max;c.className="cnt"+(n>=max?" w":"");if(n>=max)toast("Maximum "+max+" characters")}};
+ const form=k=>{file=null;thFile=null;dur=0;const v=k!=="image";
+  [["ts","short"],["tv","video"],["ti","image"]].forEach(([id,x])=>$("#"+id).className="btn s"+(x===k?"":" g"));
+  $("#hint").textContent=k==="short"?"Shorts: up to 3 minutes":k==="video"?"Videos: 3 to 20 minutes":"Photo post";
+  $("#fm").innerHTML=`<input id="t" maxlength="${v?50:30}" placeholder="${v?"Title":"Photo title"}">${v?'<textarea id="d" rows="3" maxlength="100" placeholder="Description"></textarea>':""}
+  <input id="f" type="file" accept="${v?"video/*":"image/*"}" hidden><button class="btn g" id="pick">${v?"🎥 Choose your video":"🖼 Choose your photo"}</button><div id="pv" style="margin:10px 0"></div>
+  ${v?'<input id="tf" type="file" accept="image/*" hidden><button class="btn g" id="tpick">🖼 Choose thumbnail (optional)</button><div id="tpv" style="margin:10px 0"></div><select id="q"><option value="720">Playback quality: 720p (recommended)</option><option value="480">Playback quality: 480p (data saver)</option><option value="360">Playback quality: 360p (smallest)</option><option value="0">Playback quality: Original</option></select>':""}
+  <button class="btn" id="go">Publish</button>`;
+  counter("t",v?50:30);if(v)counter("d",100);
+  $("#pick").onclick=()=>$("#f").click();
+  $("#f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);
+   if(f.size>MAXB){file=null;$("#pv").innerHTML="";return toast("File is over 100 MB (free storage limit). Trim it or record at a lower quality.")}
+   if(!v){file=f;$("#pv").innerHTML=`<img src="${u}" style="width:100%;border-radius:14px">`;return}
+   const t=document.createElement("video");t.preload="metadata";t.src=u;
+   t.onloadedmetadata=()=>{const d=t.duration;
+    if(k==="short"&&d>MAXSHORT){file=null;$("#pv").innerHTML="";return toast("Shorts can be up to 3 minutes. Use the Video option for longer clips.")}
+    if(k==="video"&&d<=MAXSHORT){file=null;$("#pv").innerHTML="";return toast("This is under 3 minutes. Upload it as a Short.")}
+    if(k==="video"&&d>MAXVID){file=null;$("#pv").innerHTML="";return toast("Videos can be 20 minutes at most.")}
+    file=f;dur=d;$("#pv").innerHTML=`<video src="${u}" controls playsinline style="width:100%;max-height:42vh;border-radius:14px;background:#000"></video><div class="pill">Length ${fmt(d)} · ${(f.size/1048576).toFixed(1)} MB</div>`};
+   t.onerror=()=>toast("Cannot read this video file")};
+  if(v){$("#tpick").onclick=()=>$("#tf").click();
+   $("#tf").onchange=e=>{const f=e.target.files[0];if(!f)return;
+    if(!f.type.startsWith("image/"))return toast("Thumbnail must be an image");
+    if(f.size>5*1048576)return toast("Thumbnail must be under 5 MB");
+    thFile=f;$("#tpv").innerHTML=`<img src="${URL.createObjectURL(f)}" style="width:140px;border-radius:12px">`}}
+  $("#go").onclick=()=>send(k)};
+ $("#ts").onclick=()=>form("short");$("#tv").onclick=()=>form("video");$("#ti").onclick=()=>form("image");form("short")}
+function chunkSend(blob,s,e,total,id,rt,name,onb){return new Promise((ok,no)=>{
+ let tries=0;const go1=()=>{const fd=new FormData();fd.append("file",blob,name);fd.append("upload_preset",PRESET);
+  const x=new XMLHttpRequest();x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD}/${rt}/upload`);
+  x.setRequestHeader("X-Unique-Upload-Id",id);x.setRequestHeader("Content-Range",`bytes ${s}-${e}/${total}`);
+  x.upload.onprogress=ev=>ev.lengthComputable&&onb(Math.min(blob.size,ev.loaded));
+  x.onload=()=>{let r={};try{r=JSON.parse(x.responseText)}catch(_){}
+   if(x.status===200)return ok(r);
+   if(x.status>=500&&++tries<4)return setTimeout(go1,1500*tries);no(new Error(r.error?.message||"Server error "+x.status))};
+  x.onerror=()=>{if(++tries<4)setTimeout(go1,1500*tries);else no(new Error("Connection lost, check your internet"))};x.send(fd)};go1()})}
+async function plainUpload(f){const fd=new FormData();fd.append("file",f);fd.append("upload_preset",PRESET);
+ const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:"POST",body:fd}).then(r=>r.json());
+ if(!r.secure_url)throw new Error(r.error?.message||"Image upload failed");return r}
+async function send(k){const t=$("#t").value.trim(),d=$("#d")?$("#d").value.trim():"",rt=k==="image"?"image":"video";
+ if(!file)return toast(k==="image"?"Choose a photo first":"Choose a video first");if(!t)return toast("Add a title");
+ if(dirty(t)||dirty(d))return warn();
+ let wl=null;const end=()=>{$("#upo").hidden=true;window.onbeforeunload=null;try{wl&&wl.release()}catch(e){}};
+ $("#upo").hidden=false;window.onbeforeunload=()=>"Upload in progress";$("#ub").style.width="0";
+ $("#up3").textContent="Keep this screen open · secure encrypted transfer (TLS)";
+ try{wl=await navigator.wakeLock?.request("screen")}catch(e){}
+ try{let th="";
+  if(k!=="image"&&thFile){$("#uph").textContent="Checking thumbnail";const r0=await plainUpload(thFile);if(rejected(r0)){end();return warn()}th=r0.secure_url}
+  $("#uph").textContent="Uploading";const f=file,total=f.size,id=Date.now()+"-"+Math.random().toString(36).slice(2),t0=Date.now();let r;
+  for(let s=0;s<total;s+=CHUNK){const e=Math.min(s+CHUNK,total),b=f.slice(s,e);
+   r=await chunkSend(b,s,e-1,total,id,rt,f.name,l=>{const up=s+l,p=Math.round(up/total*100),sp=up/Math.max((Date.now()-t0)/1000,.5);
+    $("#ub").style.width=p+"%";$("#up1").textContent=p+"%";$("#up2").textContent=`Time left ${fmt((total-up)/sp)} · ${(sp*8/1e6).toFixed(1)} Mbps`})}
+  if(!r||!r.secure_url)throw new Error("Upload did not finish");
+  if(rejected(r)){end();return warn()}
+  const ref=await D.push(R("posts"),{uid:me.uid,type:k,title:t,desc:d,url:r.secure_url,thumb:th,dur:Math.round(dur),res:k==="image"?0:+($("#q")?$("#q").value:720),ts:Date.now(),views:0});
+  end();toast("Published ✅");go(k==="short"?"shorts":k==="video"?"watch":"home",ref.key)
+ }catch(e){end();toast("Upload failed: "+(e.message||e))}}
+/* ---------- HISTORY / PROFILE ---------- */
+async function hist(m){const h=await get("history/"+me.uid)||{},all=await posts();
+ const l=all.filter(p=>h[p.id]).sort((a,b)=>h[b.id]-h[a.id]);
+ m.innerHTML='<div class="top"><b style="font-size:20px">History</b></div>'+(l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}"><img src="${esc(thumb(p))}" loading="lazy"></div>`).join("")+"</div>":'<div class="empty">Nothing watched yet</div>');
+ m.querySelectorAll(".grid div").forEach(d=>d.onclick=()=>openPost(PM[d.dataset.id]))}
+async function listUsers(uid,kd){const ids=Object.keys(await get(`${kd}/${uid}`)||{}),us=await get("users")||{};
+ const s=$("#sheet");s.hidden=false;s.innerHTML=`<div><div class="row"><b class="sp">${kd==="followers"?"Followers":"Following"} (${ids.length})</b><button class="btn g s" id="cx">✕</button></div>`+
+ (ids.length?ids.map(i=>`<div class="row" style="padding:6px 0;cursor:pointer" data-u="${i}"><img class="av" src="${esc(ph(us[i]))}"><b>${esc(us[i]?.name||"User")}</b></div>`).join(""):'<div class="empty" style="padding:30px">Nobody here yet</div>')+"</div>";
+ $("#cx").onclick=()=>s.hidden=true;s.querySelectorAll("[data-u]").forEach(e=>e.onclick=()=>go("user",e.dataset.u))}
+async function prof(m,uid){uid=uid||me.uid;const own=uid===me.uid;
+ const all=await posts(),U=own?P:users[uid];
+ if(!U){m.innerHTML='<div class="empty">User not found</div>';return}
+ const mine=all.filter(p=>p.uid===uid),pr=U.priv||{};
+ const fr=Object.keys(await get("followers/"+uid)||{}).length,fg=Object.keys(await get("following/"+uid)||{}).length;
+ const tabs=own?["short","video","image","saved"]:["short","video","image"];if(!tabs.includes(ptab))ptab="short";
+ const TL={short:"Shorts",video:"Videos",image:"Photos",saved:"Saved"};
+ const l=ptab==="saved"?all.filter(p=>SV[p.id]):mine.filter(p=>kind(p)===ptab);
+ const lk=mine.reduce((a,p)=>a+Object.keys(p.likes||{}).length,0),vw=mine.reduce((a,p)=>a+(p.views||0),0);
+ m.innerHTML=(own?"":`<div class="top"><button class="btn g s" id="bk">← Back</button></div>`)+`<div class="ban" style="${U.banner?`background-image:url('${esc(U.banner)}')`:""}"></div><img class="pf" src="${esc(ph(U))}">
+ <div style="text-align:center;margin-top:8px"><b style="font-size:19px">${esc(U.name)}</b>${U.bio?`<div class="pill" style="margin-top:4px;padding:0 24px">${esc(U.bio)}</div>`:""}</div>
+ <div class="stats"><div><b>${mine.length}</b><br><span class="pill">Posts</span></div><div data-ls="followers"><b>${fr}</b><br><span class="pill">Followers</span></div><div data-ls="following"><b>${fg}</b><br><span class="pill">Following</span></div></div>
+ <div class="pill" style="text-align:center;margin-bottom:10px">❤ ${lk} likes · 👁 ${vw} views</div>
+ <div style="padding:0 16px">${own?'<button class="btn g" id="dots">⋯ Settings</button>':`<button class="btn ${FW[uid]?"g ":""}" data-f="${uid}">${FW[uid]?"Following":"Follow"}</button>`}</div>
+ <div class="tabs">${tabs.map(t=>`<button class="btn ${ptab===t?"":"g"} s" data-pt="${t}">${TL[t]}</button>`).join("")}</div>
+ ${l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}"><img src="${esc(thumb(p))}" loading="lazy">${own&&ptab!=="saved"?`<button class="x" data-del="${p.id}">🗑</button>`:""}</div>`).join("")+"</div>":'<div class="empty">Nothing here yet</div>'}`;
+ if(own)$("#dots").onclick=menu;else $("#bk").onclick=()=>go(lastTab);
+ m.querySelectorAll("[data-ls]").forEach(d=>d.onclick=()=>{const k2=d.dataset.ls;if(own||pr[k2==="followers"?"fr":"fg"]!==false)listUsers(uid,k2);else toast("This user keeps this list private")});
+ m.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ptab=b.dataset.pt;prof(m,uid)});
+ m.querySelectorAll(".grid div").forEach(d=>d.onclick=e=>{if(e.target.dataset.del)return;openPost(PM[d.dataset.id])});
+ m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this post?"))return;const id=b.dataset.del;await D.remove(R("posts/"+id));await D.remove(R("comments/"+id));await D.remove(R("views/"+id));go("me")});
+ bindF(m)}
+function menu(){const s=$("#sheet");s.hidden=false;const pr=P.priv||{};
+ s.innerHTML=`<div><button class="btn g" id="cn">✏️ Change channel name</button><button class="btn g" id="bio">📝 Edit bio</button><button class="btn g" id="cp">📷 Change your profile picture</button><button class="btn g" id="cb">🖼 Update banner</button>
+ <button class="btn g" id="pfr">👥 Followers list: ${pr.fr===false?"Private":"Public"}</button><button class="btn g" id="pfg">👤 Following list: ${pr.fg===false?"Private":"Public"}</button>
+ <button class="btn g" id="nt">🔔 New post alerts: ${P.notif===false?"Off":"On"}</button>
+ <button class="btn g" id="sw">🔁 Switch account</button><button class="btn g" id="ad">➕ Add account</button><button class="btn g" id="lo">Log out</button><button class="btn g" id="x">Close</button>
+ <input id="pf" type="file" accept="image/*" hidden></div>`;
+ $("#x").onclick=()=>s.hidden=true;
+ const tog=k=>async()=>{P.priv={...(P.priv||{}),[k]:(P.priv||{})[k]===false};await D.update(R("users/"+me.uid+"/priv"),P.priv);menu()};
+ $("#pfr").onclick=tog("fr");$("#pfg").onclick=tog("fg");
+ $("#nt").onclick=async()=>{const on=P.notif===false;P.notif=on;await D.update(R("users/"+me.uid),{notif:on});
+  if(on&&window.Notification&&Notification.permission==="default")await Notification.requestPermission();menu()};
+ $("#cn").onclick=async()=>{const n=(prompt("Channel name (max 30 characters)",P.name)||"").trim().slice(0,30);if(!n)return;if(dirty(n))return warn();P.name=n;await D.update(R("users/"+me.uid),{name:n});s.hidden=true;toast("Channel name updated");go("me")};
+ $("#bio").onclick=async()=>{const b=(prompt("Bio (max 80 characters)",P.bio||"")||"").trim().slice(0,80);if(dirty(b))return warn();P.bio=b;await D.update(R("users/"+me.uid),{bio:b});s.hidden=true;toast("Bio updated");go("me")};
+ const pick=key=>{const i=$("#pf");i.onchange=async e=>{const f=e.target.files[0];if(!f)return;toast("Uploading…");
+  try{const r=await plainUpload(f);if(rejected(r))return warn();
+   const u=key==="photo"?r.secure_url.replace("/upload/","/upload/c_fill,g_face,w_400,h_400,q_auto/"):r.secure_url.replace("/upload/","/upload/c_fill,w_1200,h_400,q_auto/");
+   P[key]=u;await D.update(R("users/"+me.uid),{[key]:u});s.hidden=true;toast("Saved ✅");go("me")}catch(err){toast("Failed: "+err.message)}};i.click()};
+ $("#cp").onclick=()=>pick("photo");$("#cb").onclick=()=>pick("banner");
+ const out=()=>{s.hidden=true;logout()};$("#sw").onclick=out;$("#ad").onclick=out;$("#lo").onclick=out}
+</script></body></html>
