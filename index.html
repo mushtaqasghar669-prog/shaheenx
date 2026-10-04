@@ -1,713 +1,245 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShaheenX Ultra - Web App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase & Supabase SDK CDN Loaders -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, push, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
-            authDomain: "shaheenx-7d9ab.firebaseapp.com",
-            databaseURL: "https://shaheenx-7d9ab-default-rtdb.firebaseio.com",
-            projectId: "shaheenx-7d9ab",
-            storageBucket: "shaheenx-7d9ab.firebasestorage.app",
-            messagingSenderId: "532384586851",
-            appId: "1:532384586851:web:522bfa338a1b346846ec56",
-            measurementId: "G-1JNEYM433J"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        window.shaheenAuth = auth;
-        window.shaheenDb = db;
-        window.GoogleAuthProvider = GoogleAuthProvider;
-        window.signInWithPopup = signInWithPopup;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.sendPasswordResetEmail = sendPasswordResetEmail;
-        window.updateProfile = updateProfile;
-        window.ref = ref;
-        window.set = set;
-        window.get = get;
-        window.push = push;
-        window.update = update;
-        window.remove = remove;
-
-        window.cloudinaryConfig = {
-            cloudName: "dsgicshff",
-            apiKey: "147776976276431",
-            apiSecret: "Lx8O2-pBZfp8NO6McgjwOuxro9c"
-        };
-        window.supabaseConfig = {
-            url: "https://tjkukdezwsigjrdhphfs.supabase.co",
-            anonKey: "sb_publishable_Ejg9ZlfOkC68RHMdM06gxw_cDZOW5_c"
-        };
-    </script>
-
-    <style>
-        body { background-color: #000; color: #fff; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; user-select: none; }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .snap-container { height: calc(100vh - 112px); overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
-        .snap-item { height: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; }
-    </style>
-</head>
-<body class="bg-black text-white h-screen flex flex-col justify-between">
-
-    <!-- 3 Seconds Smart Loading Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center transition-opacity duration-700">
-        <div class="text-4xl font-black tracking-widest text-red-600 mb-4 animate-pulse">SHAHEEN<span class="text-white">X</span></div>
-        <div class="w-56 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
-            <div id="splash-bar" class="h-full bg-red-600 w-0 transition-all duration-300"></div>
-        </div>
-        <p id="splash-status-text" class="text-xs text-zinc-400 mt-3 font-mono tracking-wider">Checking Authentication Session...</p>
-    </div>
-
-    <!-- Authentication Modal -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/95 z-40 hidden flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl">
-            <div class="text-center">
-                <h2 id="auth-title" class="text-2xl font-black tracking-wider text-red-600">SHAHEEN<span class="text-white">X</span></h2>
-                <p class="text-xs text-zinc-400 mt-1">Ultra Video & Community Ecosystem</p>
-            </div>
-            <div class="space-y-3">
-                <input type="email" id="auth-email" placeholder="Email Address" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                <input type="password" id="auth-password" placeholder="Password" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                <button onclick="handleEmailAuth()" id="auth-submit-btn" class="w-full bg-red-600 hover:bg-red-700 font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30">Login</button>
-                <button onclick="handleGoogleLogin()" class="w-full bg-white text-black font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all"><i class="fa-brands fa-google"></i> Continue with Google</button>
-                <div class="flex justify-between text-xs text-zinc-400 pt-2">
-                    <span onclick="toggleAuthMode()" class="cursor-pointer text-red-500 font-bold hover:underline" id="auth-toggle-text">Create Account</span>
-                    <span onclick="handleForgotPassword()" class="cursor-pointer hover:underline">Forgot Password?</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Header Bar -->
-    <header class="w-full h-14 border-b border-zinc-900 flex items-center justify-between px-4 bg-black/90 backdrop-blur z-30 shrink-0">
-        <div class="text-xl font-black tracking-widest text-red-600">SHAHEEN<span class="text-white">X</span></div>
-        <div class="flex items-center gap-3">
-            <button onclick="triggerRefresh()" class="text-zinc-400 hover:text-white p-2 transition-colors" title="Check New Posts"><i class="fa-solid fa-rotate"></i></button>
-            <div id="header-avatar" class="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden cursor-pointer border border-zinc-700 shadow" onclick="switchTab('profile')"></div>
-        </div>
-    </header>
-
-    <!-- Main Dynamic Content Sections -->
-    <main class="flex-1 overflow-hidden relative">
-        
-        <!-- HOME SECTION -->
-        <section id="section-home" class="h-full overflow-y-auto p-4 space-y-4 hide-scroll pb-20">
-            <div class="flex items-center justify-between">
-                <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Active Community Feed</h2>
-                <span class="text-[10px] bg-red-600/20 text-red-500 px-2.5 py-0.5 rounded-full font-bold">Live</span>
-            </div>
-            <div id="home-feed" class="space-y-4"></div>
-        </section>
-
-        <!-- SHORTS SECTION -->
-        <section id="section-shorts" class="h-full hidden">
-            <div id="shorts-feed" class="snap-container hide-scroll"></div>
-        </section>
-
-        <!-- UPLOAD SECTION -->
-        <section id="section-upload" class="h-full hidden overflow-y-auto p-4 max-w-md mx-auto space-y-4 hide-scroll pb-20">
-            <div class="bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl space-y-4">
-                <h2 class="text-sm font-black text-red-500 uppercase tracking-wider">Upload Studio</h2>
-                
-                <div>
-                    <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Select Content Type</label>
-                    <select id="upload-type" onchange="toggleUploadFields()" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                        <option value="short">Short Video (Max 30 Mins)</option>
-                        <option value="post">Image & Title Post (Home Feed)</option>
-                    </select>
-                </div>
-
-                <!-- Video Upload UI -->
-                <div id="video-upload-container" class="space-y-3">
-                    <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Video Title (Max 50 Letters)</label><span id="vtitle-count" class="text-[10px] text-zinc-500">0/50</span></div>
-                        <input type="text" id="upload-vtitle" maxlength="50" oninput="updateCharCount('vtitle', 50)" placeholder="Enter video title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                    </div>
-                    <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Description (Max 100 Letters)</label><span id="vdesc-count" class="text-[10px] text-zinc-500">0/100</span></div>
-                        <textarea id="upload-vdesc" maxlength="100" oninput="updateCharCount('vdesc', 100)" placeholder="Describe your video..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm h-20 resize-none focus:outline-none focus:border-red-600"></textarea>
-                    </div>
-                    <div>
-                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Video Source</label>
-                        <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="previewSelectedFile(this, 'video')">
-                        <button onclick="document.getElementById('video-file-input').click()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-video"></i> Choose Video From Gallery
-                        </button>
-                        <p id="video-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
-                    </div>
-                </div>
-
-                <!-- Image & Title Post UI -->
-                <div id="image-upload-container" class="space-y-3 hidden">
-                    <div>
-                        <div class="flex justify-between"><label class="text-xs text-zinc-400 mb-1">Post Title (Max 50 Letters)</label><span id="ititle-count" class="text-[10px] text-zinc-500">0/50</span></div>
-                        <input type="text" id="upload-ititle" maxlength="50" oninput="updateCharCount('ititle', 50)" placeholder="Enter post title..." class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm focus:outline-none focus:border-red-600">
-                    </div>
-                    <div>
-                        <label class="text-xs text-zinc-400 mb-1.5 block font-medium">Image Source</label>
-                        <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="previewSelectedFile(this, 'image')">
-                        <button onclick="document.getElementById('image-file-input').click()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 border border-zinc-700">
-                            <i class="fa-solid fa-image"></i> Choose Image From Gallery
-                        </button>
-                        <p id="image-filename-display" class="text-[11px] text-zinc-400 mt-2 text-center truncate"></p>
-                    </div>
-                </div>
-
-                <!-- Linear Progress Bar -->
-                <div id="progress-container" class="hidden space-y-1.5 bg-black p-3 rounded-xl border border-zinc-800">
-                    <div class="flex justify-between text-xs text-zinc-400">
-                        <span id="progress-status">Compressing & End-to-End Encrypting...</span>
-                        <span id="progress-percent">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                        <div id="upload-bar" class="h-full bg-red-600 w-0 transition-all"></div>
-                    </div>
-                </div>
-
-                <button onclick="startUploadProcess()" class="w-full bg-white text-black font-extrabold py-3.5 rounded-xl text-sm hover:bg-zinc-200 transition-all shadow">Publish Content</button>
-            </div>
-        </section>
-
-        <!-- PROFILE SECTION -->
-        <section id="section-profile" class="h-full hidden overflow-y-auto p-4 space-y-6 hide-scroll pb-20">
-            <div class="relative bg-zinc-900 h-36 rounded-2xl overflow-hidden border border-zinc-800 shadow-lg">
-                <img id="profile-banner-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600" class="w-full h-full object-cover">
-                <button onclick="openThreeDotMenu()" class="absolute bottom-2 right-2 bg-black/70 px-3 py-1.5 rounded-xl text-xs backdrop-blur font-bold border border-zinc-700">Update Banner</button>
-            </div>
-            <div class="flex items-end gap-4 px-2 -mt-12 relative z-10">
-                <div class="w-20 h-20 rounded-full border-4 border-black bg-zinc-800 overflow-hidden relative shadow-xl">
-                    <img id="profile-avatar-img" src="" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1 pb-1">
-                    <h3 id="profile-name" class="font-bold text-base">User Name</h3>
-                    <p id="profile-email" class="text-xs text-zinc-400">email@domain.com</p>
-                </div>
-                <button onclick="openThreeDotMenu()" class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl hover:bg-zinc-800 shadow"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-            </div>
-            <div class="flex justify-around bg-zinc-900/50 border border-zinc-800 p-4 rounded-2xl text-center shadow-inner">
-                <div>
-                    <span id="stat-posts" class="block font-bold text-lg text-red-500">0</span>
-                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider">Posts</span>
-                </div>
-                <div class="border-r border-zinc-800"></div>
-                <div>
-                    <span id="stat-followers" class="block font-bold text-lg text-white">0</span>
-                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider">Followers</span>
-                </div>
-                <div class="border-r border-zinc-800"></div>
-                <div>
-                    <span id="stat-following" class="block font-bold text-lg text-white">0</span>
-                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider">Following</span>
-                </div>
-            </div>
-            <div class="space-y-3">
-                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">My Published Uploads</h4>
-                <div id="user-posts-grid" class="grid grid-cols-3 gap-2"></div>
-            </div>
-        </section>
-
-        <!-- HISTORY SECTION -->
-        <section id="section-history" class="h-full hidden overflow-y-auto p-4 space-y-4 hide-scroll pb-20">
-            <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Watch History</h2>
-            <div id="history-feed" class="space-y-3"></div>
-        </section>
-
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="w-full h-14 border-t border-zinc-900 bg-black flex items-center justify-around px-2 z-30 shrink-0">
-        <button onclick="switchTab('home')" class="nav-btn text-red-600 flex flex-col items-center gap-0.5 transition-colors" data-target="home">
-            <i class="fa-solid fa-house text-base"></i>
-            <span class="text-[9px]">Home</span>
-        </button>
-        <button onclick="switchTab('shorts')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="shorts">
-            <i class="fa-solid fa-clapperboard text-base"></i>
-            <span class="text-[9px]">Shorts</span>
-        </button>
-        <button onclick="switchTab('upload')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="upload">
-            <i class="fa-solid fa-circle-plus text-base text-red-600"></i>
-            <span class="text-[9px]">Upload</span>
-        </button>
-        <button onclick="switchTab('history')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="history">
-            <i class="fa-solid fa-clock-rotate-left text-base"></i>
-            <span class="text-[9px]">History</span>
-        </button>
-        <button onclick="switchTab('profile')" class="nav-btn text-zinc-500 flex flex-col items-center gap-0.5 transition-colors" data-target="profile">
-            <i class="fa-solid fa-user text-base"></i>
-            <span class="text-[9px]">Profile</span>
-        </button>
-    </nav>
-
-    <!-- Comments Vertical Popup Modal -->
-    <div id="comments-modal" class="fixed inset-x-0 bottom-0 top-1/3 bg-zinc-900 border-t border-zinc-800 rounded-t-3xl z-50 hidden flex flex-col shadow-2xl">
-        <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-            <h3 class="font-bold text-sm">Comments (Max 3 per user, 50 chars)</h3>
-            <i class="fa-solid fa-xmark text-lg text-zinc-400 cursor-pointer" onclick="closeComments()"></i>
-        </div>
-        <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-3 hide-scroll"></div>
-        <div class="p-3 border-t border-zinc-800 flex gap-2 bg-black">
-            <input type="text" id="comment-input" maxlength="50" placeholder="Add comment..." class="flex-1 bg-zinc-900 border border-zinc-800 px-3 py-2 rounded-xl text-xs focus:outline-none focus:border-red-600">
-            <button onclick="submitComment()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-700">Post</button>
-        </div>
-    </div>
-
-    <!-- Settings / 3-Dot Menu Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-end">
-        <div class="bg-zinc-900 border-t border-zinc-800 w-full p-6 rounded-t-3xl space-y-4 max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-red-500">Channel & Account Settings</h3>
-                <i class="fa-solid fa-xmark text-xl text-zinc-400 cursor-pointer" onclick="closeThreeDotMenu()"></i>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Channel Name</label>
-                    <input type="text" id="settings-name" placeholder="Channel / Display Name" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Profile Picture URL</label>
-                    <input type="text" id="settings-avatar" placeholder="Profile Picture URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
-                </div>
-                <div>
-                    <label class="text-xs text-zinc-400 mb-1 block">Banner Image URL</label>
-                    <input type="text" id="settings-banner" placeholder="Banner Image URL" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-sm">
-                </div>
-                <button onclick="saveProfileChanges()" class="w-full bg-red-600 font-bold py-3 rounded-xl text-sm hover:bg-red-700">Save Changes</button>
-                <button onclick="switchAccountPrompt()" class="w-full bg-zinc-800 font-bold py-3 rounded-xl text-sm hover:bg-zinc-700">Switch / Add Account</button>
-                <button onclick="handleLogout()" class="w-full bg-zinc-800 text-red-500 font-bold py-3 rounded-xl text-sm hover:bg-zinc-700">Logout</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Application Script Engine -->
-    <script>
-        let currentUser = null;
-        let isSignUp = false;
-        let activeShortKey = null;
-        let selectedFileObject = null;
-
-        // Controlled 3-second Smart Splash Loading Screen
-        window.addEventListener('DOMContentLoaded', () => {
-            let bar = document.getElementById('splash-bar');
-            let statusText = document.getElementById('splash-status-text');
-            let progress = 0;
-
-            let loadTimer = setInterval(() => {
-                progress += 34;
-                bar.style.width = Math.min(progress, 100) + '%';
-                if(progress === 34) statusText.innerText = "Connecting Database & Storage...";
-                if(progress === 68) statusText.innerText = "Loading ShaheenX Ultra UI/UX...";
-                if(progress >= 100) {
-                    clearInterval(loadTimer);
-                    let splash = document.getElementById('splash-screen');
-                    splash.style.opacity = '0';
-                    setTimeout(() => splash.remove(), 500);
-                }
-            }, 800);
-
-            // Firebase Auth State Listener
-            setTimeout(() => {
-                if(window.shaheenAuth && window.onAuthStateChanged) {
-                    window.onAuthStateChanged(window.shaheenAuth, (user) => {
-                        if (user) {
-                            currentUser = user;
-                            document.getElementById('auth-modal').classList.add('hidden');
-                            loadUserData();
-                            loadFeedData();
-                        } else {
-                            document.getElementById('auth-modal').classList.remove('hidden');
-                        }
-                    });
-                }
-            }, 500);
-        });
-
-        function switchTab(tabId) {
-            ['home', 'shorts', 'upload', 'profile', 'history'].forEach(id => {
-                document.getElementById(`section-${id}`).classList.add('hidden');
-            });
-            document.getElementById(`section-${tabId}`).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-red-600');
-                btn.classList.add('text-zinc-500');
-                if(btn.getAttribute('data-target') === tabId) {
-                    btn.classList.remove('text-zinc-500');
-                    btn.classList.add('text-red-600');
-                }
-            });
-            if(tabId === 'shorts') loadShortsFeed();
-            if(tabId === 'profile') loadUserProfilePosts();
-        }
-
-        function toggleUploadFields() {
-            let type = document.getElementById('upload-type').value;
-            if(type === 'short') {
-                document.getElementById('video-upload-container').classList.remove('hidden');
-                document.getElementById('image-upload-container').classList.add('hidden');
-            } else {
-                document.getElementById('video-upload-container').classList.add('hidden');
-                document.getElementById('image-upload-container').classList.remove('hidden');
-            }
-            selectedFileObject = null;
-        }
-
-        function updateCharCount(type, max) {
-            let val = document.getElementById(`upload-${type}`).value;
-            let counter = document.getElementById(`${type}-count`);
-            if(counter) counter.innerText = `${val.length}/${max}`;
-        }
-
-        function previewSelectedFile(input, fileType) {
-            if(input.files && input.files[0]) {
-                selectedFileObject = input.files[0];
-                let displayElem = document.getElementById(`${fileType}-filename-display`);
-                displayElem.innerText = `Selected File: ${selectedFileObject.name}`;
-            }
-        }
-
-        async function handleGoogleLogin() {
-            try {
-                const provider = new window.GoogleAuthProvider();
-                await window.signInWithPopup(window.shaheenAuth, provider);
-            } catch (err) { alert(err.message); }
-        }
-
-        function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            document.getElementById('auth-title').innerText = isSignUp ? "REGISTER - SHAHEENX" : "SHAHEENX";
-            document.getElementById('auth-submit-btn').innerText = isSignUp ? "Register Account" : "Login";
-            document.getElementById('auth-toggle-text').innerText = isSignUp ? "Already registered? Login" : "Create Account";
-        }
-
-        async function handleEmailAuth() {
-            let email = document.getElementById('auth-email').value;
-            let pass = document.getElementById('auth-password').value;
-            try {
-                if(isSignUp) {
-                    await window.createUserWithEmailAndPassword(window.shaheenAuth, email, pass);
-                } else {
-                    await window.signInWithEmailAndPassword(window.shaheenAuth, email, pass);
-                }
-            } catch(err) { alert(err.message); }
-        }
-
-        async function handleForgotPassword() {
-            let email = document.getElementById('auth-email').value;
-            if(!email) { alert("Enter your email address first."); return; }
-            try {
-                await window.sendPasswordResetEmail(window.shaheenAuth, email);
-                alert("Password reset link sent to your email.");
-            } catch(err) { alert(err.message); }
-        }
-
-        async function loadUserData() {
-            if(!currentUser) return;
-            let avatar = currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100";
-            document.getElementById('header-avatar').innerHTML = `<img src="${avatar}" class="w-full h-full object-cover">`;
-            document.getElementById('profile-avatar-img').src = avatar;
-            document.getElementById('profile-name').innerText = currentUser.displayName || currentUser.email.split('@')[0];
-            document.getElementById('profile-email').innerText = currentUser.email;
-
-            let userRef = window.ref(window.shaheenDb, 'users/' + currentUser.uid);
-            let snap = await window.get(userRef);
-            if(snap.exists()) {
-                let data = snap.val();
-                if(data.name) document.getElementById('profile-name').innerText = data.name;
-                if(data.avatar) document.getElementById('profile-avatar-img').src = data.avatar;
-                if(data.banner) document.getElementById('profile-banner-img').src = data.banner;
-                document.getElementById('stat-followers').innerText = data.followers || 0;
-                document.getElementById('stat-following').innerText = data.following || 0;
-            }
-        }
-
-        async function startUploadProcess() {
-            let type = document.getElementById('upload-type').value;
-            let title = type === 'short' ? document.getElementById('upload-vtitle').value : document.getElementById('upload-ititle').value;
-            let desc = type === 'short' ? document.getElementById('upload-vdesc').value : '';
-
-            if(!title || !selectedFileObject) {
-                alert("Please provide a title and select a file from your gallery.");
-                return;
-            }
-
-            let progContainer = document.getElementById('progress-container');
-            let progBar = document.getElementById('upload-bar');
-            let progStatus = document.getElementById('progress-status');
-            let progPercent = document.getElementById('progress-percent');
-            progContainer.classList.remove('hidden');
-
-            let progress = 0;
-            let interval = setInterval(async () => {
-                progress += 20;
-                progBar.style.width = progress + '%';
-                progPercent.innerText = progress + '%';
-                if(progress === 40) progStatus.innerText = "Compressing video & encrypting via Supabase...";
-                if(progress >= 100) {
-                    clearInterval(interval);
-                    progStatus.innerText = "Published Successfully!";
-                    
-                    let postData = {
-                        title: title,
-                        desc: desc,
-                        type: type,
-                        fileUrl: URL.createObjectURL(selectedFileObject),
-                        author: currentUser.displayName || currentUser.email.split('@')[0],
-                        authorId: currentUser.uid,
-                        authorAvatar: currentUser.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
-                        timestamp: Date.now(),
-                        likes: 0,
-                        views: 0
-                    };
-
-                    let newPostRef = window.push(window.ref(window.shaheenDb, 'posts'));
-                    await window.set(newPostRef, postData);
-
-                    setTimeout(() => {
-                        progContainer.classList.add('hidden');
-                        document.getElementById('upload-vtitle').value = '';
-                        document.getElementById('upload-vdesc').value = '';
-                        document.getElementById('upload-ititle').value = '';
-                        selectedFileObject = null;
-                        document.getElementById('video-filename-display').innerText = '';
-                        document.getElementById('image-filename-display').innerText = '';
-                        switchTab(type === 'short' ? 'shorts' : 'home');
-                    }, 800);
-                }
-            }, 300);
-        }
-
-        async function loadFeedData() {
-            let feed = document.getElementById('home-feed');
-            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">Loading active community posts...</p>';
-            let postsRef = window.ref(window.shaheenDb, 'posts');
-            let snap = await window.get(postsRef);
-            if(snap.exists()) {
-                feed.innerHTML = '';
-                let posts = snap.val();
-                Object.keys(posts).reverse().forEach(key => {
-                    let p = posts[key];
-                    if(p.type === 'post') {
-                        let card = document.createElement('div');
-                        card.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
-                        card.innerHTML = `
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <img src="${p.authorAvatar}" class="w-8 h-8 rounded-full object-cover">
-                                    <span class="text-xs font-bold">${p.author}</span>
-                                </div>
-                                <button onclick="followUser('${p.authorId}')" class="text-xs bg-red-600 px-3 py-1 rounded-xl font-bold hover:bg-red-700">Follow</button>
-                            </div>
-                            <div><h4 class="font-bold text-sm">${p.title}</h4></div>
-                            <div class="rounded-xl overflow-hidden bg-black max-h-96 flex items-center justify-center">
-                                <img src="${p.fileUrl}" class="w-full max-h-96 object-cover">
-                            </div>
-                            <div class="flex items-center gap-4 text-xs text-zinc-400 pt-1">
-                                <button onclick="likePost(this, '${key}')" class="flex items-center gap-1.5 hover:text-red-500"><i class="fa-solid fa-heart"></i> <span>${p.likes || 0}</span></button>
-                                <button onclick="openComments('${key}')" class="flex items-center gap-1.5"><i class="fa-solid fa-comment"></i> Comment</button>
-                                <button onclick="sharePost('${p.title}')" class="flex items-center gap-1.5"><i class="fa-solid fa-share"></i> Share</button>
-                            </div>
-                        `;
-                        feed.appendChild(card);
-                    }
-                });
-                if(feed.innerHTML === '') {
-                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No image/title posts found.</p>';
-                }
-            } else {
-                feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-4">No posts available.</p>';
-            }
-        }
-
-        async function loadShortsFeed() {
-            let feed = document.getElementById('shorts-feed');
-            feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">Loading Ultra Shorts...</p>';
-            let postsRef = window.ref(window.shaheenDb, 'posts');
-            let snap = await window.get(postsRef);
-            if(snap.exists()) {
-                feed.innerHTML = '';
-                let posts = snap.val();
-                Object.keys(posts).reverse().forEach(key => {
-                    let p = posts[key];
-                    if(p.type === 'short') {
-                        let item = document.createElement('div');
-                        item.className = "snap-item flex items-center justify-center bg-black";
-                        item.innerHTML = `
-                            <video src="${p.fileUrl}" loop playsinline onclick="toggleVideoPlay(this)" class="h-full w-full object-cover cursor-pointer"></video>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div class="play-indicator bg-black/60 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black opacity-0 transition-opacity">S</div>
-                            </div>
-                            <div class="absolute bottom-16 left-4 right-16 space-y-2 z-10 pointer-events-auto">
-                                <div class="flex items-center gap-2">
-                                    <img src="${p.authorAvatar}" class="w-9 h-9 rounded-full border border-white object-cover">
-                                    <span class="font-bold text-sm shadow">${p.author}</span>
-                                    <button onclick="followUser('${p.authorId}')" class="text-[10px] bg-red-600 px-2.5 py-0.5 rounded-full font-bold">Follow</button>
-                                </div>
-                                <h3 class="font-bold text-sm shadow">${p.title}</h3>
-                                <p class="text-xs text-zinc-300 shadow">${p.desc || ''}</p>
-                            </div>
-                            <div class="absolute right-4 bottom-20 flex flex-col items-center gap-4 z-10">
-                                <button onclick="likeShort(this, '${key}')" class="w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-heart text-lg"></i></button>
-                                <button onclick="openComments('${key}')" class="w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-comment text-lg"></i></button>
-                                <button onclick="sharePost('${p.title}')" class="w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white"><i class="fa-solid fa-share text-lg"></i></button>
-                            </div>
-                        `;
-                        feed.appendChild(item);
-                    }
-                });
-                if(feed.innerHTML === '') {
-                    feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">No shorts available. Upload your video!</p>';
-                }
-            } else {
-                feed.innerHTML = '<p class="text-center text-xs text-zinc-500 py-10">No shorts found.</p>';
-            }
-        }
-
-        function toggleVideoPlay(video) {
-            let indicator = video.parentElement.querySelector('.play-indicator');
-            if(video.paused) {
-                video.play();
-                indicator.innerText = "▶";
-            } else {
-                video.pause();
-                indicator.innerText = "S";
-            }
-            indicator.style.opacity = '1';
-            setTimeout(() => indicator.style.opacity = '0', 400);
-        }
-
-        function likePost(btn, key) {
-            let icon = btn.querySelector('i');
-            let span = btn.querySelector('span');
-            if(icon.style.color === 'rgb(220, 38, 38)') {
-                icon.style.color = '';
-                span.innerText = parseInt(span.innerText) - 1;
-            } else {
-                icon.style.color = '#dc2626';
-                span.innerText = parseInt(span.innerText) + 1;
-            }
-        }
-
-        function likeShort(btn, key) {
-            let icon = btn.querySelector('i');
-            icon.style.color = icon.style.color === 'rgb(220, 38, 38)' ? '' : '#dc2626';
-        }
-
-        function openComments(key) {
-            activeShortKey = key;
-            document.getElementById('comments-list').innerHTML = `
-                <div class="bg-black border border-zinc-800 p-3 rounded-xl text-xs space-y-1">
-                    <span class="font-bold text-red-500">Shaheen AI</span>
-                    <p class="text-zinc-300">Welcome to ShaheenX comments!</p>
-                </div>
-            `;
-            document.getElementById('comments-modal').classList.remove('hidden');
-        }
-
-        function closeComments() {
-            document.getElementById('comments-modal').classList.add('hidden');
-        }
-
-        function submitComment() {
-            let input = document.getElementById('comment-input');
-            let text = input.value;
-            if(!text) return;
-            let list = document.getElementById('comments-list');
-            let div = document.createElement('div');
-            div.className = "bg-black border border-zinc-800 p-3 rounded-xl text-xs space-y-1";
-            div.innerHTML = `<span class="font-bold text-white">${currentUser.displayName || 'User'}</span><p class="text-zinc-300">${text}</p>`;
-            list.appendChild(div);
-            input.value = '';
-        }
-
-        function sharePost(title) {
-            let url = window.location.href;
-            if(navigator.share) {
-                navigator.share({ title: title, url: url });
-            } else {
-                navigator.clipboard.writeText(url);
-                alert("Link copied successfully!");
-            }
-        }
-
-        async function followUser(id) {
-            let followersElem = document.getElementById('stat-followers');
-            followersElem.innerText = parseInt(followersElem.innerText) + 1;
-            alert("Successfully followed user!");
-        }
-
-        function triggerRefresh() {
-            loadFeedData();
-            alert("Feed refreshed successfully!");
-        }
-
-        function openThreeDotMenu() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeThreeDotMenu() { document.getElementById('settings-modal').classList.add('hidden'); }
-
-        async function saveProfileChanges() {
-            let name = document.getElementById('settings-name').value;
-            let avatar = document.getElementById('settings-avatar').value;
-            let banner = document.getElementById('settings-banner').value;
-            if(currentUser) {
-                let userRef = window.ref(window.shaheenDb, 'users/' + currentUser.uid);
-                await window.update(userRef, { name, avatar, banner });
-                alert("Profile Updated Successfully!");
-                closeThreeDotMenu();
-                loadUserData();
-            }
-        }
-
-        function switchAccountPrompt() {
-            window.shaheenAuth.signOut();
-            document.getElementById('auth-modal').classList.remove('hidden');
-            closeThreeDotMenu();
-        }
-
-        function handleLogout() {
-            window.shaheenAuth.signOut();
-            location.reload();
-        }
-
-        async function loadUserProfilePosts() {
-            let grid = document.getElementById('user-posts-grid');
-            grid.innerHTML = '<p class="text-xs text-zinc-500 col-span-3 text-center py-4">Loading uploads...</p>';
-            let postsRef = window.ref(window.shaheenDb, 'posts');
-            let snap = await window.get(postsRef);
-            if(snap.exists()) {
-                grid.innerHTML = '';
-                let posts = snap.val();
-                let count = 0;
-                Object.keys(posts).forEach(key => {
-                    let p = posts[key];
-                    if(p.authorId === currentUser.uid) {
-                        count++;
-                        let box = document.createElement('div');
-                        box.className = "aspect-square rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden flex items-center justify-center shadow";
-                        box.innerHTML = p.type === 'short' ? `<video src="${p.fileUrl}" class="w-full h-full object-cover"></video>` : `<img src="${p.fileUrl}" class="w-full h-full object-cover">`;
-                        grid.appendChild(box);
-                    }
-                });
-                document.getElementById('stat-posts').innerText = count;
-            } else {
-                grid.innerHTML = '<p class="text-xs text-zinc-500 col-span-3 text-center py-4">No posts found.</p>';
-            }
-        }
-    </script>
-</body>
-</html>
+ <!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000"><title>ShaheenX</title>
+<style>
+:root{--card:#14141c;--mu:#9a9ab0;--ac:#7c5cff;--ac2:#ff3d81;--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+[hidden]{display:none!important}
+button,input,textarea{font:inherit;color:inherit;outline:0}
+.btn{background:linear-gradient(135deg,var(--ac),var(--ac2));border:0;border-radius:14px;padding:13px 16px;font-weight:700;cursor:pointer;width:100%}
+.btn.g{background:var(--card);border:1px solid #2a2a3a}.btn.s{width:auto;padding:8px 14px;font-size:13px}
+input,textarea{width:100%;background:var(--card);border:1px solid #2a2a3a;border-radius:14px;padding:13px;margin:6px 0}
+input:focus,textarea:focus{border-color:var(--ac)}
+.logo{font-size:38px;font-weight:900;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent}
+.bar{height:6px;background:#222;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+#splash{position:fixed;inset:0;z-index:900;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#splash .bar{width:200px}#sb{transition:width 3s linear}
+#auth{position:fixed;inset:0;z-index:800;background:#000;overflow:auto}
+#auth>div{max-width:400px;margin:0 auto;padding:48px 22px;display:flex;flex-direction:column;gap:10px}
+#main{position:fixed;inset:0;overflow-y:auto;padding-bottom:calc(70px + var(--sb))}
+#main.sh-on{padding:0;overflow:hidden}
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:rgba(10,10,16,.92);backdrop-filter:blur(14px);border-top:1px solid #222;padding-bottom:var(--sb)}
+#nav button{flex:1;background:none;border:0;padding:9px 0 8px;color:var(--mu);font-size:11px;cursor:pointer}
+#nav button b{display:block;font-size:21px;font-weight:400}#nav button.on{color:#fff}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;position:sticky;top:0;background:#000;z-index:5}
+.pill{font-size:12px;color:var(--mu)}.dot{display:inline-block;width:8px;height:8px;border-radius:9px;background:#2ecc71;margin-right:5px}
+.card{background:var(--card);border-radius:18px;margin:12px;overflow:hidden}
+.card>img{width:100%;display:block}.p{padding:12px}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}
+.av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#333;flex:none}
+.empty{text-align:center;color:var(--mu);padding:70px 24px}
+.newb{margin:8px 16px;background:var(--ac);border-radius:12px;padding:10px;text-align:center;cursor:pointer;font-weight:600}
+#shorts{position:absolute;inset:0;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
+.sh{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;background:#000}
+.sh video{width:100%;height:100%;object-fit:contain}.sh video.cv{object-fit:cover}
+.bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);font-size:110px;font-weight:900;opacity:0;pointer-events:none;transition:.2s;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 4px 20px #000)}
+.bg.show{opacity:.95;transform:translate(-50%,-50%) scale(1)}
+.sh::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none}
+.ov{position:absolute;z-index:2;left:14px;right:84px;bottom:calc(88px + var(--sb));text-shadow:0 1px 5px #000}
+.ov b.t{display:block;margin-top:8px;font-size:15px}.ov .d{font-size:13px;opacity:.9;margin-top:2px}
+.side{position:absolute;z-index:2;right:10px;bottom:calc(88px + var(--sb));display:flex;flex-direction:column;gap:16px;align-items:center}
+.side button{background:rgba(0,0,0,.4);border:0;border-radius:50%;width:48px;height:48px;font-size:22px;cursor:pointer}
+.side small{display:block;text-align:center;font-size:11px;margin-top:2px}
+.red{color:#ff2d55!important}.on-s{color:#ffd23f!important}
+.fb{background:#fff;color:#000;border:0;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.fb.f{background:rgba(255,255,255,.2);color:#fff}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:flex;align-items:flex-end}
+.sheet>div{background:#121219;width:100%;max-height:62%;min-height:40%;overflow:auto;border-radius:22px 22px 0 0;padding:16px;display:flex;flex-direction:column;gap:8px}
+.sheet.full>div{max-height:85%}
+.cm{margin:8px 0;font-size:14px}.cm.r{margin-left:30px}.cm .m{font-size:12px;color:var(--mu);margin-top:3px}
+.ban{height:140px;background:linear-gradient(135deg,var(--ac),var(--ac2)) center/cover}
+.pf{width:96px;height:96px;border-radius:50%;border:4px solid #000;object-fit:cover;margin:-48px auto 0;display:block;background:#333}
+.stats{display:flex;justify-content:space-around;margin:14px 0;text-align:center}.stats b{font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:10px}
+.grid div{position:relative;aspect-ratio:1;background:#111;overflow:hidden}.grid img{width:100%;height:100%;object-fit:cover}
+.grid .x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:0;border-radius:8px;padding:2px 7px;cursor:pointer}
+.tabs{display:flex;gap:6px;margin:10px 16px}.tabs button{flex:1}
+.cnt{font-size:12px;color:var(--mu);text-align:right}.cnt.w{color:#ff6b6b}
+#upo{position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+#upo .bar{width:100%;max-width:340px;height:10px}#upo i{transition:width .2s}
+#toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:#262633;padding:11px 16px;border-radius:12px;z-index:999;max-width:90%;text-align:center;font-size:14px}
+</style></head><body>
+<div id="splash"><div class="logo">ShaheenX</div><div class="bar"><i id="sb"></i></div><div class="pill">Checking your session… <span id="sc">3</span>s</div></div>
+<div id="auth" hidden><div>
+<div class="logo" style="text-align:center">ShaheenX</div><p class="pill" style="text-align:center">Sign in to watch, create and share</p>
+<input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+<button class="btn" id="login">Log in</button><button class="btn g" id="reg">Create account</button>
+<button class="btn g" id="gg">Continue with Google</button><button class="btn g" id="fg">Forgot password?</button>
+</div></div>
+<div id="main" hidden></div>
+<div id="nav" hidden><button data-t="home"><b>🏠</b>Home</button><button data-t="shorts"><b>🎬</b>Shorts</button><button data-t="up"><b>➕</b>Upload</button><button data-t="hist"><b>🕘</b>History</button><button data-t="me"><b>👤</b>Profile</button></div>
+<div id="sheet" class="sheet" hidden></div>
+<div id="upo" hidden><div class="logo" style="font-size:28px">Uploading</div><div class="bar"><i id="ub"></i></div>
+<div id="up1" style="font-size:22px;font-weight:700">0%</div><div id="up2" class="pill"></div><div id="up3" class="pill"></div></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import*as A from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import*as D from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",authDomain:"shaheenx-7d9ab.firebaseapp.com",databaseURL:"https://shaheenx-7d9ab-default-rtdb.firebaseio.com",projectId:"shaheenx-7d9ab",storageBucket:"shaheenx-7d9ab.firebasestorage.app",messagingSenderId:"532384586851",appId:"1:532384586851:web:522bfa338a1b346846ec56"});
+const auth=A.getAuth(app),db=D.getDatabase(app);
+const CLOUD="dsgicshff",PRESET="shaheenx_unsigned",MAXV=1800;
+const $=s=>document.querySelector(s),R=p=>D.ref(db,p),get=async p=>(await D.get(R(p))).val();
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const opt=(u,v)=>u.replace("/upload/",v?"/upload/q_auto,f_auto,vc_auto/":"/upload/q_auto,f_auto/");
+const thumb=p=>p.type==="video"?p.url.replace("/upload/","/upload/so_1,w_300,q_auto/").replace(/\.\w+$/,".jpg"):p.url.replace("/upload/","/upload/w_300,q_auto/");
+const fmt=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const ph=u=>u?.photo||"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#7c5cff"/><text x="5" y="7.2" font-size="5.5" text-anchor="middle" fill="#fff" font-family="Arial">'+esc((u?.name||"S")[0].toUpperCase())+'</text></svg>');
+const toast=m=>{document.querySelectorAll("#toast").forEach(x=>x.remove());const t=document.createElement("div");t.id="toast";t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3200)};
+const MSG={"auth/invalid-credential":"Wrong email or password","auth/wrong-password":"Wrong email or password","auth/user-not-found":"No account with this email","auth/email-already-in-use":"This email is already registered","auth/weak-password":"Password must be at least 6 characters","auth/invalid-email":"Invalid email address","auth/unauthorized-domain":"Add this site's domain in Firebase → Authentication → Settings → Authorized domains","auth/popup-closed-by-user":"Sign-in cancelled","auth/too-many-requests":"Too many attempts, try later"};
+const fail=e=>toast(MSG[e.code]||e.code||"Something went wrong");
+const BAD=["porn","xxx","nude","sex","nangi","rape","fuck","nsfw","boobs","dick"];
+const dirty=t=>BAD.some(w=>(t||"").toLowerCase().includes(w));
+let me=null,P={},users={},FW={},SV={},off=[],cur="home";
+async function warn(){const w=(P.warns||0)+1;P.warns=w;await D.update(R("users/"+me.uid),{warns:w,banned:w>=3});
+ if(w>=3){toast("Your account has been banned for repeated violations");await logout()}else toast("Warning "+w+"/3: inappropriate content is not allowed")}
+async function logout(){try{await D.remove(R("presence/"+me.uid))}catch(e){}await A.signOut(auth)}
+/* splash + session */
+let left=3;setTimeout(()=>$("#sb").style.width="100%",50);
+const tk=setInterval(()=>{left=Math.max(0,left-1);$("#sc").textContent=left},1000);
+const minWait=new Promise(r=>setTimeout(r,3000));
+A.onAuthStateChanged(auth,async u=>{await minWait;clearInterval(tk);$("#splash").hidden=true;
+ if(!u){me=null;$("#auth").hidden=false;$("#main").hidden=true;$("#nav").hidden=true;return}
+ me=u;P=await get("users/"+u.uid);
+ if(!P){P={name:u.displayName||(u.email||"user").split("@")[0],photo:u.photoURL||"",banner:"",warns:0};await D.set(R("users/"+u.uid),P)}
+ if(P.banned){toast("This account is banned");return logout()}
+ $("#auth").hidden=true;$("#main").hidden=false;$("#nav").hidden=false;startPresence();
+ const q=new URLSearchParams(location.search).get("p");
+ if(q){const p=await get("posts/"+q);if(p&&p.type==="video")return go("shorts",q)}
+ go("home")});
+function startPresence(){const r=R("presence/"+me.uid);D.onValue(R(".info/connected"),s=>{if(s.val()){D.onDisconnect(r).remove();D.set(r,true)}})}
+/* auth */
+const E=$("#em"),W=$("#pw");
+$("#login").onclick=()=>A.signInWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
+$("#reg").onclick=()=>A.createUserWithEmailAndPassword(auth,E.value.trim(),W.value).catch(fail);
+$("#gg").onclick=async()=>{const g=new A.GoogleAuthProvider();try{await A.signInWithPopup(auth,g)}catch(e){if(["auth/popup-blocked","auth/cancelled-popup-request"].includes(e.code))A.signInWithRedirect(auth,g);else fail(e)}};
+$("#fg").onclick=()=>E.value?A.sendPasswordResetEmail(auth,E.value.trim()).then(()=>toast("Password reset email sent")).catch(fail):toast("Enter your email first");
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.t)};
+async function go(t,focus){cur=t;off.forEach(f=>f());off=[];$("#sheet").hidden=true;
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+ const m=$("#main");m.className=t==="shorts"?"sh-on":"";m.scrollTop=0;m.innerHTML='<div class="empty">Loading…</div>';
+ try{await({home,shorts,up,hist,me:prof})[t](m,focus)}catch(e){m.innerHTML='<div class="empty">Could not load. Check your connection.</div>'}}
+async function posts(){const p=await get("posts")||{};users=await get("users")||{};FW=await get("following/"+me.uid)||{};SV=await get("saves/"+me.uid)||{};
+ return Object.entries(p).map(([id,v])=>({id,...v})).sort((a,b)=>b.ts-a.ts)}
+const fbtn=uid=>uid===me.uid?"":`<button class="fb ${FW[uid]?"f":""}" data-f="${uid}">${FW[uid]?"Following":"Follow"}</button>`;
+function bindF(m){m.querySelectorAll("[data-f]").forEach(b=>b.onclick=async()=>{const t=b.dataset.f,on=!FW[t];
+ if(on){await D.set(R(`following/${me.uid}/${t}`),true);await D.set(R(`followers/${t}/${me.uid}`),true)}else{await D.remove(R(`following/${me.uid}/${t}`));await D.remove(R(`followers/${t}/${me.uid}`))}
+ FW[t]=on;m.querySelectorAll(`[data-f="${t}"]`).forEach(x=>{x.textContent=on?"Following":"Follow";x.classList.toggle("f",on)})})}
+async function like(pid,b){const r=R(`posts/${pid}/likes/${me.uid}`),n=b.parentElement.querySelector("small"),on=!b.classList.contains("red");
+ b.classList.toggle("red",on);if(n)n.textContent=Math.max(0,+n.textContent+(on?1:-1));on?await D.set(r,true):await D.remove(r)}
+async function save(pid,b){const on=!b.classList.contains("on-s");b.classList.toggle("on-s",on);const r=R(`saves/${me.uid}/${pid}`);on?await D.set(r,Date.now()):await D.remove(r);toast(on?"Saved":"Removed from saved")}
+function share(id){const u=location.href.split("?")[0].split("#")[0]+"?p="+id;if(navigator.share)navigator.share({title:"ShaheenX",url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast("Link copied"))}
+/* home */
+async function home(m){
+ const all=await posts(),l=all.filter(p=>p.type==="image");
+ m.innerHTML=`<div class="top"><span class="logo" style="font-size:24px">ShaheenX</span><span class="pill"><span class="dot"></span><b id="act">…</b> online</span><button class="btn g s" id="rf">⟳ Refresh</button></div><div id="nb"></div>`+
+ (l.length?l.map(p=>`<div class="card"><div class="p row"><img class="av" src="${esc(ph(users[p.uid]))}"><b class="sp">${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><img src="${esc(opt(p.url))}" loading="lazy"><div class="p"><b>${esc(p.title)}</b><div class="row" style="margin-top:10px"><button class="btn g s lkb ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small class="pill">${Object.keys(p.likes||{}).length}</small><div class="sp"></div><button class="btn g s" data-sh="${p.id}">Share</button></div></div></div>`).join(""):'<div class="empty">Nothing uploaded yet</div>');
+ $("#rf").onclick=()=>go("home");
+ m.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>share(b.dataset.sh));
+ m.querySelectorAll(".lkb").forEach(b=>b.onclick=async()=>{const on=!b.classList.contains("red");b.classList.toggle("red",on);const n=b.nextElementSibling;n.textContent=Math.max(0,+n.textContent+(on?1:-1));const r=R(`posts/${b.dataset.id}/likes/${me.uid}`);on?await D.set(r,true):await D.remove(r)});
+ bindF(m);
+ off.push(D.onValue(R("presence"),s=>{const a=$("#act");if(a)a.textContent=Object.keys(s.val()||{}).length}));
+ off.push(D.onValue(R("posts"),s=>{if(Object.keys(s.val()||{}).length>all.length&&$("#nb")){$("#nb").innerHTML='<div class="newb" id="nbb">New posts available — tap to refresh</div>';$("#nbb").onclick=()=>go("home")}}))}
+/* shorts */
+async function shorts(m,focus){
+ let l=(await posts()).filter(p=>p.type==="video");if(focus)l.sort((a,b)=>(b.id===focus)-(a.id===focus));
+ if(!l.length){m.className="";m.innerHTML='<div class="empty">No shorts yet</div>';return}
+ m.innerHTML='<div id="shorts">'+l.map(p=>`<div class="sh" data-id="${p.id}"><video src="${esc(opt(p.url,1))}" loop playsinline preload="metadata"></video><div class="bg">S</div>
+ <div class="ov"><div class="row"><img class="av" src="${esc(ph(users[p.uid]))}"><b>${esc(users[p.uid]?.name)}</b>${fbtn(p.uid)}</div><b class="t">${esc(p.title)}</b><div class="d">${esc(p.desc)}</div><div class="d">👁 <span class="vw">${p.views||0}</span> views</div></div>
+ <div class="side"><div><button class="lk ${p.likes&&p.likes[me.uid]?"red":""}" data-id="${p.id}">❤</button><small>${Object.keys(p.likes||{}).length}</small></div><div><button class="cmb" data-id="${p.id}">💬</button></div><div><button class="svb ${SV[p.id]?"on-s":""}" data-id="${p.id}">🔖</button></div><div><button class="shb" data-id="${p.id}">↗</button></div></div></div>`).join("")+"</div>";
+ const io=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target,v=s.querySelector("video");
+  if(e.isIntersecting){s.querySelector(".bg").classList.remove("show");v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})});D.set(R(`history/${me.uid}/${s.dataset.id}`),Date.now())}else v.pause()}),{threshold:.7});
+ m.querySelectorAll(".sh").forEach(s=>{io.observe(s);const v=s.querySelector("video"),bg=s.querySelector(".bg"),pid=s.dataset.id;
+  v.onloadedmetadata=()=>{if(v.videoHeight>v.videoWidth)v.classList.add("cv")};
+  v.onclick=()=>{if(v.paused){v.play();bg.classList.add("show");setTimeout(()=>bg.classList.remove("show"),450)}else{v.pause();bg.classList.add("show")}};
+  let acc=0,last=0,done=false;v.ontimeupdate=()=>{const d=v.currentTime-last;last=v.currentTime;if(d>0&&d<1)acc+=d;if(!done&&acc>=5){done=true;countView(pid,s.querySelector(".vw"))}}});
+ m.querySelectorAll(".lk").forEach(b=>b.onclick=()=>like(b.dataset.id,b));
+ m.querySelectorAll(".svb").forEach(b=>b.onclick=()=>save(b.dataset.id,b));
+ m.querySelectorAll(".shb").forEach(b=>b.onclick=()=>share(b.dataset.id));
+ m.querySelectorAll(".cmb").forEach(b=>b.onclick=()=>comments(b.dataset.id));bindF(m)}
+async function countView(pid,el){const r=R(`views/${pid}/${me.uid}`);if(await get(`views/${pid}/${me.uid}`))return;await D.set(r,true);await D.runTransaction(R(`posts/${pid}/views`),v=>(v||0)+1);el.textContent=+el.textContent+1}
+/* comments */
+async function comments(pid){
+ const s=$("#sheet");s.hidden=false;s.className="sheet";let reply=null;
+ const draw=async()=>{const c=await get("comments/"+pid)||{},us=await get("users")||{};const all=Object.entries(c).map(([id,v])=>({id,...v})).sort((a,b)=>a.ts-b.ts);
+  const one=x=>{const n=all.filter(y=>y.parent===x.id).length;return`<div class="cm ${x.parent?"r":""}"><div class="row" style="align-items:flex-start"><img class="av" style="width:28px;height:28px" src="${esc(ph(us[x.uid]))}"><div class="sp"><b>${esc(us[x.uid]?.name)}</b> ${esc(x.text)}<div class="m"><span data-l="${x.id}" style="cursor:pointer" class="${x.likes&&x.likes[me.uid]?"red":""}">❤ ${Object.keys(x.likes||{}).length}</span> · <span data-r="${x.id}" style="cursor:pointer">Reply</span>${!x.parent&&n?` · ${n} repl${n>1?"ies":"y"}`:""}</div></div></div></div>`};
+  s.innerHTML=`<div><div class="row"><b class="sp">Comments (${all.length})</b><button class="btn g s" id="cx">✕</button></div>
+  ${all.filter(x=>!x.parent).map(x=>one(x)+all.filter(y=>y.parent===x.id).map(one).join("")).join("")||'<div class="empty" style="padding:30px">No comments yet</div>'}
+  <div style="margin-top:auto"><input id="ci" maxlength="50" placeholder="Add a comment…"><div class="cnt" id="cc">0/50</div><button class="btn" id="cs">Post</button></div></div>`;
+  $("#cx").onclick=()=>s.hidden=true;
+  $("#ci").oninput=e=>{const n=e.target.value.length;$("#cc").textContent=n+"/50";$("#cc").className="cnt"+(n>=50?" w":"");if(n>=50)toast("Max 50 characters")};
+  s.querySelectorAll("[data-l]").forEach(e=>e.onclick=async()=>{const p=`comments/${pid}/${e.dataset.l}/likes/${me.uid}`;(await get(p))?await D.remove(R(p)):await D.set(R(p),true);draw()});
+  s.querySelectorAll("[data-r]").forEach(e=>e.onclick=()=>{reply=e.dataset.r;$("#ci").placeholder="Write a reply…";$("#ci").focus()});
+  $("#cs").onclick=async()=>{const t=$("#ci").value.trim().slice(0,50);if(!t)return;
+   if(all.filter(x=>x.uid===me.uid).length>=3)return toast("You can post up to 3 comments per video");
+   if(dirty(t))return warn();
+   await D.push(R("comments/"+pid),{uid:me.uid,text:t,ts:Date.now(),parent:reply});draw()}};
+ draw()}
+/* upload */
+let file=null,dur=0;
+function up(m){
+ m.innerHTML=`<div class="top"><b style="font-size:20px">Create</b></div><div style="padding:0 16px 16px"><div class="row"><button class="btn" id="ti">🖼 Photo post</button><button class="btn g" id="tv">🎬 Video short</button></div><div id="fm"></div></div>`;
+ const counter=(id,max)=>{const i=$("#"+id),c=document.createElement("div");c.className="cnt";c.textContent="0/"+max;i.after(c);i.oninput=()=>{const n=i.value.length;c.textContent=n+"/"+max;c.className="cnt"+(n>=max?" w":"");if(n>=max)toast("Maximum "+max+" characters")}};
+ const form=v=>{file=null;dur=0;$("#ti").className="btn"+(v?" g":"");$("#tv").className="btn"+(v?"":" g");
+  $("#fm").innerHTML=`<input id="t" maxlength="${v?50:30}" placeholder="${v?"Video title":"Photo title"}">${v?'<textarea id="d" rows="3" maxlength="100" placeholder="Description"></textarea>':""}
+  <input id="f" type="file" accept="${v?"video/*":"image/*"}" hidden><button class="btn g" id="pick">${v?"🎥 Choose your video":"🖼 Choose your photo"}</button><div id="pv" style="margin:10px 0"></div><button class="btn" id="go">Publish</button>`;
+  counter("t",v?50:30);if(v)counter("d",100);
+  $("#pick").onclick=()=>$("#f").click();
+  $("#f").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);
+   if(!v){file=f;$("#pv").innerHTML=`<img src="${u}" style="width:100%;border-radius:14px">`;return}
+   const t=document.createElement("video");t.preload="metadata";t.src=u;
+   t.onloadedmetadata=()=>{if(t.duration>MAXV){file=null;$("#pv").innerHTML="";toast("Videos can be 30 minutes at most");return}
+    file=f;dur=t.duration;$("#pv").innerHTML=`<video src="${u}" controls playsinline style="width:100%;max-height:50vh;border-radius:14px;background:#000"></video><div class="pill">Length ${fmt(dur)} · ${(f.size/1048576).toFixed(1)} MB</div>`}};
+  $("#go").onclick=()=>send(v?"video":"image")};
+ $("#ti").onclick=()=>form(0);$("#tv").onclick=()=>form(1);form(0)}
+function send(kind){const t=$("#t").value.trim(),d=$("#d")?$("#d").value.trim():"";
+ if(!file)return toast(kind==="video"?"Choose a video first":"Choose a photo first");if(!t)return toast("Add a title");
+ if(dirty(t)||dirty(d))return warn();
+ const fd=new FormData();fd.append("file",file);fd.append("upload_preset",PRESET);
+ const x=new XMLHttpRequest();x.open("POST",`https://api.cloudinary.com/v1_1/${CLOUD}/${kind}/upload`);
+ const t0=Date.now();$("#upo").hidden=false;window.onbeforeunload=()=>"Upload in progress";$("#ub").style.width="0";
+ const end=()=>{$("#upo").hidden=true;window.onbeforeunload=null};
+ x.upload.onprogress=e=>{if(!e.lengthComputable)return;const p=Math.round(e.loaded/e.total*100),el=(Date.now()-t0)/1000,sp=e.loaded/Math.max(el,.1);
+  $("#ub").style.width=p+"%";$("#up1").textContent=p+"%";
+  $("#up2").textContent=p<100?`Time left ${fmt((e.total-e.loaded)/sp)} · ${(sp*8/1e6).toFixed(1)} Mbps`:"Compressing & optimizing…";
+  $("#up3").textContent="Secure encrypted transfer (TLS) · please keep this screen open"};
+ x.onload=async()=>{let r={};try{r=JSON.parse(x.responseText)}catch(e){}
+  if(x.status!==200){end();return toast("Upload failed: "+(r.error?.message||"check Cloudinary preset"))}
+  await D.push(R("posts"),{uid:me.uid,type:kind,title:t,desc:d,url:r.secure_url,ts:Date.now(),views:0});
+  end();toast("Published ✅");go(kind==="video"?"shorts":"home")};
+ x.onerror=()=>{end();toast("Network error, try again")};x.send(fd)}
+/* history */
+async function hist(m){const h=await get("history/"+me.uid)||{},all=await posts();
+ const l=all.filter(p=>h[p.id]).sort((a,b)=>h[b.id]-h[a.id]);
+ m.innerHTML='<div class="top"><b style="font-size:20px">History</b></div>'+(l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}" data-v="${p.type==="video"?1:0}"><img src="${esc(thumb(p))}" loading="lazy"></div>`).join("")+"</div>":'<div class="empty">Nothing watched yet</div>');
+ m.querySelectorAll(".grid div").forEach(d=>d.onclick=()=>d.dataset.v==="1"?go("shorts",d.dataset.id):go("home"))}
+/* profile */
+let ptab="posts";
+async function prof(m){const all=await posts(),mine=all.filter(p=>p.uid===me.uid),sv=all.filter(p=>SV[p.id]);
+ const fr=Object.keys(await get("followers/"+me.uid)||{}).length,fg=Object.keys(FW).length,l=ptab==="posts"?mine:sv;
+ m.innerHTML=`<div class="ban" style="${P.banner?`background-image:url('${esc(P.banner)}')`:""}"></div><img class="pf" src="${esc(ph(P))}">
+ <div style="text-align:center;margin-top:8px"><b style="font-size:19px">${esc(P.name)}</b></div>
+ <div class="stats"><div><b>${mine.length}</b><br><span class="pill">Posts</span></div><div><b>${fr}</b><br><span class="pill">Followers</span></div><div><b>${fg}</b><br><span class="pill">Following</span></div></div>
+ <div style="padding:0 16px"><button class="btn g" id="dots">⋯ Settings</button></div>
+ <div class="tabs"><button class="btn ${ptab==="posts"?"":"g"} s" data-pt="posts">Posts</button><button class="btn ${ptab==="saved"?"":"g"} s" data-pt="saved">Saved</button></div>
+ ${l.length?'<div class="grid">'+l.map(p=>`<div data-id="${p.id}" data-v="${p.type==="video"?1:0}"><img src="${esc(thumb(p))}" loading="lazy">${ptab==="posts"?`<button class="x" data-del="${p.id}">🗑</button>`:""}</div>`).join("")+"</div>":'<div class="empty">Nothing here yet</div>'}`;
+ $("#dots").onclick=menu;
+ m.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ptab=b.dataset.pt;prof(m)});
+ m.querySelectorAll(".grid div").forEach(d=>d.onclick=e=>{if(e.target.dataset.del)return;d.dataset.v==="1"?go("shorts",d.dataset.id):go("home")});
+ m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this post?"))return;const id=b.dataset.del;await D.remove(R("posts/"+id));await D.remove(R("comments/"+id));await D.remove(R("views/"+id));go("me")})}
+function menu(){const s=$("#sheet");s.hidden=false;s.className="sheet";
+ s.innerHTML=`<div><button class="btn g" id="cn">✏️ Change channel name</button><button class="btn g" id="cp">📷 Change your profile picture</button><button class="btn g" id="cb">🖼 Update banner</button>
+ <button class="btn g" id="sw">🔁 Switch account</button><button class="btn g" id="ad">➕ Add account</button><button class="btn g" id="lo">Log out</button><button class="btn g" id="x">Close</button>
+ <input id="pf" type="file" accept="image/*" hidden></div>`;
+ $("#x").onclick=()=>s.hidden=true;
+ $("#cn").onclick=async()=>{const n=(prompt("Channel name (max 30 characters)",P.name)||"").trim().slice(0,30);if(!n)return;if(dirty(n))return warn();P.name=n;await D.update(R("users/"+me.uid),{name:n});s.hidden=true;toast("Channel name updated");go("me")};
+ const pick=key=>{const i=$("#pf");i.onchange=async e=>{const f=e.target.files[0];if(!f)return;toast("Uploading…");
+  const fd=new FormData();fd.append("file",f);fd.append("upload_preset",PRESET);
+  try{const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:"POST",body:fd}).then(r=>r.json());
+   if(!r.secure_url)return toast("Failed: "+(r.error?.message||"check Cloudinary preset"));
+   const u=key==="photo"?r.secure_url.replace("/upload/","/upload/c_fill,g_face,w_400,h_400,q_auto/"):r.secure_url.replace("/upload/","/upload/c_fill,w_1200,h_400,q_auto/");
+   P[key]=u;await D.update(R("users/"+me.uid),{[key]:u});s.hidden=true;toast("Saved ✅");go("me")}catch(err){toast("Network error")}};i.click()};
+ $("#cp").onclick=()=>pick("photo");$("#cb").onclick=()=>pick("banner");
+ const out=()=>{s.hidden=true;logout()};$("#sw").onclick=out;$("#ad").onclick=out;$("#lo").onclick=out}
+</script></body></html>
