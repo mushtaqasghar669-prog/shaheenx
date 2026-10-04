@@ -1,435 +1,1279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shaheen X - Ultra</title>
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>ShaheenX</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;overflow:hidden;height:100%;width:100%}
+:root{--bg:#000;--card:#121212;--line:#222;--muted:#8a8a8a;--accent:#ff2d55;--blue:#3b82f6}
+button,input,textarea{font-family:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer}
+img,video{display:block}
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
-            authDomain: "shaheenx-7d9ab.firebaseapp.com",
-            databaseURL: "https://shaheenx-7d9ab-default-rtdb.firebaseio.com",
-            projectId: "shaheenx-7d9ab",
-            storageBucket: "shaheenx-7d9ab.firebasestorage.app",
-            messagingSenderId: "532384586851",
-            appId: "1:532384586851:web:522bfa338a1b346846ec56",
-            measurementId: "G-1JNEYM433J"
-        };
+/* LOADER */
+#loader{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .4s}
+#loader .logo{font-size:38px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
+#loader .bar{width:220px;height:4px;background:#1c1c1c;border-radius:4px;overflow:hidden}
+#loader .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .25s}
+#loader .status{font-size:12px;color:var(--muted);letter-spacing:.5px}
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        window.auth = auth;
-        window.db = db;
-        window.provider = new GoogleAuthProvider();
+/* AUTH */
+#auth{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;padding:28px;background:radial-gradient(1200px 600px at 50% -20%,#1a0a14 0%,#000 60%)}
+#auth .brand{font-size:40px;font-weight:900;text-align:center;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+#auth .tag{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px}
+#auth .field{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+#auth .field input{background:none;border:none;outline:none;flex:1;font-size:15px}
+#auth .btn{width:100%;padding:15px;border-radius:12px;font-weight:700;font-size:15px;margin-top:10px;transition:.15s}
+#auth .primary{background:linear-gradient(135deg,#ff2d55,#ff5a7a);color:#fff}
+#auth .ghost{background:#111;border:1px solid #222}
+#auth .link{text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
+#auth .link b{color:#fff}
+#auth .switch{margin-top:22px;text-align:center;font-size:13px;color:var(--muted)}
+#auth .switch b{color:var(--accent)}
 
-        // 3-Second Loading & Auth Check
-        setTimeout(() => {
-            document.getElementById('loading-screen').style.display = 'none';
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    document.getElementById('user-profile-name').innerText = user.displayName || "Shaheen User";
-                    if(user.photoURL) document.getElementById('user-profile-pic').src = user.photoURL;
-                }
-            });
-        }, 3000); // 3 seconds strictly
-    </script>
+/* APP */
+#app{display:none;flex-direction:column;height:100%;width:100%}
+#topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #111;background:#000;flex-shrink:0}
+#topbar .name{font-size:22px;font-weight:900;background:linear-gradient(135deg,#ff2d55,#ff9500,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
+#topbar .icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111}
+#topbar .active{padding:6px 12px;border-radius:20px;background:#111;font-size:12px;color:#9f9}
+#views{flex:1;overflow:hidden;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+.view.active{display:block}
 
-    <style>
-        /* Global & Reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #000; color: #fff; overflow: hidden; }
+/* BOTTOM NAV */
+#bottomnav{height:62px;display:flex;background:#000;border-top:1px solid #111;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+#bottomnav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#666;font-size:10px;font-weight:600}
+#bottomnav button.on{color:#fff}
+#bottomnav button svg{width:22px;height:22px}
 
-        /* Loading Screen */
-        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; }
-        .spinner { border: 4px solid #111; border-top: 4px solid #e50914; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin-bottom: 20px;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* HOME */
+.feed{padding:12px 12px 80px}
+.card{background:#0c0c0c;border:1px solid #161616;border-radius:16px;overflow:hidden;margin-bottom:14px}
+.card .head{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.card .head img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#222}
+.card .head .nm{font-size:13px;font-weight:700}
+.card .head .tm{font-size:11px;color:var(--muted)}
+.card .media{width:100%;background:#000;max-height:70vh;object-fit:contain}
+.card .body{padding:10px 12px}
+.card .ttl{font-size:14px;font-weight:700;margin-bottom:4px}
+.card .dsc{font-size:12.5px;color:#bbb;line-height:1.4}
+.card .acts{display:flex;gap:18px;padding:8px 12px 12px}
+.card .acts button{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#ccc}
+.card .acts svg{width:18px;height:18px}
+.card .acts .liked{color:var(--accent)}
+.empty{padding:60px 20px;text-align:center;color:var(--muted)}
+.empty h3{color:#fff;margin-bottom:8px}
 
-        /* App Container */
-        #app-container { width: 100%; height: calc(100vh - 60px); position: relative; overflow: hidden; }
-        .screen { display: none; width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden; }
-        .screen.active { display: block; }
+/* SHORTS */
+#view-shorts{overflow:hidden}
+#shortsWrap{height:100%;width:100%;position:relative;background:#000;overflow-y:scroll;scroll-snap-type:y mandatory;overscroll-behavior:contain}
+#shortsWrap::-webkit-scrollbar{display:none}
+.shorts-item{height:100%;width:100%;scroll-snap-align:start;position:relative;display:flex;align-items:center;justify-content:center;background:#000}
+.shorts-item video{width:100%;height:100%;object-fit:contain;background:#000}
+.shorts-info{position:absolute;left:14px;right:80px;bottom:90px;z-index:3;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.shorts-info .row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.shorts-info .row img{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #fff}
+.shorts-info .row .nm{font-size:15px;font-weight:800}
+.shorts-info .row button{margin-left:8px;font-size:12px;font-weight:800;padding:5px 12px;border-radius:20px;background:var(--accent);color:#fff}
+.shorts-info .row button.following{background:#222;color:#fff}
+.shorts-info .ttl{font-size:14px;font-weight:700;margin-bottom:4px}
+.shorts-info .dsc{font-size:13px;color:#eee;line-height:1.35;max-height:56px;overflow:hidden}
+.shorts-side{position:absolute;right:10px;bottom:100px;z-index:3;display:flex;flex-direction:column;gap:18px;align-items:center}
+.shorts-side button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#fff}
+.shorts-side svg{width:30px;height:30px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.7))}
+.shorts-side .liked svg{fill:var(--accent);stroke:var(--accent)}
+#playPause{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:2;pointer-events:none}
+#playPause.show{display:flex}
+#playPause svg{width:90px;height:90px;opacity:.75;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6))}
 
-        /* ========= HOME SCREEN ========= */
-        #home-screen { padding: 15px; background: #0a0a0a; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .active-users { font-size: 12px; color: #0f0; display: flex; align-items: center; gap: 5px; }
-        .active-dot { width: 8px; height: 8px; background: #0f0; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        
-        .home-post { background: #111; border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
-        .home-post-img { width: 100%; height: 220px; object-fit: cover; background: #222; }
-        .home-post-info { padding: 12px; display: flex; gap: 10px; }
-        .home-avatar { width: 40px; height: 40px; border-radius: 50%; background: #444; }
+/* UPLOAD */
+.upl{padding:16px 16px 90px}
+.upl .tabs{display:flex;gap:8px;margin-bottom:18px;background:#0c0c0c;padding:5px;border-radius:14px}
+.upl .tabs button{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;color:#888}
+.upl .tabs button.on{background:#1c1c1c;color:#fff}
+.upl .drop{border:1.5px dashed #2a2a2a;border-radius:16px;padding:30px 16px;text-align:center;background:#0a0a0a;margin-bottom:14px;cursor:pointer}
+.upl .drop p{font-size:13px;color:#ccc;font-weight:700}
+.upl .drop small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+.upl .prev{width:100%;border-radius:14px;margin-bottom:14px;background:#000;max-height:60vh;object-fit:contain}
+.upl label{font-size:12px;color:#aaa;display:block;margin:10px 0 6px;font-weight:700}
+.upl input[type=text],.upl textarea{width:100%;background:#0c0c0c;border:1px solid #1e1e1e;border-radius:12px;padding:12px 14px;font-size:14px;outline:none;resize:none}
+.upl .count{text-align:right;font-size:11px;color:var(--muted);margin-top:4px}
+.upl .count.over{color:var(--accent)}
+.upl .submit{margin-top:18px;width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,#ff2d55,#ff5a7a);font-weight:800;font-size:15px}
+.upl .submit:disabled{opacity:.5}
+.progress{margin-top:16px;display:none}
+.progress.show{display:block}
+.progress .track{height:6px;background:#1c1c1c;border-radius:6px;overflow:hidden}
+.progress .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2d55,#3b82f6);transition:width .2s}
+.progress .lbl{font-size:11.5px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
 
-        /* ========= SHORTS SCREEN ========= */
-        #shorts-screen { background: #000; scroll-snap-type: y mandatory; overflow-y: scroll; height: 100%; padding-bottom: 60px;}
-        .short-container { width: 100%; height: 100%; position: relative; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; }
-        .short-container video { width: 100%; height: 100%; object-fit: cover; }
-        
-        #s-play-pause-logo { position: absolute; font-size: 80px; color: rgba(255,255,255,0.7); display: none; z-index: 5; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
+/* PROFILE */
+.prof{padding-bottom:90px}
+.banner{height:140px;width:100%;object-fit:cover;background:linear-gradient(135deg,#1a0a14,#0a1220);display:block}
+.bannerWrap{position:relative}
+.bannerWrap .edit{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);padding:7px 12px;border-radius:20px;font-size:11px;font-weight:700;backdrop-filter:blur(6px)}
+.profHead{padding:0 16px;margin-top:-46px;position:relative}
+.avatar{width:96px;height:96px;border-radius:50%;border:4px solid #000;object-fit:cover;background:#222}
+.avatarWrap{position:relative;width:96px}
+.avatarWrap .cam{position:absolute;right:0;bottom:0;width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;border:2px solid #000}
+.profHead .nm{font-size:20px;font-weight:900;margin-top:8px}
+.profHead .em{font-size:12px;color:var(--muted);margin-top:2px}
+.stats{display:flex;gap:26px;padding:16px;margin-top:6px}
+.stats div{text-align:center;font-size:11px;color:var(--muted)}
+.stats div b{display:block;font-size:16px;color:#fff;font-weight:900;margin-bottom:2px}
+.tabs2{display:flex;border-top:1px solid #111;border-bottom:1px solid #111;margin-top:6px}
+.tabs2 button{flex:1;padding:14px;font-size:12px;font-weight:800;color:#777;border-bottom:2px solid transparent}
+.tabs2 button.on{color:#fff;border-color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px}
+.grid .cell{aspect-ratio:9/16;background:#111;overflow:hidden;position:relative}
+.grid .cell video,.grid .cell img{width:100%;height:100%;object-fit:cover}
+.grid .cell .cnt{position:absolute;bottom:4px;left:6px;font-size:10.5px;font-weight:800;text-shadow:0 1px 3px #000}
 
-        .shorts-ui-left { position: absolute; bottom: 30px; left: 15px; width: 75%; z-index: 10; padding-bottom: 10%; }
-        .channel-name { font-size: 16px; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
-        .s-follow-btn { background: #e50914; color: #fff; border: none; padding: 5px 15px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .short-desc { font-size: 13px; color: #ddd; margin-bottom: 10px; }
+/* SHEET */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:flex-end;backdrop-filter:blur(4px)}
+.sheet.show{display:flex}
+.sheet .panel{background:#0e0e0e;width:100%;border-radius:20px 20px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.sheet h4{font-size:15px;font-weight:800;margin-bottom:12px}
+.sheet .item{display:flex;align-items:center;gap:12px;padding:14px 8px;border-radius:12px;font-size:14px;width:100%;text-align:left}
+.sheet .item:active{background:#161616}
+.sheet .item svg{width:20px;height:20px;color:#aaa}
+.sheet .item.danger{color:#ff4d6d}
 
-        .shorts-ui-right { position: absolute; bottom: 30px; right: 10px; display: flex; flex-direction: column; gap: 25px; align-items: center; z-index: 10; padding-bottom: 10%; }
-        .action-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
-        .action-text { font-size: 13px; font-weight: bold; margin-top: 5px; }
-        
-        /* Comment Section (Vertical Half Screen) */
-        #comment-modal { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 60%; background: #111; z-index: 2000; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; flex-direction: column; }
-        .close-comment { align-self: flex-end; cursor: pointer; font-size: 20px; margin-bottom: 10px; }
-        .comment-input-area { display: flex; gap: 10px; margin-top: auto; }
-        .comment-input-area input { flex: 1; padding: 10px; border-radius: 20px; border: none; background: #333; color: white; outline: none; }
-        .comment-input-area button { background: #e50914; border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+/* COMMENTS */
+.cmtSheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:none;align-items:flex-end}
+.cmtSheet.show{display:flex}
+.cmtSheet .panel{background:#0e0e0e;width:100%;height:70vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;animation:up .25s ease}
+.cmtHead{padding:14px 16px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center}
+.cmtHead b{font-size:14px}
+.cmtList{flex:1;overflow-y:auto;padding:8px 12px}
+.cmt{display:flex;gap:10px;padding:10px 4px}
+.cmt img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#222;flex-shrink:0}
+.cmt .cbody{flex:1}
+.cmt .cnm{font-size:12.5px;font-weight:800}
+.cmt .ctx{font-size:13px;line-height:1.35;margin-top:2px;word-break:break-word}
+.cmt .cmeta{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:6px;font-weight:700}
+.cmt .cmeta button{color:var(--muted);font-size:11px;font-weight:700}
+.cmt .cmeta .liked{color:var(--accent)}
+.cmt .replies{margin-left:22px;border-left:1px solid #1e1e1e;padding-left:10px;margin-top:4px}
+.cmtBox{padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #1a1a1a;display:flex;gap:8px;align-items:center;background:#0e0e0e}
+.cmtBox input{flex:1;background:#161616;border:1px solid #222;border-radius:22px;padding:11px 16px;font-size:13.5px;outline:none}
+.cmtBox button{padding:11px 16px;border-radius:22px;background:var(--accent);font-weight:800;font-size:13px;color:#fff}
+.cmtBox button:disabled{opacity:.4}
 
-        /* ========= UPLOAD SCREEN ========= */
-        #upload-screen { padding: 20px; background: #0a0a0a; }
-        .upload-tabs { display: flex; background: #222; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        .up-tab { flex: 1; text-align: center; padding: 15px; font-weight: bold; cursor: pointer; color: #888; transition: 0.3s; }
-        .up-tab.active { background: #e50914; color: #fff; }
-        
-        .upload-form { display: none; flex-direction: column; gap: 15px; }
-        .upload-form.active { display: flex; }
-        
-        .inp-field { background: #222; border: 1px solid #333; color: white; padding: 15px; border-radius: 8px; width: 100%; outline: none; }
-        .char-count { font-size: 11px; color: #888; text-align: right; margin-top: -10px; }
-        
-        .file-select-btn { background: #333; border: 2px dashed #555; padding: 20px; text-align: center; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .upload-action-btn { background: #e50914; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        
-        .progress-box { display: none; margin-top: 15px; }
-        .progress-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
-        .progress-bar-fill { width: 0%; height: 100%; background: #0f0; transition: width 0.3s; }
-        .progress-text { font-size: 12px; color: #aaa; text-align: center; margin-top: 8px; }
+/* TOAST */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:#1a1a1a;padding:11px 18px;border-radius:22px;font-size:13px;z-index:9999;opacity:0;transition:.25s;pointer-events:none;border:1px solid #262626}
+#toast.show{opacity:1}
 
-        /* ========= PROFILE SCREEN ========= */
-        #profile-screen { background: #000; }
-        .banner { width: 100%; height: 180px; background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853') center/cover; position: relative; }
-        .profile-info { text-align: center; padding: 0 20px 20px 20px; position: relative; }
-        .avatar-circle { width: 110px; height: 110px; border-radius: 50%; border: 4px solid #000; margin-top: -55px; object-fit: cover; background: #333; }
-        
-        .profile-stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
-        .stat-item { text-align: center; font-size: 13px; color: #aaa; }
-        .stat-item strong { display: block; font-size: 20px; color: #fff; }
-        
-        .action-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .btn-outline { background: transparent; border: 1px solid #555; color: white; padding: 8px 20px; border-radius: 25px; cursor: pointer; }
-        
-        .auth-box { background: #111; padding: 20px; border-radius: 10px; margin: 20px; }
-        .google-btn { background: #fff; color: #000; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;}
-
-        /* ========= BOTTOM NAVIGATION ========= */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #0a0a0a; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 5000; }
-        .nav-item { color: #666; text-decoration: none; font-size: 11px; display: flex; flex-direction: column; align-items: center; cursor: pointer; gap: 4px; transition: 0.2s; width: 20%; }
-        .nav-item.active { color: #fff; }
-        .nav-item.active .nav-icon { color: #e50914; transform: translateY(-2px); }
-        .nav-icon { font-size: 22px; transition: 0.2s; }
-    </style>
+/* spinner */
+.spin{width:18px;height:18px;border:2px solid #333;border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 
-    <!-- 3 Sec Loading -->
-    <div id="loading-screen">
-        <div class="spinner"></div>
-        <h3 style="color:#fff;">Shaheen Ultra Engine</h3>
-        <p style="color:#888; font-size: 12px; margin-top:10px;">Checking Security & Encryptions...</p>
+<!-- LOADER -->
+<div id="loader">
+  <div class="logo">ShaheenX</div>
+  <div class="bar"><span id="loadBar"></span></div>
+  <div class="status" id="loadStatus">Starting…</div>
+</div>
+
+<!-- AUTH -->
+<div id="auth">
+  <div class="brand">ShaheenX</div>
+  <div class="tag">Create. Share. Go Viral.</div>
+
+  <div id="authFields">
+    <div class="field" id="fName" style="display:none"><input id="inName" placeholder="Channel name" maxlength="24"/></div>
+    <div class="field"><input id="inEmail" type="email" placeholder="Email" autocomplete="email"/></div>
+    <div class="field"><input id="inPass" type="password" placeholder="Password" autocomplete="current-password"/></div>
+  </div>
+
+  <button class="btn primary" id="btnMain">Sign In</button>
+  <button class="btn ghost" id="btnGoogle">
+    <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:-4px;margin-right:8px"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.9 7.1 29.2 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.5-.2-2.9-.4-4.5z"/><path fill="#FF3D00" d="M6.3 15.7l6.6 4.8C14.7 16.2 19 13 24 13c2.8 0 5.4 1.1 7.3 2.8l5.7-5.7C33.9 7.1 29.2 5 24 5 16.3 5 9.7 9.3 6.3 15.7z"/><path fill="#4CAF50" d="M24 45c5.1 0 9.8-2 13.3-5.2l-6.1-5.2C29.3 36 26.8 37 24 37c-5.3 0-9.7-2.6-11.3-7l-6.5 5C9.6 40.5 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.6l6.1 5.2C40.9 36 44 31 44 25c0-1.5-.2-2.9-.4-4.5z"/></svg>
+    Continue with Google
+  </button>
+  <div class="link" id="linkForgot">Forgot password?</div>
+  <div class="switch" id="switchMode">New here? <b>Create account</b></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header id="topbar">
+    <div class="name">ShaheenX</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="active" id="activeBadge" style="display:none">● <span id="activeCount">0</span> active</div>
     </div>
+  </header>
 
-    <div id="app-container">
-        
-        <!-- 1. HOME SCREEN -->
-        <div id="home-screen" class="screen">
-            <div class="top-header">
-                <h2>Shaheen X</h2>
-                <div class="active-users">
-                    <div class="active-dot"></div> 1,204 Active Users
-                </div>
-                <button class="btn-outline" style="border:none; font-size:20px;" onclick="location.reload()">🔄</button>
-            </div>
-            
-            <div class="home-post">
-                <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2" class="home-post-img" alt="Post">
-                <div class="home-post-info">
-                    <div class="home-avatar"></div>
-                    <div>
-                        <h4 style="font-size: 14px;">First Encrypted Image Upload</h4>
-                        <p style="font-size: 12px; color: #888;">@AbdulBasit • 20 views</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <main id="views">
+    <section class="view active" id="view-home"><div class="feed" id="feed"></div></section>
+    <section class="view" id="view-shorts"><div id="shortsWrap"></div></section>
+    <section class="view" id="view-upload"><div class="upl" id="uplWrap"></div></section>
+    <section class="view" id="view-history"><div class="feed" id="histFeed"></div></section>
+    <section class="view" id="view-profile"><div class="prof" id="profWrap"></div></section>
+  </main>
 
-        <!-- 2. SHORTS SCREEN (Full Focus TikTok Style) -->
-        <div id="shorts-screen" class="screen active">
-            <div class="short-container" onclick="togglePlayPause(this)">
-                <video id="s-video" loop autoplay>
-                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                </video>
-                <div id="s-play-pause-logo">S</div>
-                
-                <div class="shorts-ui-left">
-                    <div class="channel-name">
-                        @AbdulBasit <button class="s-follow-btn" onclick="followUser(this)">S-Follow</button>
-                    </div>
-                    <div class="short-desc">World's Best Shaheen X Ultra Update! 🚀🔥</div>
-                </div>
+  <nav id="bottomnav">
+    <button data-tab="home" class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>
+      Home
+    </button>
+    <button data-tab="shorts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+      Shorts
+    </button>
+    <button data-tab="upload">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Upload
+    </button>
+    <button data-tab="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      History
+    </button>
+    <button data-tab="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
+      Profile
+    </button>
+  </nav>
+</div>
 
-                <div class="shorts-ui-right">
-                    <div style="width:45px; height:45px; border-radius:50%; border:2px solid #fff; background:#555;"></div>
-                    <button class="action-btn" onclick="likeShort(this, event)">🤍 <span class="action-text">1.2K</span></button>
-                    <button class="action-btn" onclick="openComments(event)">💬 <span class="action-text">45</span></button>
-                    <button class="action-btn" onclick="shareLink(event)">↪️ <span class="action-text">Share</span></button>
-                </div>
-            </div>
-        </div>
+<!-- SHEETS -->
+<div class="sheet" id="sheet"><div class="panel" id="sheetPanel"></div></div>
+<div class="cmtSheet" id="cmtSheet"><div class="panel">
+  <div class="cmtHead"><b>Comments</b><button onclick="closeComments()" style="color:#aaa">✕</button></div>
+  <div class="cmtList" id="cmtList"></div>
+  <div class="cmtBox">
+    <input id="cmtInput" maxlength="50" placeholder="Add a comment…"/>
+    <button id="cmtSend">Post</button>
+  </div>
+</div></div>
+<div id="toast"></div>
 
-        <!-- 3. UPLOAD SCREEN -->
-        <div id="upload-screen" class="screen">
-            <h2 style="margin-bottom: 20px;">Create Post</h2>
-            <div class="upload-tabs">
-                <div class="up-tab active" onclick="switchUploadTab('up-short')">S-Short</div>
-                <div class="up-tab" onclick="switchUploadTab('up-video')">Video</div>
-                <div class="up-tab" onclick="switchUploadTab('up-image')">Image</div>
-            </div>
+<script type="module">
+/* ============================================================
+   IMPORTS
+============================================================ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, onAuthStateChanged, signOut, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getDatabase, ref, set, get, push, update, onValue, query,
+  orderByChild, limitToLast, serverTimestamp, increment, runTransaction, remove
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-            <!-- Upload S-Short -->
-            <div id="up-short" class="upload-form active">
-                <div>
-                    <input type="text" id="short-title" class="inp-field" placeholder="Short Title" maxlength="50" onkeyup="updateCount('short-title', 'st-count', 50)">
-                    <div class="char-count" id="st-count">0/50</div>
-                </div>
-                <div>
-                    <textarea id="short-desc" class="inp-field" placeholder="Description" rows="3" maxlength="100" onkeyup="updateCount('short-desc', 'sd-count', 100)"></textarea>
-                    <div class="char-count" id="sd-count">0/100</div>
-                </div>
-                <div class="file-select-btn" onclick="document.getElementById('short-file').click()">🎥 Choose Vertical Video</div>
-                <input type="file" id="short-file" style="display:none" accept="video/*">
-                <button class="upload-action-btn" onclick="startUpload('short')">Upload & Compress S-Short</button>
-                
-                <div id="short-progress" class="progress-box">
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="short-fill"></div></div>
-                    <div class="progress-text" id="short-status">Encrypting & Uploading... 0%</div>
-                </div>
-            </div>
+/* ============================================================
+   FIREBASE
+============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAhLi_9NuD1Zh-5o4NYen8GT9i0xwZaz_U",
+  authDomain: "shaheenx-7d9ab.firebaseapp.com",
+  databaseURL: "https://shaheenx-7d9ab-default-rtdb.firebaseio.com",
+  projectId: "shaheenx-7d9ab",
+  storageBucket: "shaheenx-7d9ab.firebasestorage.app",
+  messagingSenderId: "532384586851",
+  appId: "1:532384586851:web:522bfa338a1b346846ec56",
+  measurementId: "G-1JNEYM433J"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getDatabase(fbApp);
+const gProvider = new GoogleAuthProvider();
 
-            <!-- Upload Video & Image sections follow same logic -->
-            <div id="up-video" class="upload-form">
-                <input type="text" class="inp-field" placeholder="Video Title (Max 50)">
-                <div class="file-select-btn">🖼️ Choose Thumbnail</div>
-                <div class="file-select-btn">📼 Choose Video (Max 30 Mins)</div>
-                <button class="upload-action-btn" onclick="startUpload('video')">Upload Video (End-to-End Encrypted)</button>
-                <div id="video-progress" class="progress-box">
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="video-fill"></div></div>
-                    <div class="progress-text" id="video-status">Preparing...</div>
-                </div>
-            </div>
+/* CLOUDINARY */
+const CLOUD_NAME = "dsgicshff";
+const UPLOAD_PRESET = "shaheenx"; // ⚠️ unsigned preset बनाएँ
 
-            <div id="up-image" class="upload-form">
-                <input type="text" class="inp-field" placeholder="Image Title (Max 50)">
-                <div class="file-select-btn">📸 Choose Image</div>
-                <button class="upload-action-btn" onclick="startUpload('image')">Upload Image</button>
-                <div id="image-progress" class="progress-box">
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="img-fill"></div></div>
-                    <div class="progress-text" id="img-status">Preparing...</div>
-                </div>
-            </div>
-        </div>
+/* ============================================================
+   STATE
+============================================================ */
+let ME = null;              // firebase user
+let MEPROF = null;          // profile from RTDB
+let currentTab = "home";
+let postsCache = {};        // id -> post
+let shortsObserver = null;
+let currentShortId = null;
+let viewTimers = {};
+let activeUsers = 0;
 
-        <!-- 4. PROFILE SCREEN -->
-        <div id="profile-screen" class="screen">
-            <div class="banner"></div>
-            <div class="profile-info">
-                <img src="" class="avatar-circle" id="user-profile-pic">
-                <h2 style="margin-top:10px;" id="user-profile-name">@ShaheenUser</h2>
-                <div class="action-buttons" style="margin-top:15px;">
-                    <button class="btn-outline">Update Banner</button>
-                    <button class="btn-outline">Change Profile Pic</button>
-                </div>
-                
-                <div class="profile-stats">
-                    <div class="stat-item"><strong id="f-count">0</strong>S-Followers</div>
-                    <div class="stat-item"><strong>0</strong>S-Following</div>
-                    <div class="stat-item"><strong>0</strong>Posts</div>
-                </div>
-            </div>
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = (id) => document.getElementById(id);
+const esc = (s='') => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n) => {
+  n = Number(n||0);
+  if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return String(n);
+};
+const timeAgo = (t) => {
+  if (!t) return 'just now';
+  const s = Math.floor((Date.now()-t)/1000);
+  if (s < 60) return s+'s';
+  if (s < 3600) return Math.floor(s/60)+'m';
+  if (s < 86400) return Math.floor(s/3600)+'h';
+  if (s < 604800) return Math.floor(s/86400)+'d';
+  return new Date(t).toLocaleDateString();
+};
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+const initialsAvatar = (name='U') => {
+  const ch = (name||'U').trim().charAt(0).toUpperCase();
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%' height='100%' fill='#222'/><text x='50%' y='54%' font-size='54' font-family='sans-serif' fill='#fff' text-anchor='middle' dominant-baseline='middle' font-weight='900'>${ch}</text></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+};
 
-            <div class="auth-box">
-                <h3 style="margin-bottom:15px; text-align:center;">Account Settings (3-Dots Menu)</h3>
-                <button class="google-btn" onclick="loginGoogle()">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="20"> Sign in with Google
-                </button>
-                <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="alert('Switching Account...')">Switch Account</button>
-            </div>
-        </div>
+/* ============================================================
+   LOADER
+============================================================ */
+function setLoad(pct, txt){
+  $('loadBar').style.width = pct+'%';
+  if (txt) $('loadStatus').textContent = txt;
+}
+async function runLoader(){
+  setLoad(10, 'Booting ShaheenX…');
+  await new Promise(r=>setTimeout(r,180));
+  setLoad(35, 'Connecting…');
+  await new Promise(r=>setTimeout(r,180));
+  setLoad(70, 'Preparing feed…');
+  await new Promise(r=>setTimeout(r,200));
+  setLoad(100, 'Ready');
+  await new Promise(r=>setTimeout(r,220));
+  $('loader').style.opacity = '0';
+  setTimeout(()=>{ $('loader').style.display='none'; }, 400);
+}
 
-        <!-- 5. HISTORY SCREEN -->
-        <div id="history-screen" class="screen" style="padding:20px;">
-            <h2>Your Watch History</h2>
-            <p style="color:#888; margin-top:10px;">End-to-End Encrypted History.</p>
-        </div>
+/* ============================================================
+   AUTH UI
+============================================================ */
+let authMode = "login"; // login | register
+function setAuthMode(m){
+  authMode = m;
+  $('fName').style.display = m==='register' ? 'flex' : 'none';
+  $('btnMain').textContent = m==='register' ? 'Create Account' : 'Sign In';
+  $('linkForgot').style.display = m==='login' ? 'block' : 'none';
+  $('switchMode').innerHTML = m==='login' ? 'New here? <b>Create account</b>' : 'Already have an account? <b>Sign in</b>';
+}
+$('switchMode').onclick = () => setAuthMode(authMode==='login'?'register':'login');
 
+$('btnMain').onclick = async () => {
+  const email = $('inEmail').value.trim();
+  const pass  = $('inPass').value;
+  const nm    = $('inName').value.trim();
+  if (!email || !pass) return toast('Fill email and password');
+  if (pass.length < 6) return toast('Password min 6 chars');
+  if (authMode==='register' && !nm) return toast('Enter channel name');
+  $('btnMain').disabled = true;
+  try {
+    if (authMode==='login'){
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: nm });
+    }
+  } catch(e){
+    toast(e.code ? e.code.replace('auth/','').replace(/-/g,' ') : e.message);
+  }
+  $('btnMain').disabled = false;
+};
+
+$('linkForgot').onclick = async () => {
+  const email = $('inEmail').value.trim();
+  if (!email) return toast('Enter email first');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast('Reset link sent to email');
+  } catch(e){ toast(e.message); }
+};
+
+$('btnGoogle').onclick = async () => {
+  try {
+    await signInWithPopup(auth, gProvider);
+  } catch(e){
+    toast(e.code ? e.code.replace('auth/','').replace(/-/g,' ') : e.message);
+  }
+};
+
+/* ============================================================
+   BOOT
+============================================================ */
+(async function boot(){
+  await runLoader();
+  onAuthStateChanged(auth, async (user) => {
+    if (!user){
+      ME = null; MEPROF = null;
+      $('app').style.display = 'none';
+      $('auth').style.display = 'flex';
+      return;
+    }
+    ME = user;
+    $('auth').style.display = 'none';
+    $('app').style.display = 'flex';
+    await ensureProfile(user);
+    startPresence();
+    watchActiveUsers();
+    renderHome();
+    renderUpload();
+    renderProfile();
+    renderHistory();
+    initShorts();
+    go('home');
+    handleDeepLink();
+  });
+})();
+
+/* ============================================================
+   PROFILE
+============================================================ */
+async function ensureProfile(user){
+  const r = ref(db, 'users/'+user.uid);
+  const snap = await get(r);
+  if (!snap.exists()){
+    await set(r, {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: user.displayName || (user.email||'').split('@')[0],
+      channelName: user.displayName || (user.email||'').split('@')[0],
+      photoURL: user.photoURL || '',
+      bannerURL: '',
+      createdAt: Date.now(),
+      followers: {},
+      following: {},
+      postCount: 0
+    });
+  } else {
+    // sync fields
+    const d = snap.val();
+    const patch = {};
+    if (!d.email && user.email) patch.email = user.email;
+    if (!d.photoURL && user.photoURL) patch.photoURL = user.photoURL;
+    if (Object.keys(patch).length) await update(r, patch);
+  }
+  MEPROF = (await get(r)).val();
+}
+
+/* ============================================================
+   PRESENCE + ACTIVE USERS
+============================================================ */
+function startPresence(){
+  const r = ref(db, 'presence/'+ME.uid);
+  const beat = () => set(r, Date.now());
+  beat();
+  setInterval(beat, 25000);
+  window.addEventListener('beforeunload', ()=> set(r, 0));
+}
+function watchActiveUsers(){
+  const r = ref(db, 'presence');
+  onValue(r, (snap) => {
+    const now = Date.now();
+    let c = 0;
+    snap.forEach(ch => {
+      const t = ch.val();
+      if (t && now - t < 90000) c++;
+    });
+    activeUsers = c;
+    $('activeBadge').style.display = 'flex';
+    $('activeCount').textContent = c;
+  });
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+function go(tab){
+  currentTab = tab;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('#bottomnav button').forEach(b=>b.classList.remove('on'));
+  const v = $('view-'+tab);
+  if (v) v.classList.add('active');
+  const b = document.querySelector(`#bottomnav button[data-tab="${tab}"]`);
+  if (b) b.classList.add('on');
+  if (tab === 'home') renderHome();
+  if (tab === 'profile') renderProfile();
+  if (tab === 'history') renderHistory();
+  if (tab === 'shorts') {
+    setTimeout(()=>{ const f = document.querySelector('.shorts-item video'); f && f.play().catch(()=>{}); }, 200);
+  } else {
+    document.querySelectorAll('.shorts-item video').forEach(v=>v.pause());
+  }
+}
+document.querySelectorAll('#bottomnav button').forEach(b=>{
+  b.onclick = () => go(b.dataset.tab);
+});
+
+/* ============================================================
+   HOME FEED
+============================================================ */
+async function fetchPosts(limit=60){
+  const q = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(limit));
+  const snap = await get(q);
+  const arr = [];
+  snap.forEach(ch => arr.push({ id: ch.key, ...ch.val() }));
+  return arr.reverse();
+}
+
+async function renderHome(){
+  const feed = $('feed');
+  feed.innerHTML = `<div class="empty"><div class="spin"></div><p style="margin-top:12px">Loading feed…</p></div>`;
+  try {
+    const posts = (await fetchPosts()).filter(p => p.type !== 'short');
+    posts.forEach(p => postsCache[p.id] = p);
+    if (!posts.length){
+      feed.innerHTML = `<div class="empty"><h3>No posts yet</h3><p>Be the first to upload something amazing.</p></div>`;
+      return;
+    }
+    feed.innerHTML = posts.map(cardHTML).join('');
+    attachCardEvents(feed);
+  } catch(e){
+    feed.innerHTML = `<div class="empty"><h3>Couldn't load feed</h3><p>${esc(e.message)}</p></div>`;
+  }
+}
+
+function cardHTML(p){
+  const isShort = p.type === 'short';
+  const media = isShort
+    ? `<video class="media" src="${p.url}" playsinline preload="metadata" poster="${p.thumb||''}"></video>`
+    : p.type === 'image'
+      ? `<img class="media" src="${p.url}" loading="lazy"/>`
+      : `<video class="media" src="${p.url}" controls playsinline preload="metadata" poster="${p.thumb||''}"></video>`;
+  return `
+  <div class="card" data-id="${p.id}">
+    <div class="head">
+      <img src="${p.photoURL || initialsAvatar(p.channelName||'U')}" onerror="this.src='${initialsAvatar('U')}'"/>
+      <div style="flex:1">
+        <div class="nm">${esc(p.channelName || p.displayName || 'User')}</div>
+        <div class="tm">${timeAgo(p.createdAt)}</div>
+      </div>
     </div>
-
-    <!-- COMMENT MODAL -->
-    <div id="comment-modal">
-        <div class="close-comment" onclick="closeComments()">✖</div>
-        <h3 style="margin-bottom:15px;">Comments</h3>
-        <div style="flex:1; overflow-y:auto; color:#aaa; font-size:13px;">No comments yet. Be the first!</div>
-        <div class="comment-input-area">
-            <input type="text" placeholder="Write a comment (Max 50 chars)..." maxlength="50">
-            <button>Post</button>
-        </div>
+    ${media}
+    <div class="body">
+      <div class="ttl">${esc(p.title||'')}</div>
+      ${p.description ? `<div class="dsc">${esc(p.description)}</div>` : ''}
     </div>
+    <div class="acts">
+      <button data-act="like" class="${p.likes && p.likes[ME.uid]?'liked':''}">
+        <svg viewBox="0 0 24 24" fill="${p.likes && p.likes[ME.uid]?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <span>${fmt(Object.keys(p.likes||{}).length)}</span>
+      </button>
+      <button data-act="comment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg>
+        <span>${fmt(Object.keys(p.comments||{}).length)}</span>
+      </button>
+      <button data-act="share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        <span>Share</span>
+      </button>
+    </div>
+  </div>`;
+}
 
-    <!-- FIXED BOTTOM NAVIGATION -->
-    <nav class="bottom-nav">
-        <div class="nav-item" onclick="switchNav('home-screen', this)">
-            <span class="nav-icon">🏠</span><span>Home</span>
-        </div>
-        <div class="nav-item active" onclick="switchNav('shorts-screen', this)">
-            <span class="nav-icon">⚡</span><span>S-Shorts</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('upload-screen', this)">
-            <span class="nav-icon">➕</span><span>Upload</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('profile-screen', this)">
-            <span class="nav-icon">👤</span><span>Profile</span>
-        </div>
-        <div class="nav-item" onclick="switchNav('history-screen', this)">
-            <span class="nav-icon">🕒</span><span>History</span>
-        </div>
-    </nav>
+function attachCardEvents(root){
+  root.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id;
+    card.querySelectorAll('[data-act]').forEach(btn=>{
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const act = btn.dataset.act;
+        if (act === 'like') toggleLike(id, btn);
+        if (act === 'comment') openComments(id);
+        if (act === 'share') sharePost(id);
+      };
+    });
+  });
+}
 
-    <script>
-        // --- 1. Bottom Navigation Logic (Flawless Switching) ---
-        function switchNav(screenId, navElement) {
-            // Hide all screens
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            // Remove active state from nav
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            // Show selected
-            document.getElementById(screenId).classList.add('active');
-            navElement.classList.add('active');
+/* ============================================================
+   LIKE
+============================================================ */
+async function toggleLike(postId, btn){
+  const uid = ME.uid;
+  const likeRef = ref(db, `posts/${postId}/likes/${uid}`);
+  const snap = await get(likeRef);
+  if (snap.exists()){
+    await remove(likeRef);
+    btn.classList.remove('liked');
+    btn.querySelector('svg').setAttribute('fill','none');
+  } else {
+    await set(likeRef, true);
+    btn.classList.add('liked');
+    btn.querySelector('svg').setAttribute('fill','currentColor');
+  }
+  const p = postsCache[postId];
+  if (p){
+    p.likes = p.likes || {};
+    if (snap.exists()) delete p.likes[uid]; else p.likes[uid] = true;
+    btn.querySelector('span').textContent = fmt(Object.keys(p.likes).length);
+  }
+}
 
-            // Video Play/Pause Management
-            let vid = document.getElementById('s-video');
-            if(screenId === 'shorts-screen') { vid.play(); } 
-            else { vid.pause(); }
-        }
+/* ============================================================
+   SHARE
+============================================================ */
+async function sharePost(postId){
+  const url = location.origin + location.pathname + '?post=' + postId;
+  try {
+    if (navigator.share){
+      await navigator.share({ title: 'ShaheenX', text: 'Check this out', url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast('Link copied');
+    }
+  } catch(e){}
+}
 
-        // --- 2. Upload Categories Logic ---
-        function switchUploadTab(tabId) {
-            document.querySelectorAll('.upload-form').forEach(f => f.classList.remove('active'));
-            document.querySelectorAll('.up-tab').forEach(t => t.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-        }
+/* ============================================================
+   SHORTS
+============================================================ */
+function initShorts(){
+  watchShorts();
+}
 
-        // --- 3. Shorts Video Play/Pause & 'S' Logo ---
-        function togglePlayPause(container) {
-            let vid = container.querySelector('video');
-            let logo = document.getElementById('s-play-pause-logo');
-            
-            if (vid.paused) {
-                vid.play();
-                logo.style.display = 'none';
-            } else {
-                vid.pause();
-                logo.style.display = 'block';
-            }
-        }
+function watchShorts(){
+  const q = query(ref(db, 'posts'), orderByChild('createdAt'), limitToLast(80));
+  onValue(q, (snap)=>{
+    const wrap = $('shortsWrap');
+    const prevScroll = wrap.scrollTop;
+    const arr = [];
+    snap.forEach(ch => {
+      const v = ch.val();
+      if (v.type === 'short') arr.push({ id: ch.key, ...v });
+    });
+    arr.reverse();
+    arr.forEach(p => postsCache[p.id] = p);
+    if (!arr.length){
+      wrap.innerHTML = `<div class="shorts-item" style="flex-direction:column;gap:8px"><h3>No shorts yet</h3><p style="color:#888;font-size:13px">Upload the first one!</p></div>`;
+      return;
+    }
+    wrap.innerHTML = arr.map(shortHTML).join('');
+    wrap.scrollTop = prevScroll;
+    setupShortObservers(wrap);
+  });
+}
 
-        // --- 4. Shorts Like Button (No Replay on Like) ---
-        function likeShort(btn, e) {
-            e.stopPropagation(); // Prevents video pause
-            if(btn.innerHTML.includes('🤍')) {
-                btn.innerHTML = '❤️ <span class="action-text">1.2K+1</span>';
-                btn.style.color = '#e50914';
-            } else {
-                btn.innerHTML = '🤍 <span class="action-text">1.2K</span>';
-                btn.style.color = 'white';
-            }
-        }
+function shortHTML(p){
+  const liked = p.likes && p.likes[ME.uid];
+  const following = MEPROF?.following && MEPROF.following[p.uid];
+  return `
+  <div class="shorts-item" data-id="${p.id}">
+    <video src="${p.url}" playsinline loop preload="metadata" poster="${p.thumb||''}" muted></video>
+    <div class="shorts-info">
+      <div class="row">
+        <img src="${p.photoURL || initialsAvatar(p.channelName||'U')}"/>
+        <div class="nm">@${esc(p.channelName || 'user')}</div>
+        ${p.uid !== ME.uid ? `<button data-act="follow" data-uid="${p.uid}" class="${following?'following':''}">${following?'Following':'Follow'}</button>` : ''}
+      </div>
+      <div class="ttl">${esc(p.title||'')}</div>
+      ${p.description ? `<div class="dsc">${esc(p.description)}</div>` : ''}
+    </div>
+    <div class="shorts-side">
+      <button data-act="like" class="${liked?'liked':''}">
+        <svg viewBox="0 0 24 24" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <span>${fmt(Object.keys(p.likes||{}).length)}</span>
+      </button>
+      <button data-act="comment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 0 1 8-8h2a8 8 0 0 1 8 3z"/></svg>
+        <span>${fmt(Object.keys(p.comments||{}).length)}</span>
+      </button>
+      <button data-act="share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        <span>Share</span>
+      </button>
+      <button data-act="save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+        <span>Save</span>
+      </button>
+    </div>
+    <div id="pp-${p.id}" class="playPause"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+  </div>`;
+}
 
-        // --- 5. Follow Button Logic ---
-        let followers = 0;
-        function followUser(btn) {
-            e = window.event; e.stopPropagation();
-            if(btn.innerText === 'S-Follow') {
-                btn.innerText = 'Following';
-                btn.style.background = '#333';
-                followers++;
-            } else {
-                btn.innerText = 'S-Follow';
-                btn.style.background = '#e50914';
-                followers--;
-            }
-            document.getElementById('f-count').innerText = followers;
-        }
+function setupShortObservers(wrap){
+  if (shortsObserver) shortsObserver.disconnect();
+  shortsObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(async (e)=>{
+      const item = e.target;
+      const vid = item.querySelector('video');
+      const id = item.dataset.id;
+      if (e.isIntersecting && e.intersectionRatio > 0.6){
+        document.querySelectorAll('.shorts-item video').forEach(v => { if (v !== vid) v.pause(); });
+        vid.muted = false;
+        try { await vid.play(); } catch(e){ vid.muted = true; await vid.play().catch(()=>{}); }
+        currentShortId = id;
+        markHistory(id);
+        startViewTimer(id, vid);
+      } else {
+        vid.pause();
+        stopViewTimer(id);
+      }
+    });
+  }, { threshold: [0, 0.6, 1], root: wrap });
 
-        // --- 6. Character Count Logic ---
-        function updateCount(inputId, countId, max) {
-            let val = document.getElementById(inputId).value.length;
-            document.getElementById(countId).innerText = val + "/" + max;
-        }
+  wrap.querySelectorAll('.shorts-item').forEach(it => shortsObserver.observe(it));
 
-        // --- 7. Real-time Progress Bar (No Hanging UI) ---
-        function startUpload(type) {
-            let box = document.getElementById(type + '-progress');
-            let fill = document.getElementById(type === 'image' ? 'img-fill' : type + '-fill');
-            let status = document.getElementById(type === 'image' ? 'img-status' : type + '-status');
-            
-            box.style.display = 'block';
-            status.innerText = "Connecting to Cloudinary & Supabase...";
-            status.style.color = "#fff";
-            
-            let width = 0;
-            // Simulated upload that doesn't block the browser
-            let interval = setInterval(() => {
-                width += Math.random() * 4; 
-                if(width >= 100) {
-                    clearInterval(interval);
-                    fill.style.width = '100%';
-                    status.innerText = "100% Uploaded & Encrypted successfully!";
-                    status.style.color = "#0f0";
-                    setTimeout(() => { box.style.display='none'; fill.style.width='0%'; }, 3000);
-                } else {
-                    fill.style.width = width + '%';
-                    status.innerText = `Compressing & Uploading... ${Math.round(width)}%`;
-                }
-            }, 400); // Runs smoothly in background
-        }
+  // events
+  wrap.querySelectorAll('.shorts-item').forEach(item=>{
+    const id = item.dataset.id;
+    const vid = item.querySelector('video');
+    const pp = item.querySelector('.playPause');
 
-        // --- 8. Share Link ---
-        function shareLink(e) {
-            e.stopPropagation();
-            alert("Real Link Generated: https://shaheenx.app/short/9823");
-        }
+    item.addEventListener('click', (e)=>{
+      if (e.target.closest('button')) return;
+      if (vid.paused){
+        vid.play();
+        pp.querySelector('svg').innerHTML = '<path d="M8 5v14l11-7z"/>';
+        pp.classList.add('show');
+        setTimeout(()=>pp.classList.remove('show'), 450);
+      } else {
+        vid.pause();
+        pp.querySelector('svg').innerHTML = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+        pp.classList.add('show');
+      }
+    });
 
-        // --- 9. Comments Modal ---
-        function openComments(e) { e.stopPropagation(); document.getElementById('comment-modal').style.display = 'flex'; }
-        function closeComments() { document.getElementById('comment-modal').style.display = 'none'; }
+    item.querySelectorAll('[data-act]').forEach(btn=>{
+      btn.onclick = async (e)=>{
+        e.stopPropagation();
+        const act = btn.dataset.act;
+        if (act === 'like') await toggleShortLike(id, btn);
+        if (act === 'comment') openComments(id);
+        if (act === 'share') sharePost(id);
+        if (act === 'save') toast('Saved to your list');
+        if (act === 'follow') await toggleFollow(btn.dataset.uid, btn);
+      };
+    });
+  });
+}
 
-        // --- 10. Google Auth ---
-        function loginGoogle() {
-            signInWithPopup(window.auth, window.provider)
-            .then((result) => {
-                alert("Welcome to Shaheen Ultra, " + result.user.displayName + "!");
-            }).catch((error) => {
-                alert("Login Error: " + error.message);
-            });
-        }
-    </script>
+async function toggleShortLike(postId, btn){
+  const uid = ME.uid;
+  const r = ref(db, `posts/${postId}/likes/${uid}`);
+  const s = await get(r);
+  if (s.exists()){
+    await remove(r);
+    btn.classList.remove('liked');
+    btn.querySelector('svg').setAttribute('fill','none');
+  } else {
+    await set(r, true);
+    btn.classList.add('liked');
+    btn.querySelector('svg').setAttribute('fill','currentColor');
+  }
+  const p = postsCache[postId];
+  if (p){
+    p.likes = p.likes || {};
+    if (s.exists()) delete p.likes[uid]; else p.likes[uid] = true;
+    btn.querySelector('span').textContent = fmt(Object.keys(p.likes).length);
+  }
+}
+
+function startViewTimer(id, vid){
+  if (viewTimers[id]) return;
+  const key = `viewed/${ME.uid}/${id}`;
+  viewTimers[id] = setTimeout(async ()=>{
+    // check if not viewed before
+    const viewedRef = ref(db, `views/${id}/${ME.uid}`);
+    const s = await get(viewedRef);
+    if (s.exists()) return;
+    await set(viewedRef, Date.now());
+    await runTransaction(ref(db, `posts/${id}/views`), (cur) => (cur||0) + 1);
+  }, 5000);
+}
+function stopViewTimer(id){
+  if (viewTimers[id]){ clearTimeout(viewTimers[id]); delete viewTimers[id]; }
+}
+
+/* ============================================================
+   FOLLOW
+============================================================ */
+async function toggleFollow(targetUid, btn){
+  if (!targetUid || targetUid === ME.uid) return;
+  const myFollowRef = ref(db, `users/${ME.uid}/following/${targetUid}`);
+  const theirFollowerRef = ref(db, `users/${targetUid}/followers/${ME.uid}`);
+  const s = await get(myFollowRef);
+  if (s.exists()){
+    await remove(myFollowRef);
+    await remove(theirFollowerRef);
+    btn.classList.remove('following');
+    btn.textContent = 'Follow';
+    if (MEPROF?.following) delete MEPROF.following[targetUid];
+  } else {
+    await set(myFollowRef, true);
+    await set(theirFollowerRef, true);
+    btn.classList.add('following');
+    btn.textContent = 'Following';
+    MEPROF.following = MEPROF.following || {};
+    MEPROF.following[targetUid] = true;
+  }
+}
+
+/* ============================================================
+   COMMENTS
+============================================================ */
+let currentCommentPost = null;
+function openComments(postId){
+  currentCommentPost = postId;
+  $('cmtSheet').classList.add('show');
+  renderComments(postId);
+}
+window.closeComments = () => {
+  $('cmtSheet').classList.remove('show');
+  currentCommentPost = null;
+};
+$('cmtSheet').addEventListener('click', (e)=>{ if (e.target === $('cmtSheet')) closeComments(); });
+
+async function renderComments(postId){
+  const list = $('cmtList');
+  list.innerHTML = `<div style="text-align:center;padding:20px"><div class="spin"></div></div>`;
+  const r = ref(db, `posts/${postId}/comments`);
+  const s = await get(r);
+  const arr = [];
+  s.forEach(ch => arr.push({ id: ch.key, ...ch.val() }));
+  arr.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+
+  if (!arr.length){ list.innerHTML = `<div class="empty"><p>No comments yet. Be first!</p></div>`; return; }
+
+  list.innerHTML = arr.map(c => commentHTML(c, postId)).join('');
+
+  // bind
+  list.querySelectorAll('[data-cmt-like]').forEach(b=>{
+    b.onclick = async () => {
+      const cid = b.dataset.cmtLike;
+      const likeRef = ref(db, `posts/${postId}/comments/${cid}/likes/${ME.uid}`);
+      const s2 = await get(likeRef);
+      if (s2.exists()) await remove(likeRef); else await set(likeRef, true);
+      renderComments(postId);
+    };
+  });
+  list.querySelectorAll('[data-cmt-reply]').forEach(b=>{
+    b.onclick = async () => {
+      const cid = b.dataset.cmtReply;
+      const text = prompt('Reply (max 50)');
+      if (!text) return;
+      const t = text.slice(0,50);
+      const rr = push(ref(db, `posts/${postId}/comments/${cid}/replies`));
+      await set(rr, {
+        uid: ME.uid,
+        name: MEPROF.channelName || MEPROF.displayName || 'User',
+        photoURL: MEPROF.photoURL || '',
+        text: t,
+        createdAt: Date.now()
+      });
+      renderComments(postId);
+    };
+  });
+}
+
+function commentHTML(c, postId){
+  const likes = Object.keys(c.likes||{}).length;
+  const liked = c.likes && c.likes[ME.uid];
+  const replies = c.replies ? Object.entries(c.replies).map(([k,v])=>({id:k,...v})) : [];
+  return `
+  <div class="cmt">
+    <img src="${c.photoURL || initialsAvatar(c.name||'U')}"/>
+    <div class="cbody">
+      <div class="cnm">${esc(c.name||'User')}</div>
+      <div class="ctx">${esc(c.text||'')}</div>
+      <div class="cmeta">
+        <button data-cmt-like="${c.id}" class="${liked?'liked':''}">♥ ${likes}</button>
+        <button data-cmt-reply="${c.id}">Reply</button>
+        <span>${timeAgo(c.createdAt)}</span>
+      </div>
+      ${replies.length ? `<div class="replies">${replies.map(r=>`
+        <div style="padding:6px 0">
+          <div class="cnm" style="font-size:11.5px">${esc(r.name||'User')}</div>
+          <div class="ctx" style="font-size:12.5px">${esc(r.text||'')}</div>
+        </div>`).join('')}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+$('cmtSend').onclick = async () => {
+  if (!currentCommentPost) return;
+  const inp = $('cmtInput');
+  const text = inp.value.trim().slice(0,50);
+  if (!text) return;
+  // limit 3 comments per user
+  const r = ref(db, `posts/${currentCommentPost}/comments`);
+  const s = await get(r);
+  let mine = 0;
+  s.forEach(ch => { if (ch.val().uid === ME.uid) mine++; });
+  if (mine >= 3) return toast('Max 3 comments per post');
+  const nr = push(r);
+  await set(nr, {
+    uid: ME.uid,
+    name: MEPROF.channelName || MEPROF.displayName || 'User',
+    photoURL: MEPROF.photoURL || '',
+    text,
+    createdAt: Date.now()
+  });
+  inp.value = '';
+  renderComments(currentCommentPost);
+};
+
+/* ============================================================
+   UPLOAD
+============================================================ */
+let uplType = "short";
+let uplFile = null;
+function renderUpload(){
+  const w = $('uplWrap');
+  w.innerHTML = `
+    <div class="tabs">
+      <button data-t="short" class="${uplType==='short'?'on':''}">Short</button>
+      <button data-t="video" class="${uplType==='video'?'on':''}">Video</button>
+      <button data-t="image" class="${uplType==='image'?'on':''}">Image</button>
+    </div>
+    <div class="drop" id="drop">
+      <p id="dropTitle">Tap to select ${uplType==='image'?'an image':'a video'}</p>
+      <small>${uplType==='short'?'Vertical video, up to 30 min':'Choose from your gallery, up to 30 min'}</small>
+    </div>
+    <input id="fileInput" type="file" accept="${uplType==='image'?'image/*':'video/*'}" style="display:none"/>
+    <div id="prevWrap"></div>
+    <label>Title <span style="color:#666">(${uplType==='image'?'50':'50'} max)</span></label>
+    <input type="text" id="tTitle" maxlength="50" placeholder="Give it a title…"/>
+    <div class="count" id="cTitle">0/50</div>
+    <label>Description</label>
+    <textarea id="tDesc" rows="3" maxlength="100" placeholder="Say something…"></textarea>
+    <div class="count" id="cDesc">0/100</div>
+    <button class="submit" id="btnUpload">Upload ${uplType[0].toUpperCase()+uplType.slice(1)}</button>
+    <div class="progress" id="prog">
+      <div class="track"><i id="progBar"></i></div>
+      <div class="lbl"><span id="progTxt">Uploading…</span><span id="progPct">0%</span></div>
+    </div>
+  `;
+  w.querySelectorAll('.tabs button').forEach(b=>{
+    b.onclick = ()=>{ uplType = b.dataset.t; uplFile = null; renderUpload(); };
+  });
+  const drop = $('drop');
+  const fi = $('fileInput');
+  drop.onclick = ()=> fi.click();
+  fi.onchange = () => {
+    const f = fi.files[0];
+    if (!f) return;
+    if (uplType !== 'image' && f.size > 500 * 1024 * 1024) return toast('Max 500MB');
+    uplFile = f;
+    const wrap = $('prevWrap');
+    const url = URL.createObjectURL(f);
+    wrap.innerHTML = uplType==='image'
+      ? `<img class="prev" src="${url}"/>`
+      : `<video class="prev" src="${url}" controls playsinline></video>`;
+    $('dropTitle').textContent = 'Change file';
+  };
+  $('tTitle').oninput = e => $('cTitle').textContent = `${e.target.value.length}/50`;
+  $('tDesc').oninput = e => $('cDesc').textContent = `${e.target.value.length}/100`;
+  $('btnUpload').onclick = doUpload;
+}
+
+async function doUpload(){
+  const title = $('tTitle').value.trim();
+  const desc  = $('tDesc').value.trim();
+  if (!uplFile) return toast('Select a file first');
+  if (!title)   return toast('Title required');
+
+  $('btnUpload').disabled = true;
+  $('prog').classList.add('show');
+  setProg(0, 'Preparing…');
+
+  try {
+    const resourceType = uplType === 'image' ? 'image' : 'video';
+    const url = await uploadToCloudinary(uplFile, resourceType, (pct)=>{
+      setProg(pct, pct < 99 ? `Uploading… ${pct}%` : 'Processing…');
+    });
+
+    setProg(100, 'Saving…');
+    const thumb = resourceType === 'video'
+      ? url.replace('/upload/', '/upload/so_0/').replace(/\.(mp4|mov|webm)$/i, '.jpg')
+      : url;
+
+    const postRef = push(ref(db, 'posts'));
+    await set(postRef, {
+      id: postRef.key,
+      uid: ME.uid,
+      displayName: MEPROF.displayName || '',
+      channelName: MEPROF.channelName || MEPROF.displayName || 'User',
+      photoURL: MEPROF.photoURL || '',
+      type: uplType,
+      url,
+      thumb,
+      title,
+      description: desc,
+      createdAt: Date.now(),
+      views: 0,
+      likes: {},
+      comments: {}
+    });
+    await update(ref(db, 'users/'+ME.uid), { postCount: increment(1) });
+
+    toast('Uploaded successfully 🎉');
+    uplFile = null;
+    renderUpload();
+    renderProfile();
+    if (uplType === 'short') { go('shorts'); }
+    else { go('home'); }
+  } catch(e){
+    console.error(e);
+    toast('Upload failed: ' + (e.message || 'try again'));
+    $('btnUpload').disabled = false;
+    $('prog').classList.remove('show');
+  }
+}
+
+function setProg(pct, txt){
+  $('progBar').style.width = pct + '%';
+  $('progPct').textContent = pct + '%';
+  if (txt) $('progTxt').textContent = txt;
+}
+
+function uploadToCloudinary(file, resourceType, onProgress){
+  return new Promise((resolve, reject)=>{
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    fd.append('folder', 'shaheenx');
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`);
+    xhr.upload.onprogress = (e)=>{
+      if (e.lengthComputable){
+        const pct = Math.round((e.loaded / e.total) * 99);
+        onProgress(pct);
+      }
+    };
+    xhr.onload = () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (data.secure_url) resolve(data.secure_url);
+        else reject(new Error(data.error?.message || 'Upload error'));
+      } catch(e){ reject(new Error('Bad response')); }
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(fd);
+  });
+}
+
+/* ============================================================
+   HISTORY
+============================================================ */
+async function markHistory(postId){
+  try { await set(ref(db, `history/${ME.uid}/${postId}`), Date.now()); } catch(e){}
+}
+
+async function renderHistory(){
+  const feed = $('histFeed');
+  feed.innerHTML = `<div class="empty"><div class="spin"></div></div>`;
+  const s = await get(ref(db, `history/${ME.uid}`));
+  const ids = [];
+  s.forEach(ch => ids.push({ id: ch.key, t: ch.val() }));
+  ids.sort((a,b)=> b.t - a.t);
+  const posts = [];
+  for (const x of ids.slice(0,50)){
+    const p = postsCache[x.id] || (await get(ref(db, 'posts/'+x.id))).val();
+    if (p) { p.id = x.id; posts.push(p); }
+  }
+  if (!posts.length){
+    feed.innerHTML = `<div class="empty"><h3>No history yet</h3><p>Videos you watch will appear here.</p></div>`;
+    return;
+  }
+  feed.innerHTML = posts.map(cardHTML).join('');
+  attachCardEvents(feed);
+}
+
+/* ============================================================
+   PROFILE
+============================================================ */
+async function renderProfile(){
+  const w = $('profWrap');
+  const u = MEPROF || {};
+  const followers = Object.keys(u.followers||{}).length;
+  const following = Object.keys(u.following||{}).length;
+
+  w.innerHTML = `
+    <div class="bannerWrap">
+      <img class="banner" src="${u.bannerURL || ''}" onerror="this.style.background='linear-gradient(135deg,#1a0a14,#0a1220)';this.removeAttribute('src')"/>
+      <button class="edit" id="btnBanner">Update banner</button>
+    </div>
+    <div class="profHead">
+      <div class="avatarWrap">
+        <img class="avatar" src="${u.photoURL || initialsAvatar(u.channelName||'U')}" onerror="this.src='${initialsAvatar('U')}'"/>
+        <button class="cam" id="btnPic">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+      </div>
+      <div class="nm">${esc(u.channelName || u.displayName || 'User')}</div>
+      <div class="em">${esc(u.email||'')}</div>
+    </div>
+    <div class="stats">
+      <div><b>${fmt(u.postCount||0)}</b>Posts</div>
+      <div><b>${fmt(followers)}</b>Followers</div>
+      <div><b>${fmt(following)}</b>Following</div>
+      <div style="margin-left:auto"><button id="btnDots" style="padding:8px 14px;border-radius:20px;background:#111;font-size:12px;font-weight:800">⋯</button></div>
+    </div>
+    <div class="tabs2">
+      <button class="on" data-pt="posts">Posts</button>
+      <button data-pt="shorts">Shorts</button>
+      <button data-pt="about">About</button>
+    </div>
+    <div id="profContent"></div>
+  `;
+
+  $('btnPic').onclick = pickProfilePic;
+  $('btnBanner').onclick = pickBanner;
+  $('btnDots').onclick = openProfileMenu;
+
+  let ptab = 'posts';
+  w.querySelectorAll('.tabs2 button').forEach(b=>{
+    b.onclick = ()=>{
+      w.querySelectorAll('.tabs2 button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      ptab = b.dataset.pt;
+      renderProfContent(ptab);
+    };
+  });
+  renderProfContent(ptab);
+}
+
+async function renderProfContent(tab){
+  const c = $('profContent');
+  if (!c) return;
+  c.innerHTML = `<div style="padding:20px;text-align:center"><div class="spin"></div></div>`;
+
+  if (tab === 'about'){
+    c.innerHTML = `
+      <div style="padding:16px;font-size:13px;line-height:1.7;color:#ccc">
+        <div><b style="color:#fff">Channel:</b> ${esc(MEPROF.channelName||'')}</div>
+        <div><b style="color:#fff">Email:</b> ${esc(MEPROF.email||'')}</div>
+        <div><b style="color:#fff">Joined:</b> ${new Date(MEPROF.createdAt||Date.now()).toLocaleDateString()}</div>
+        <div><b style="color:#fff">Account ID:</b> ${esc(ME.uid)}</div>
+      </div>`;
+    return;
+  }
+
+  const q = query(ref(db,'posts'), orderByChild('createdAt'), limitToLast(120));
+  const s = await get(q);
+  const mine = [];
+  s.forEach(ch => {
+    const v = ch.val();
+    if (v.uid === ME.uid){
+      if (tab === 'shorts' && v.type === 'short') mine.push({id: ch.key, ...v});
+      if (tab === 'posts' && v.type !== 'short') mine.push({id: ch.key, ...v});
+    }
+  });
+  mine.reverse();
+
+  if (!mine.length){
+    c.innerHTML = `<div class="empty"><p>No ${tab} yet.</p></div>`;
+    return;
+  }
+
+  c.innerHTML = `<div class="grid">${mine.map(p=>`
+    <div class="cell">
+      ${p.type==='image'
+        ? `<img src="${p.url}" loading="lazy"/>`
+        : `<video src="${p.url}" muted playsinline preload="metadata" poster="${p.thumb||''}"></video>`}
+      <div class="cnt">▶ ${fmt(p.views||0)}</div>
+    </div>`).join('')}</div>`;
+}
+
+/* ---------- profile edit actions ---------- */
+function pickProfilePic(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async ()=>{
+    const f = inp.files[0]; if (!f) return;
+    toast('Uploading…');
+    try {
+      const url = await uploadToCloudinary(f, 'image', ()=>{});
+      await update(ref(db, 'users/'+ME.uid), { photoURL: url });
+      await updateProfile(ME, { photoURL: url });
+      MEPROF.photoURL = url;
+      renderProfile();
+      toast('Profile picture updated');
+    } catch(e){ toast('Failed'); }
+  };
+  inp.click();
+}
+
+function pickBanner(){
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async ()=>{
+    const f = inp.files[0]; if (!f) return;
+    toast('Uploading…');
+    try {
+      const url = await uploadToCloudinary(f, 'image', ()=>{});
+      await update(ref(db, 'users/'+ME.uid), { bannerURL: url });
+      MEPROF.bannerURL = url;
+      renderProfile();
+      toast('Banner updated');
+    } catch(e){ toast('Failed'); }
+  };
+  inp.click();
+}
+
+function openProfileMenu(){
+  const html = `
+    <h4>Account</h4>
+    <button class="item" id="mEditName">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5l4 4-11 11H5v-4z"/></svg>
+      Change channel name
+    </button>
+    <button class="item" id="mSwitch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>
+      Switch account
+    </button>
+    <button class="item" id="mAdd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M2 21c0-4 4-7 10-7"/><path d="M19 14v6M16 17h6"/></svg>
+      Add another account
+    </button>
+    <button class="item danger" id="mOut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      Sign out
+    </button>
+  `;
+  openSheet(html);
+  $('mEditName').onclick = async ()=>{
+    const nm = prompt('New channel name (max 24)', MEPROF.channelName||'');
+    if (!nm) return;
+    await update(ref(db, 'users/'+ME.uid), { channelName: nm.slice(0,24) });
+    MEPROF.channelName = nm.slice(0,24);
+    closeSheet(); renderProfile(); toast('Channel name updated');
+  };
+  $('mSwitch').onclick = ()=>{ closeSheet(); authMode='login'; setAuthMode('login'); signOut(auth); };
+  $('mAdd').onclick = async ()=>{ closeSheet(); try { await signInWithPopup(auth, gProvider); } catch(e){ toast(e.message); } };
+  $('mOut').onclick = async ()=>{ closeSheet(); await signOut(auth); };
+}
+
+/* ============================================================
+   SHEET
+============================================================ */
+function openSheet(html){
+  $('sheetPanel').innerHTML = html;
+  $('sheet').classList.add('show');
+}
+function closeSheet(){ $('sheet').classList.remove('show'); }
+$('sheet').addEventListener('click', (e)=>{ if (e.target === $('sheet')) closeSheet(); });
+
+/* ============================================================
+   DEEP LINK
+============================================================ */
+function handleDeepLink(){
+  const p = new URLSearchParams(location.search).get('post');
+  if (!p) return;
+  setTimeout(()=>{
+    postsCache[p] && go(postsCache[p].type === 'short' ? 'shorts' : 'home');
+  }, 600);
+}
+</script>
 </body>
 </html>
